@@ -1,0 +1,6 @@
+SOURCE = \
+adjointOutletPressureHeat/adjointOutletPressureHeatFvPatchScalarField.C \
+adjointOutletVelocityHeat/adjointOutletVelocityHeatFvPatchVectorField.C \
+adjointOutletPressurePower/adjointOutletPressurePowerFvPatchScalarField.C \
+adjointOutletVelocityPower/adjointOutletVelocityPowerFvPatchVectorField.C \
+MTO_TF.C 
