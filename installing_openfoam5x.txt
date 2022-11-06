@@ -1,0 +1,135 @@
+Notes:
+    -I found installing OpenFOAM and setting up the required infrastructure to be a particularly tedious process, especially since the base code I'm starting from is for a previous version of OpenFOAM (5.x), which came with a whole separate series of challenges.
+
+    -Below is a set of instructions that I have compiled from an extensive period of troubleshooting. Note that I am far from an expert programmer so this may not be the best or most straight-forward method, but it got me to a functional program.
+
+    -I left all my local filepaths as they were as a reference point so please update all instances of "jeff" in the documentation below to the directory equivalent on your computer.
+
+    -I am using a Linux Mint 20.2 virtual operating system on a Windows 10 computer so your instructions may differ based upon your particular operating system.
+
+
+################ Installation instructions begin here ##################
+
+Run the following commands from the directory you want to set up OpenFOAM in:
+	sudo sh -c "wget -O - http://dl.openfoam.org/gpg.key | apt-key add -"
+
+	sudo add-apt-repository http://dl.openfoam.org/ubuntu
+
+	sudo apt-get update
+
+	sudo apt-get install build-essential cmake git ca-certificates
+
+	sudo apt-get install flex libfl-dev bison zlib1g-dev libboost-system-dev libboost-thread-dev libopenmpi-dev openmpi-bin gnuplot libreadline-dev libncurses-dev libxt-dev
+
+	sudo apt-get install libqt5x11extras5-dev libxt-dev qt5-default qttools5-dev curl
+
+	git clone https://github.com/OpenFOAM/OpenFOAM-5.x
+
+	git clone https://github.com/OpenFOAM/ThirdParty-5.x
+	
+	export gcc_version=10.2
+	
+Download:
+	gcc     http://gcc.gnu.org/releases.html
+	gmp	    http://gmplib.org/ ftp://ftp.gnu.org/gnu/gmp/gmp-5.1.2.tar.bz2
+	mpfr	http://www.mpfr.org/ ftp://ftp.gnu.org/gnu/mpfr/mpfr-3.1.2.tar.bz2
+	mpc	    http://www.multiprecision.org/mpc/download/mpc-1.0.1.tar.gz
+	 
+Go to ThirdParty-5.x folder:
+	
+	If cannot find libmpfr.so.4, use:
+		sudo ln -s /usr/lib/x86_64-linux-gnu/libmpfr.so.6 /usr/lib/x86_64-linux-gnu/libmpfr.so.4
+	
+	./makeGcc
+	
+Copy new version of Scotch (scotch 6.0.9) to the ThirdParty-5.x folder.
+
+In the Scotch/src folder, copy the Makefile.inc from the original scotch/src folder to this one and then run:
+	make scotch
+	
+	make ptscotch
+	
+Then go to the Allwmake file in the ThirdParty-5.x folder and add to line 186 and 187:
+	export SCOTCH_VERSION=scotch_6.0.9
+	export SCOTCH_ARCH_PATH=/home/jeff/OpenFOAM/ThirdParty-5.x/platforms/linux64GccDPInt32/scotch_6.0.9
+
+Go to ThirdParty-5.x folder and run:
+
+	./Allwmake
+
+Go to OpenFOAM-5.x folder and run:
+	
+	./Allwmake
+
+Add the following line to the .bashrc script:
+	source /home/jeff/OpenFOAM/OpenFOAM-5.x/etc/bashrc
+	
+Install OpenSSL:
+	sudo apt update
+	
+	sudo apt install build-essential checkinstall zlib1g-dev -y
+	
+	cd /usr/local/src/
+	
+	sudo wget https://www.openssl.org/source/openssl-1.0.2o.tar.gz
+	
+	sudo tar -xf openssl-1.0.2o.tar.gz
+	
+	cd openssl-1.0.2o
+	
+	sudo ./config --prefix=/usr/local/ssl --openssldir=/usr/local/ssl shared zlib
+	
+	sudo make
+	
+	sudo make test
+	
+	sudo make install
+	
+	cd /etc/ld.so.conf.d/
+	
+	sudo apt install vim
+	
+	vim openssl-1.0.2o.conf
+		--> Paste /usr/local/ssl/lib into directory and save and exit
+		
+	sudo ldconfig -v
+	
+	sudo mv /usr/bin/c_rehash /usr/bin/c_rehash.BEKUP
+	
+	sudo mv /usr/bin/openssl /usr/bin/openssl.BEKUP
+	
+	sudo open /etc/environment
+	    --> replace contents with:
+		PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/local/ssl/bin"
+	
+	source /etc/environment
+	
+	echo $PATH
+	
+	which openssl
+	
+	
+Download Cmake (3.25.0-rc2) in Third Party folder:
+	Update makeCmake file with downloaded version:
+	
+	cmakePACKAGE=cmake-3.25.0-rc2
+	
+Go to ThirdParty-5.x folder and run:
+	
+	./makeCmake
+	
+
+To get ParaView run in /opt/ folder:
+
+	git clone --recursive https://gitlab.kitware.com/paraview/paraview.git
+	
+	sudo mkdir paraview_build
+	
+	cd paraview_build
+	
+	sudo cmake -GNinja -DPARAVIEW_USE_PYTHON=ON -DPARAVIEW_USE_MPI=ON -DVTK_SMP_IMPLEMENTATION_TYPE=TBB -DCMAKE_BUILD_TYPE=Release ../paraview
+	
+	sudo ninja
+	
+	sudo apt-get install paraview
+
