@@ -1,15 +1,16 @@
-Info<< "Reading optimization parameters\n" << endl;
-    IOdictionary optProperties
+
+Info << "Reading optimization parameters\n" << endl;
+IOdictionary optProperties
+(
+    IOobject
     (
-        IOobject
-        (
-            "optProperties",
-            runTime.constant(),
-            mesh,
-            IOobject::MUST_READ_IF_MODIFIED,
-            IOobject::NO_WRITE
-        )
-    );
+        "optProperties",
+        runTime.constant(),
+        mesh,
+        IOobject::MUST_READ_IF_MODIFIED,
+        IOobject::NO_WRITE
+    )
+);
 
 //optimization parameters
 scalar raa0(readScalar(optProperties.lookup("raa0")));
@@ -23,7 +24,8 @@ scalar solid_area(readScalar(optProperties.lookup("solid_area")));
 scalar voluse(readScalar(optProperties.lookup("voluse")));
 
 //pseudo-density field gamma
-Info<< "Reading field gamma\n" << endl;
+Info << "Reading field gamma\n" << endl;
+
 volScalarField gamma
 (
     IOobject
@@ -41,18 +43,21 @@ volScalarField gamma
 
 // find the cells in the non-design area
 labelList cells;
-if(solid_area==1)
+
+if(solid_area == 1)
 {
-  word zoneName="zone_solid";
-  label zoneID=mesh.cellZones().findZoneID(zoneName);
-  cells=mesh.cellZones()[zoneID];
+  word zoneName = "zone_solid";
+  label zoneID = mesh.cellZones().findZoneID(zoneName);
+  cells = mesh.cellZones()[zoneID];
 }
+
 //Allgamma
 List<scalarField> AllrList(Pstream::nProcs());
 scalarField localr(gamma.internalField());
 AllrList[Pstream::myProcNo()] = localr;
 Pstream::gatherList(AllrList);
 Pstream::scatterList(AllrList);
+
 scalarField Allgamma 
 (
     ListListOps::combine<scalarField>
@@ -61,4 +66,3 @@ scalarField Allgamma
         accessOp<scalarField>()
     )
 );
-

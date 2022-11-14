@@ -22,6 +22,8 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 \*---------------------------------------------------------------------------*/
 
+// Include necessary libraries
+
 #include "fvCFD.H"
 #include "singlePhaseTransportModel.H"
 #include "turbulentTransportModel.H"
@@ -37,9 +39,11 @@ License
 #include <MMA.h>
 #include <mpi.h>
 
+// Initialize classes and cells
+
 template<class Type>
-void setCells
-(
+void setCells(
+    
     GeometricField<Type, fvPatchField, volMesh>& vf,
     const labelList& cells,
     double value
@@ -50,8 +54,12 @@ void setCells
         vf[cells[i]] = value;
     }
 }
-double fun(double gamma[],double del,double eta,int allcells);
+
+double fun(double gamma[], double del, double eta, int allcells);
 static char help[] = "topology optimization \n";
+
+// Begin main program
+
 int main(int argc, char *argv[])
 {
     PetscInitialize(&argc,&argv,PETSC_NULL,help);
@@ -65,58 +73,68 @@ int main(int argc, char *argv[])
     #include "createFvOptions.H"
     #include "initContinuityErrs.H"
     #include "SIMP_initialize.H"
+
     while (simple.loop())
     {
-        Info<< "Time = " << runTime.timeName() << nl << endl;
+        Info << "Time = " << runTime.timeName() << nl << endl;
         #include "primal_equation.H"
         #include "adjoint_equation_T.H"
-        for(i=0;i<60;i++)
+
+        for(i = 0 ; i < 60; i++)
         {
-           #include "adjoint_flow_U.H" 
-        }   
-        #include "costfunction.H"                           
-        #include "sensitivity.H"        
+           #include "adjoint_flow_U.H"
+        }
+        
+        #include "costfunction.H"
+        #include "sensitivity.H"
+        
         if(runTime.writeTime())
         {
-        gamma.write();
-        //T.write();
-        //U.write();         
+            gamma.write();
+            //T.write();
+            //U.write();
         }
 
-        Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
+        Info << "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
         << "  ClockTime = " << runTime.elapsedClockTime() << " s"
         << nl << endl;
     }
+
     delete mma;
     PetscFinalize();
-    Info<< "End\n" << endl;
+
+    Info << "End\n" << endl;
+    
     return 0;
 }
 
 
 //*********************************************************//function
-double fun(double gamma[],double del,double eta,int allcells)
+
+double fun(double gamma[], double del, double eta, int allcells)
 {
-     int i;
-     double z=0;
-     double *fg =new double[allcells];
-     
-     for(i=0;i<allcells;i++)
-     {
-        if(gamma[i]<=eta)
+    int i;
+    double z = 0;
+    double *fg = new double[allcells];
+
+    for(i = 0; i < allcells; i++)
+    {
+        if(gamma[i] <= eta)
         {
-          fg[i]=eta*(Foam::exp(-del*(1-gamma[i]/eta))-(1-gamma[i]/eta)*Foam::exp(-del));
+            fg[i] = eta * (Foam::exp(-del * (1 - gamma[i] / eta)) - (1 - gamma[i] / eta) * Foam::exp(-del));
         }
         else
         {
-          fg[i]=eta+(1-eta)*(1-Foam::exp(-del*(gamma[i]-eta)/(1-eta))+(gamma[i]-eta)*Foam::exp(-del)/(1-eta));
+            fg[i] = eta + (1 - eta) * (1 - Foam::exp(-del * (gamma[i] - eta) / (1 - eta)) + (gamma[i] - eta) * Foam::exp(-del) / (1 - eta));
         }
-     }
-     for(i=0;i<allcells;i++)
-     {
-        z=z+gamma[i]-fg[i];
-     }
-     delete fg;
-     return {z};
-}
+    }
 
+    for(i = 0; i < allcells; i++)
+    {
+        z = z + gamma[i] - fg[i];
+    }
+
+    delete fg;
+
+    return {z};
+}

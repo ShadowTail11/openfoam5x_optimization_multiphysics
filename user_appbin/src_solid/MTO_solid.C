@@ -22,6 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 \*---------------------------------------------------------------------------*/
 
+// Include startup libraries
 #include "fvCFD.H"
 #include "simpleControl.H"
 #include <math.h>
@@ -33,6 +34,8 @@ License
 #include "petscvec.h"
 #include <MMA.h>
 #include <mpi.h>
+
+// Intialize classes and cells
 template<class Type>
 void setCells
 (
@@ -46,11 +49,14 @@ void setCells
         vf[cells[i]] = value;
     }
 }
-double fun(double gamma[],double del,double eta,int allcells);
+
+double fun(double gamma[], double del, double eta, int allcells);
 static char help[] = "topology optimization \n";
+
+// Run main program
 int main(int argc, char *argv[])
 {
-    PetscInitialize(&argc,&argv,PETSC_NULL,help);
+    PetscInitialize(&argc, &argv, PETSC_NULL, help);
     #include "postProcess.H"
     #include "setRootCase.H"
     #include "createTime.H"
@@ -62,49 +68,56 @@ int main(int argc, char *argv[])
 
     while (simple.loop())
     {
-        Info<< "Time = " << runTime.timeName() << nl << endl;
-        for(i=0;i<300;i++)
+        Info << "Time = " << runTime.timeName() << nl << endl;
+
+        for(i = 0; i < 300; i++)
         {
             #include "primal_equation.H"
         }
+        
         #include "costfunction.H"              
         #include "sensitivity.H"
+        
         if(runTime.writeTime())
         {
            gamma.write();       
         }
-        Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
+        
+        Info << "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
         << "  ClockTime = " << runTime.elapsedClockTime() << " s"
         << nl << endl;
     }
+
     delete mma;
     PetscFinalize();
 
     return 0;
 }
-//
-double fun(double gamma[],double del,double eta,int allcells)
+
+// Define function
+double fun(double gamma[], double del, double eta, int allcells)
 {
      int i;
-     double z=0;
-     double *fg =new double[allcells];
+     double z = 0;
+     double *fg = new double[allcells];
      
-     for(i=0;i<allcells;i++)
+     for(i = 0; i < allcells; i++)
      {
-        if(gamma[i]<=eta)
+        if(gamma[i] <= eta)
         {
-          fg[i]=eta*(Foam::exp(-del*(1-gamma[i]/eta))-(1-gamma[i]/eta)*Foam::exp(-del));
+          fg[i] = eta * (Foam::exp(-del * (1 - gamma[i] / eta)) - (1 - gamma[i] / eta) * Foam::exp(-del));
         }
         else
         {
-          fg[i]=eta+(1-eta)*(1-Foam::exp(-del*(gamma[i]-eta)/(1-eta))+(gamma[i]-eta)*Foam::exp(-del)/(1-eta));
+          fg[i] = eta + (1 - eta) * (1 - Foam::exp(-del * (gamma[i] - eta) / (1 - eta)) + (gamma[i] - eta) * Foam::exp(-del) / (1 - eta));
         }
      }
-     for(i=0;i<allcells;i++)
+
+     for(i = 0; i < allcells; i++)
      {
-        z=z+gamma[i]-fg[i];
+        z = z + gamma[i] - fg[i];
      }
+
      delete fg;
      return {z};
 }
-

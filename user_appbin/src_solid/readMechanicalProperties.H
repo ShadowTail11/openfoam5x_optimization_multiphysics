@@ -1,193 +1,195 @@
-    Info<< "Reading mechanical properties\n" << endl;
+Info << "Reading mechanical properties\n" << endl;
 
-    IOdictionary mechanicalProperties
+IOdictionary mechanicalProperties
+(
+    IOobject
     (
-        IOobject
+        "mechanicalProperties",
+        runTime.constant(),
+        mesh,
+        IOobject::MUST_READ_IF_MODIFIED,
+        IOobject::NO_WRITE
+    )
+);
+
+const dictionary& rhoDict(mechanicalProperties.subDict("rho"));
+word rhoType(rhoDict.lookup("type"));
+
+autoPtr<volScalarField> rhoPtr;
+
+IOobject rhoIO
+(
+    "rho",
+    runTime.timeName(0),
+    mesh,
+    IOobject::NO_READ,
+    IOobject::NO_WRITE
+);
+
+if (rhoType == "uniform")
+{
+    scalar rhoValue(readScalar(rhoDict.lookup("value")));
+
+    rhoPtr.reset
+    (
+        new volScalarField
         (
-            "mechanicalProperties",
-            runTime.constant(),
+            rhoIO,
             mesh,
-            IOobject::MUST_READ_IF_MODIFIED,
-            IOobject::NO_WRITE
+            dimensionedScalar
+            (
+                "rho",
+                dimMass/dimVolume,
+                rhoValue
+            )
         )
     );
+}
+else if (rhoType == "field")
+{
+    rhoIO.readOpt() = IOobject::MUST_READ;
 
-    const dictionary& rhoDict(mechanicalProperties.subDict("rho"));
-    word rhoType(rhoDict.lookup("type"));
-
-    autoPtr<volScalarField> rhoPtr;
-
-    IOobject rhoIO
+    rhoPtr.reset
     (
-        "rho",
-        runTime.timeName(0),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::NO_WRITE
+        new volScalarField
+        (
+            rhoIO,
+            mesh
+        )
     );
+}
+else
+{
+    FatalErrorInFunction
+        << "Valid type entries are uniform or field for rho"
+        << abort(FatalError);
+}
 
-    if (rhoType == "uniform")
-    {
-        scalar rhoValue(readScalar(rhoDict.lookup("value")));
+volScalarField& rho = rhoPtr();
 
-        rhoPtr.reset
-        (
-            new volScalarField
-            (
-                rhoIO,
-                mesh,
-                dimensionedScalar
-                (
-                    "rho",
-                    dimMass/dimVolume,
-                    rhoValue
-                )
-            )
-        );
-    }
-    else if (rhoType == "field")
-    {
-        rhoIO.readOpt() = IOobject::MUST_READ;
+const dictionary& EDict(mechanicalProperties.subDict("E"));
+word EType(EDict.lookup("type"));
 
-        rhoPtr.reset
-        (
-            new volScalarField
-            (
-                rhoIO,
-                mesh
-            )
-        );
-    }
-    else
-    {
-        FatalErrorInFunction
-            << "Valid type entries are uniform or field for rho"
-            << abort(FatalError);
-    }
+autoPtr<volScalarField> EPtr;
 
-    volScalarField& rho = rhoPtr();
+IOobject EHeader
+(
+    "E",
+    runTime.timeName(0),
+    mesh,
+    IOobject::NO_READ,
+    IOobject::NO_WRITE
+);
 
-    const dictionary& EDict(mechanicalProperties.subDict("E"));
-    word EType(EDict.lookup("type"));
+if (EType == "uniform")
+{
+    scalar rhoEValue(readScalar(EDict.lookup("value")));
 
-    autoPtr<volScalarField> EPtr;
-
-    IOobject EHeader
+    EPtr.reset
     (
-        "E",
-        runTime.timeName(0),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::NO_WRITE
+        new volScalarField
+        (
+            EHeader,
+            mesh,
+            dimensionedScalar
+            (
+                "Erho",
+                dimMass/dimLength/sqr(dimTime),
+                rhoEValue
+            )
+        )
     );
+}
+else if (EType == "field")
+{
+    EHeader.readOpt() = IOobject::MUST_READ;
 
-    if (EType == "uniform")
-    {
-        scalar rhoEValue(readScalar(EDict.lookup("value")));
-
-        EPtr.reset
-        (
-            new volScalarField
-            (
-                EHeader,
-                mesh,
-                dimensionedScalar
-                (
-                    "Erho",
-                    dimMass/dimLength/sqr(dimTime),
-                    rhoEValue
-                )
-            )
-        );
-    }
-    else if (EType == "field")
-    {
-        EHeader.readOpt() = IOobject::MUST_READ;
-
-        EPtr.reset
-        (
-            new volScalarField
-            (
-                EHeader,
-                mesh
-            )
-        );
-    }
-    else
-    {
-        FatalErrorInFunction
-            << "Valid type entries are uniform or field for E"
-            << abort(FatalError);
-    }
-
-    volScalarField& rhoE = EPtr();
-
-    autoPtr<volScalarField> PPtr;
-
-    IOobject PIO
+    EPtr.reset
     (
-        "Po",
-        runTime.timeName(0),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::NO_WRITE
+        new volScalarField
+        (
+            EHeader,
+            mesh
+        )
     );
+}
+else
+{
+    FatalErrorInFunction
+        << "Valid type entries are uniform or field for E"
+        << abort(FatalError);
+}
 
-    const dictionary& PDict(mechanicalProperties.subDict("Po"));
-    word PType(PDict.lookup("type"));
+volScalarField& rhoE = EPtr();
 
-    if (PType == "uniform")
-    {
-        scalar PValue(readScalar(PDict.lookup("value")));
-        PPtr.reset
+autoPtr<volScalarField> PPtr;
+
+IOobject PIO
+(
+    "Po",
+    runTime.timeName(0),
+    mesh,
+    IOobject::NO_READ,
+    IOobject::NO_WRITE
+);
+
+const dictionary& PDict(mechanicalProperties.subDict("Po"));
+word PType(PDict.lookup("type"));
+
+if (PType == "uniform")
+{
+    scalar PValue(readScalar(PDict.lookup("value")));
+    PPtr.reset
+    (
+        new volScalarField
         (
-            new volScalarField
+            PIO,
+            mesh,
+            dimensionedScalar
             (
-                PIO,
-                mesh,
-                dimensionedScalar
-                (
-                    "Po",
-                    dimless,
-                    PValue
-                )
+                "Po",
+                dimless,
+                PValue
             )
-        );
-    }
-    else if (PType == "field")
-    {
-        PIO.readOpt() = IOobject::MUST_READ;
-        PPtr.reset
+        )
+    );
+}
+else if (PType == "field")
+{
+    PIO.readOpt() = IOobject::MUST_READ;
+    PPtr.reset
+    (
+        new volScalarField
         (
-            new volScalarField
-            (
-                PIO,
-                mesh
-            )
-        );
-    }
-    else
-    {
-        FatalErrorInFunction
-            << "Valid type entries are uniform or field for P"
-            << abort(FatalError);
-    }
+            PIO,
+            mesh
+        )
+    );
+}
+else
+{
+    FatalErrorInFunction
+        << "Valid type entries are uniform or field for P"
+        << abort(FatalError);
+}
 
-    volScalarField& Po = PPtr();
+volScalarField& Po = PPtr();
 
-    Info<< "Normalising E : E/rho\n" << endl;
-    volScalarField E(rhoE/rho);
+Info<< "Normalizing E : E/rho\n" << endl;
+volScalarField E(rhoE/rho);
 
-    Info<< "Calculating Lame's coefficients\n" << endl;
+Info << "Calculating Lame's coefficients\n" << endl;
 
-    volScalarField mu(gamma*gamma*gamma*E/(2.0*(1.0 + Po)));
-    volScalarField lambda(gamma*gamma*gamma*Po*E/((1.0 + Po)*(1.0 - 2.0*Po)));
+volScalarField mu(gamma * gamma * gamma * E / (2.0 * (1.0 + Po)));
+volScalarField lambda(gamma * gamma * gamma * Po * E / ((1.0 + Po) * (1.0 - 2.0 * Po)));
 
-    Switch planeStress(mechanicalProperties.lookup("planeStress"));
+Switch planeStress(mechanicalProperties.lookup("planeStress"));
 
 
-//************************************************************************//pri-solid   
-Info<< "Reading field D\n" << endl;
+//************************************************************************//pri-solid
+
+Info << "Reading field D\n" << endl;
+
 volVectorField D
 (
     IOobject
@@ -200,6 +202,7 @@ volVectorField D
     ),
     mesh
 );
+
 volVectorField Dorg(D);
 
 volTensorField gradD
@@ -212,10 +215,11 @@ volTensorField gradD
         IOobject::NO_READ,
         IOobject::NO_WRITE
     ),
-      fvc::grad(D)
+    fvc::grad(D)
 );
 
 Info<< "Calculating stress field sigmaD\n" << endl;
+
 volSymmTensorField sigmaD
 (
     IOobject
@@ -226,10 +230,11 @@ volSymmTensorField sigmaD
         IOobject::NO_READ,
         IOobject::NO_WRITE
     ),
-    mu*twoSymm(fvc::grad(D)) + lambda*(I*tr(fvc::grad(D)))
+    mu * twoSymm(fvc::grad(D)) + lambda * (I * tr(fvc::grad(D)))
 );
 
 Info<< "Calculating explicit part of div(sigma) divSigmaExp\n" << endl;
+
 volVectorField divSigmaExp
 (
     IOobject
@@ -255,4 +260,5 @@ else
 {
     divSigmaExp -= fvc::div((2*mu + lambda)*fvc::grad(D), "div(sigmaD)");
 }
+
 mesh.setFluxRequired(D.name());
