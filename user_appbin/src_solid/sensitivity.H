@@ -10,7 +10,7 @@ if(solid_area == 1)
   setCells(fsens, cells, 0);
 }    
 
-#include "Heaviside_sens.H"
+#include "heavisideSens.H"
 
 //constraint value
 gx[0] = (PetscScalar)(V);
@@ -39,7 +39,7 @@ for(i = 0; i < allcells; i++)
 
 VecRestoreArray(xmma, &xmma_array);
 
-#include "Heaviside_rho.H"
+#include "heavisideRho.H"
 
 // Update mu and lambda
 

@@ -735,8 +735,8 @@ $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/simpleControl.H \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/solutionControl.H \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/solutionControlTemplates.C \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/solutionControlI.H \
-/home/jeff/petsc/include/petsc.h \
-/home/jeff/petsc/include/petscvec.h \
+/panfs/roc/msisoft/petsc/3.10.3/include/petsc.h \
+/panfs/roc/msisoft/petsc/3.10.3/include/petscvec.h \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/postProcess.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/addRegionOption.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/addFunctionObjectOptions.H \
@@ -752,11 +752,11 @@ $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/createPimpleControl.H \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/createSimpleControl.H \
 createFields.H \
 readMechanicalProperties.H \
-SIMP_initialize.H \
-primal_equation.H \
-costfunction.H \
+initializeSIMP.H \
+primalSolver.H \
+costFunction.H \
 sensitivity.H \
-Heaviside_sens.H \
-Heaviside_rho.H \
+heavisideSens.H \
+heavisideRho.H \
 
 

@@ -1,4 +1,4 @@
- Info<< "\n Heaviside_rho\n" << endl;
+Info<< "\n Heaviside_rho\n" << endl;
 
 localr=gamma.internalField();
 AllrList[Pstream::myProcNo()] = localr;

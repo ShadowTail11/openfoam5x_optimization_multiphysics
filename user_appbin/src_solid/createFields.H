@@ -58,7 +58,7 @@ AllrList[Pstream::myProcNo()] = localr;
 Pstream::gatherList(AllrList);
 Pstream::scatterList(AllrList);
 
-scalarField Allgamma 
+scalarField Allgamma
 (
     ListListOps::combine<scalarField>
     (

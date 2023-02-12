@@ -35,7 +35,7 @@ License
 #include <MMA.h>
 #include <mpi.h>
 
-// Intialize classes and cells
+// Initialize classes and cells
 template<class Type>
 void setCells
 (
@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
     #include "createControl.H"
     #include "createFields.H"
     #include "readMechanicalProperties.H" 
-    #include "SIMP_initialize.H"
+    #include "initializeSIMP.H"
 
     while (simple.loop())
     {
@@ -72,15 +72,17 @@ int main(int argc, char *argv[])
 
         for(i = 0; i < 300; i++)
         {
-            #include "primal_equation.H"
+            #include "primalSolver.H"
         }
         
-        #include "costfunction.H"              
+        #include "costFunction.H"
         #include "sensitivity.H"
         
         if(runTime.writeTime())
         {
-           gamma.write();       
+            gamma.write();
+            D.write();
+            sigmaD.write();
         }
         
         Info << "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
