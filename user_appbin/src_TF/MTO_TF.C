@@ -91,8 +91,8 @@ int main(int argc, char *argv[])
         if(runTime.writeTime())
         {
             gamma.write();
-            //T.write();
-            //U.write();
+            T.write();
+            U.write();
         }
 
         Info << "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
