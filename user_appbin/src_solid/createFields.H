@@ -18,6 +18,7 @@ scalar mma_init(readScalar(optProperties.lookup("mma_init")));
 scalar mma_dec(readScalar(optProperties.lookup("mma_dec")));
 scalar mma_inc(readScalar(optProperties.lookup("mma_inc")));
 scalar movlim(readScalar(optProperties.lookup("movlim")));
+scalar opt_converge(readScalar(optProperties.lookup("opt_converge")));
 
 scalar filter_Radius(readScalar(optProperties.lookup("filter_Radius")));
 scalar solid_area(readScalar(optProperties.lookup("solid_area")));

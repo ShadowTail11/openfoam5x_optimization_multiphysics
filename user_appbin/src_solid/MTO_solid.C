@@ -88,6 +88,17 @@ int main(int argc, char *argv[])
         Info << "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
         << "  ClockTime = " << runTime.elapsedClockTime() << " s"
         << nl << endl;
+
+        // Exit if convergence has been achieved
+        if (dC < opt_converge && opt > 10) {
+            gamma.write();
+            D.write();
+            sigmaD.write();
+            Info << "Convergence criterion (<" << opt_converge * 100 << "%) has been met after "
+            << opt-1 << " iterations!" << endl << "Program ending!" << endl;
+            break;
+        }
+
     }
 
     delete mma;

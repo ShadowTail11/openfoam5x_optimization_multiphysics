@@ -59,8 +59,9 @@ for(i=0;i<nallcells;i++)
 
 for(i=0;i<allcells;i++)
 {
-   gamma[i]=Allgamma[i+mycells];
+    gamma[i]=Allgamma[i+mycells];
 }
+
 if(solid_area==1)
 {
   setCells(gamma, cells, 1);
