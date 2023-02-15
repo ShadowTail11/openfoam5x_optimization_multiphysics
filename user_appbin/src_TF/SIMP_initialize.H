@@ -3,6 +3,7 @@ std::remove("Voluse.txt");
 std::remove("meanT.txt"); 
 std::remove("Disspower.txt");  
 std::remove("Time.txt");
+std::remove("dmeanT_RMS.txt");
 
 //    
 scalar C(0);
@@ -10,6 +11,10 @@ scalar DissPower(0);
 scalar meanT(0);
 scalar V(0);
 scalar scalef(0),scaleg(0);
+scalar meanT_prev(meanT);
+scalar dmeanT(0);
+scalar dmeanT_sum(0);
+scalar dmeanT_RMS(0);
 
 int i = 0, j = 0, k = 0, jk, allcells, nallcells, mycells = 0, iter = 0, opt = 1;
 scalar allcell = gamma.size();      //allcell:length of gamma in the i-th core
