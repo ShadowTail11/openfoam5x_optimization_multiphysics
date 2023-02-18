@@ -2,14 +2,16 @@
 std::remove("Voluse.txt");
 std::remove("Time.txt");
 std::remove("Compliance.txt");
-std::remove("Gamma_dif.txt");
+std::remove("dC_RMS.txt");
 
 scalar C(0);
 scalar V(0);
 scalar scalef(0);
 scalar eps(1e-8);
 scalar C_prev(0);
-scalar dC;
+scalar dC(0);
+scalar dC_sum(0);
+scalar dC_RMS(0);
 
 int i = 0, j = 0, k = 0, jk, allcells, nallcells, mycells = 0, opt = 1;
 scalar allcell = gamma.size();            //allcell:length of gamma in the i-th core

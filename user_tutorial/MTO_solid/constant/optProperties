@@ -23,4 +23,5 @@ mma_init            0.3;
 mma_dec             0.7;
 mma_inc             1.2;
 movlim              1;
-opt_converge		0.001;
+opt_converge		0.025;
+opt_converge_smooth 0.8;    // Smooths (slows) convergence (max 1)

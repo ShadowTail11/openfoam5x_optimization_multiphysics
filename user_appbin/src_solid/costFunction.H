@@ -22,7 +22,13 @@ for(i = 0; i < allcells; i++)
 
 reduce(C, sumOp<scalar>());
 C = C / 2.0 * len * len * len;
-dC = std::abs((C - C_prev) / (C_prev + 0.0000005));
+dC = C - C_prev;
+if(opt==1)
+{
+    dC = 0;
+}
+dC_sum = dC_sum * opt_converge_smooth + dC * dC;
+dC_RMS = std::sqrt(dC_sum / opt) / std::abs(C + 0.0000000005);
 
 if(Pstream::master())
 {
@@ -37,4 +43,8 @@ if(Pstream::master())
     ofstream outfile3("Time.txt", std::ios::app);
     outfile3 << runTime.elapsedClockTime() << "\n";
     outfile3.close();
+
+    ofstream outfile4("dC_RMS.txt", std::ios::app);
+    outfile4 << dC_RMS << "\n";
+    outfile4.close();
 }
