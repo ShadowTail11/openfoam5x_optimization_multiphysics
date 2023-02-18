@@ -19,7 +19,7 @@ if(opt==1)
 {
 dmeanT = 0;
 }
-dmeanT_sum = dmeanT_sum + dmeanT * dmeanT;
+dmeanT_sum = dmeanT_sum * opt_converge_smooth + dmeanT * dmeanT;
 dmeanT_RMS = std::sqrt(dmeanT_sum / opt) / std::abs(meanT / nallcells + 0.0000000005);
 
 //DissPower

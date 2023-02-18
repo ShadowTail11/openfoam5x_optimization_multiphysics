@@ -194,6 +194,7 @@ scalar mma_dec(readScalar(transportProperties.lookup("mma_dec")));
 scalar mma_inc(readScalar(transportProperties.lookup("mma_inc")));
 scalar movlim(readScalar(transportProperties.lookup("movlim")));
 scalar opt_converge(readScalar(transportProperties.lookup("opt_converge")));
+scalar opt_converge_smooth(readScalar(optProperties.lookup("opt_converge_smooth")));
 
 scalar voluse(readScalar(transportProperties.lookup("voluse")));
 scalar filter_Radius(readScalar(transportProperties.lookup("filter_Radius")));
