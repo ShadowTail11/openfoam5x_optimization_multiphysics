@@ -60,7 +60,7 @@ vectorField Allcellcenter
    )
 );
 
-int FR = filter_Radius;
+int r_filter = filter_Radius;
 int Nnum[nallcells];
 int (*Nlabel)[125] = new int [nallcells][125];
 double (*Nweight)[125] = new double [nallcells][125];
@@ -77,9 +77,9 @@ for(i = 0; i < nallcells; i++)
 }
 
 int nx, ny, nz, Nx, Ny, Nz;
-nx = static_cast<int>((geo_xmax - geo_xmin + len / 4.0) / len) + FR * 2 + 1;
-ny = static_cast<int>((geo_ymax - geo_ymin + len / 4.0) / len) + FR * 2 + 1;
-nz = static_cast<int>((geo_zmax - geo_zmin + len / 4.0) / len) + FR * 2 + 1;
+nx = static_cast<int>((geo_xmax - geo_xmin + len / 4.0) / len) + r_filter * 2 + 1;
+ny = static_cast<int>((geo_ymax - geo_ymin + len / 4.0) / len) + r_filter * 2 + 1;
+nz = static_cast<int>((geo_zmax - geo_zmin + len / 4.0) / len) + r_filter * 2 + 1;
 
 int ***ALLlabel;
 ALLlabel = new int **[nx];
@@ -109,7 +109,7 @@ for(jk = 0; jk < nallcells; jk++)
    nx = static_cast<int>((Allcellcenter[jk][0] - geo_xmin + len / 4.0) / len);
    ny = static_cast<int>((Allcellcenter[jk][1] - geo_ymin + len / 4.0) / len);
    nz = static_cast<int>((Allcellcenter[jk][2] - geo_zmin + len / 4.0) / len);
-   ALLlabel[nx + FR][ny + FR][nz + FR] = jk;
+   ALLlabel[nx + r_filter][ny + r_filter][nz + r_filter] = jk;
 }
 
 for(jk = 0; jk < nallcells; jk++)
@@ -119,19 +119,19 @@ for(jk = 0; jk < nallcells; jk++)
    ny = static_cast<int>((Allcellcenter[jk][1] - geo_ymin + len / 4.0) / len);
    nz = static_cast<int>((Allcellcenter[jk][2] - geo_zmin + len / 4.0) / len);
 
-   for(i = -FR; i <= FR; i++)
+   for(i = -r_filter; i <= r_filter; i++)
    {
-      for(j = -FR; j <= FR; j++)
+      for(j = -r_filter; j <= r_filter; j++)
       {
-         for(k = -FR; k <= FR; k++)
+         for(k = -r_filter; k <= r_filter; k++)
          {
             Nx = nx + i;
             Ny = ny + j;
             Nz = nz + k;
             
-            if(ALLlabel[Nx + FR][Ny + FR][Nz + FR] >= 0)
+            if(ALLlabel[Nx + r_filter][Ny + r_filter][Nz + r_filter] >= 0)
             {
-               Nlabel[jk][Nnum[jk]] = ALLlabel[Nx + FR][Ny + FR][Nz + FR];
+               Nlabel[jk][Nnum[jk]] = ALLlabel[Nx + r_filter][Ny + r_filter][Nz + r_filter];
                Nweight[jk][Nnum[jk]] = (3.8 - std::sqrt(i * i + j * j + k * k)) * len;
                Nnum[jk]++;
             }

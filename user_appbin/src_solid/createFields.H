@@ -17,7 +17,7 @@ scalar raa0(readScalar(optProperties.lookup("raa0")));
 scalar mma_init(readScalar(optProperties.lookup("mma_init")));
 scalar mma_dec(readScalar(optProperties.lookup("mma_dec")));
 scalar mma_inc(readScalar(optProperties.lookup("mma_inc")));
-scalar movlim(readScalar(optProperties.lookup("movlim")));
+scalar mma_limit(readScalar(optProperties.lookup("mma_limit")));
 scalar opt_converge(readScalar(optProperties.lookup("opt_converge")));
 scalar opt_converge_smooth(readScalar(optProperties.lookup("opt_converge_smooth")));
 

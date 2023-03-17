@@ -12,21 +12,16 @@ for (i = 0; i < n_loops; i++)
 {
     Info << "\nSolve for adjoint flow-T\n" << endl;
 
-    volVectorField adjointTransposeConvectionb((fvc::grad(U) & U_adj_T));
-
-//    laminarTransport.correct();
-//    turbulence->correct();
-//    nu_eff = turbulence->nu();
+    volVectorField adjointTransposeConvectionb((fvc::grad(U_adj_T) & U));
 
     tmp<fvVectorMatrix> tUbEqn
     (
             fvm::div(-phi, U_adj_T)
-            + adjointTransposeConvectionb
+            - adjointTransposeConvectionb
 //            + turbulence->divDevReff(U_adj_T)
             - fvm::laplacian(nu_eff, U_adj_T)
             + fvm::Sp(alpha_U, U_adj_T)
             + cp_eff * T_adj * fvc::grad(T) * unit_correct_T
-//            + unit_correct * T_adj * fvc::grad(T)
             ==
             fvOptions(U_adj_T)
     );

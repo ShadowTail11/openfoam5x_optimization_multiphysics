@@ -97,13 +97,13 @@ void Foam::adjointOutletPressurePowerFvPatchScalarField::updateCoeffs()
         patch().lookupPatchField<surfaceScalarField, scalar>("phi");
 
     const fvsPatchField<scalar>& phicp =
-        patch().lookupPatchField<surfaceScalarField, scalar>("phic");
+        patch().lookupPatchField<surfaceScalarField, scalar>("phi_adj_U");
 
     const fvPatchField<vector>& Up =
         patch().lookupPatchField<volVectorField, vector>("U");
 
     const fvPatchField<vector>& Ucp =
-        patch().lookupPatchField<volVectorField, vector>("Uc");
+        patch().lookupPatchField<volVectorField, vector>("U_adj_U");
         
     const dictionary& transportProperties = db().lookupObject<IOdictionary>("transportProperties");
      dimensionedScalar nu(transportProperties.lookup("nu"));
@@ -115,7 +115,7 @@ void Foam::adjointOutletPressurePowerFvPatchScalarField::updateCoeffs()
    // const incompressible::RASModel& rasModel =
 //  db().lookupObject<incompressible::RASModel>("RASProperties");
 
-   // scalarField nueff = rasModel.nuEff()().boundaryField()[patch().index()];
+   // scalarField nueff = rasModel.nu_eff()().boundaryField()[patch().index()];
 
     const scalarField& deltainv = patch().deltaCoeffs(); // distance^(-1)
 

@@ -2,12 +2,12 @@ for(i = 0 ; i < 40; i++)
 {
     Info << "\nSolve for adjoint flow-U\n" << endl;
 
-    volVectorField adjointTransposeConvectionc((fvc::grad(U) & U_adj_U));
+    volVectorField adjointTransposeConvectionc((fvc::grad(U_adj_U) & U));
 
     tmp<fvVectorMatrix> tUcEqn(
 
         fvm::div(-phi, U_adj_U)
-        + adjointTransposeConvectionc
+        - adjointTransposeConvectionc
 //        + turbulence->divDevReff(U_adj_U)
         - fvm::laplacian(nu_eff, U_adj_U)
         + fvm::Sp(alpha_U, U_adj_U)

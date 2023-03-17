@@ -13,8 +13,7 @@
         // Define primal energy equation
         fvScalarMatrix TEqn
         (
-            gamma * fvm::div(phi, T)            // Thermal diffusivity (fluid region only)
-//            fvm::div(phi, T)                  // Thermal diffusivity (whole domain)
+            fvm::div(phi, T)                    // Thermal diffusivity
             - fvm::laplacian(alpha_T_eff, T)    // Thermal conduction term
             ==
             fvOptions(T) + q_gen * (1 - gamma)  // Heat generation in solid region

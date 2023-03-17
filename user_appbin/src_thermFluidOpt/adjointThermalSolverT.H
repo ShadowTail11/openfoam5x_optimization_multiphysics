@@ -12,10 +12,10 @@
 
         fvScalarMatrix TEqnb
         (
-                fvm::div(-phi, T_adj)           // Thermal diffusion
-                - fvm::laplacian(alpha_T_eff, T_adj)     // Thermal conduction
+                fvm::div(-phi, T_adj)                   // Thermal diffusion
+                - fvm::laplacian(alpha_T_eff, T_adj)    // Thermal conduction
                 ==
-                fvOptions(T_adj) - q_gen        // Heat generation
+                fvOptions(T_adj) - q_gen * (1 - gamma)  // Heat generation
         );
 
         // Relax and solve for temperature T_adj

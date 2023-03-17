@@ -69,24 +69,24 @@ int main(int argc, char *argv[])
     #include "createTime.H"
     #include "createMesh.H"
     #include "createControl.H"
-    #include "createFields.H"       // Read & create parameters & fields
+    #include "createFields.H"           // Read & create parameters & fields
     #include "createFvOptions.H"
     #include "initContinuityErrs.H"
-    #include "SIMP_initialize.H"    // Initialize other parameters
+    #include "initializeParameters.H"   // Initialize other parameters
 
     while (simple.loop())
     {
         Info << "Time = " << runTime.timeName() << nl << endl;
 
-        #include "primal_flow_solver.H"
-        #include "primal_thermal_solver.H"
-        #include "update_primal_properties.H"
+        #include "primalFlowSolver.H"
+        #include "primalThermalSolver.H"
+        #include "updatePrimalProperties.H"
 
-        #include "adjoint_thermal_Tb_solver.H"
-        #include "adjoint_flow_T.H"
-        #include "adjoint_flow_U.H"
+        #include "adjointThermalSolverT.H"
+        #include "adjointThermalSolverU.H"
+        #include "adjointFlowSolverU.H"
 
-        #include "costfunction.H"
+        #include "costFunction.H"
         #include "sensitivity.H"
         
         if(runTime.writeTime())

@@ -1,13 +1,13 @@
 Info << "Perform sensitivity analysis" << endl;
 
-volScalarField fsens(
+volScalarField f_sens_T(
   -gradD && (rho * (3 * gamma * gamma * E * (1 - eps) / (2.0 * (1.0 + Po)) * twoSymm(gradD) + (3 * gamma * gamma * Po * E * (1 - eps)
   /((1.0 + Po) * (1.0 - 2.0 * Po)) * I) * tr(gradD)))
 );
 
 if(solid_area == 1)
 {
-  setCells(fsens, cells, 0);
+  setCells(f_sens_T, cells, 0);
 }    
 
 #include "heavisideSens.H"
@@ -27,7 +27,7 @@ VecRestoreArray(dfdx, &dfdx_array);
 VecRestoreArrays(dgdx, m, &dgdx_array);
 
 Info << "\n run MMA \n" << endl;
-mma->SetOuterMovelimit(Xmin, Xmax, movlim, xmma, xmin, xmax);
+mma->SetOuterMovelimit(Xmin, Xmax, mma_limit, xmma, xmin, xmax);
 mma->Update(xmma, dfdx, gx, dgdx, xmin, xmax, raa0, mma_dec, mma_inc);
 
 VecGetArray(xmma, &xmma_array);

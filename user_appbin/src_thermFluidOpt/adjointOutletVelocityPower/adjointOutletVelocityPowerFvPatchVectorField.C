@@ -23,7 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "adjointOutletVelocityHeatFvPatchVectorField.H"
+#include "adjointOutletVelocityPowerFvPatchVectorField.H"
 #include "volFields.H"
 #include "addToRunTimeSelectionTable.H"
 #include "surfaceFields.H"
@@ -32,8 +32,8 @@ License
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::adjointOutletVelocityHeatFvPatchVectorField::
-adjointOutletVelocityHeatFvPatchVectorField
+Foam::adjointOutletVelocityPowerFvPatchVectorField::
+adjointOutletVelocityPowerFvPatchVectorField
 (
     const fvPatch& p,
     const DimensionedField<vector, volMesh>& iF
@@ -43,8 +43,8 @@ adjointOutletVelocityHeatFvPatchVectorField
 {}
 
 
-Foam::adjointOutletVelocityHeatFvPatchVectorField::
-adjointOutletVelocityHeatFvPatchVectorField
+Foam::adjointOutletVelocityPowerFvPatchVectorField::
+adjointOutletVelocityPowerFvPatchVectorField
 (
     const fvPatch& p,
     const DimensionedField<vector, volMesh>& iF,
@@ -57,10 +57,10 @@ adjointOutletVelocityHeatFvPatchVectorField
 }
 
 
-Foam::adjointOutletVelocityHeatFvPatchVectorField::
-adjointOutletVelocityHeatFvPatchVectorField
+Foam::adjointOutletVelocityPowerFvPatchVectorField::
+adjointOutletVelocityPowerFvPatchVectorField
 (
-    const adjointOutletVelocityHeatFvPatchVectorField& ptf,
+    const adjointOutletVelocityPowerFvPatchVectorField& ptf,
     const fvPatch& p,
     const DimensionedField<vector, volMesh>& iF,
     const fvPatchFieldMapper& mapper
@@ -70,10 +70,10 @@ adjointOutletVelocityHeatFvPatchVectorField
 {}
 
 
-Foam::adjointOutletVelocityHeatFvPatchVectorField::
-adjointOutletVelocityHeatFvPatchVectorField
+Foam::adjointOutletVelocityPowerFvPatchVectorField::
+adjointOutletVelocityPowerFvPatchVectorField
 (
-    const adjointOutletVelocityHeatFvPatchVectorField& pivpvf,
+    const adjointOutletVelocityPowerFvPatchVectorField& pivpvf,
     const DimensionedField<vector, volMesh>& iF
 )
 :
@@ -84,21 +84,21 @@ adjointOutletVelocityHeatFvPatchVectorField
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 // Update the coefficients associated with the patch field
-void Foam::adjointOutletVelocityHeatFvPatchVectorField::updateCoeffs()
+void Foam::adjointOutletVelocityPowerFvPatchVectorField::updateCoeffs()
 {
     if (updated())
     {
         return;
     }
 
-    const fvsPatchField<scalar>& phiap =
-        patch().lookupPatchField<surfaceScalarField, scalar>("phib");
+    const fvsPatchField<scalar>& phicp =
+        patch().lookupPatchField<surfaceScalarField, scalar>("phi_adj_U");
 
     const fvPatchField<vector>& Up =
         patch().lookupPatchField<volVectorField, vector>("U");
 
-    const fvPatchField<vector>& Uap =
-     patch().lookupPatchField<volVectorField, vector>("Ub");
+    const fvPatchField<vector>& Ucp =
+     patch().lookupPatchField<volVectorField, vector>("U_adj_U");
 
     const fvsPatchField<scalar>& phip =
      patch().lookupPatchField<surfaceScalarField, scalar>("phi");
@@ -108,7 +108,7 @@ void Foam::adjointOutletVelocityHeatFvPatchVectorField::updateCoeffs()
    //const incompressible::RASModel& rasModel =
    //  db().lookupObject<incompressible::RASModel>("RASProperties");
 
-   // scalarField nueff = rasModel.nuEff()().boundaryField()[patch().index()];
+   // scalarField nueff = rasModel.nu_eff()().boundaryField()[patch().index()];
 
     const scalarField& deltainv = 
      patch().deltaCoeffs(); // dist^(-1) 
@@ -119,21 +119,21 @@ void Foam::adjointOutletVelocityHeatFvPatchVectorField::updateCoeffs()
     vectorField Up_t = Up - (phip * patch().Sf())/(patch().magSf()*patch().magSf());
 
 //Tangential component of adjoint velocity in neighbouring node
-    vectorField Uaneigh = Uap.patchInternalField();
-    vectorField Uaneigh_n = (Uaneigh & patch().nf())*patch().nf();
-    vectorField Uaneigh_t = Uaneigh - Uaneigh_n;
+    vectorField Ucneigh = Ucp.patchInternalField();
+    vectorField Ucneigh_n = (Ucneigh & patch().nf())*patch().nf();
+    vectorField Ucneigh_t = Ucneigh - Ucneigh_n;
 
-    vectorField Uap_t = (nu.value()*deltainv*Uaneigh_t) / (Up_ns+nu.value()*deltainv) ;
+    vectorField Ucp_t = ((Up_ns*Up_t) + nu.value()*deltainv*Ucneigh_t) / (Up_ns+nu.value()*deltainv) ;
 
-    vectorField Uap_n = (phiap * patch().Sf())/(patch().magSf()*patch().magSf());
+    vectorField Ucp_n = (phicp * patch().Sf())/(patch().magSf()*patch().magSf());
 
-    operator==(Uap_t+Uap_n);
+    operator==(Ucp_t+Ucp_n);
 
     fixedValueFvPatchVectorField::updateCoeffs();
 }
 
 
-void Foam::adjointOutletVelocityHeatFvPatchVectorField::write(Ostream& os) const
+void Foam::adjointOutletVelocityPowerFvPatchVectorField::write(Ostream& os) const
 {
     fvPatchVectorField::write(os);
     writeEntry("value", os);
@@ -147,7 +147,7 @@ namespace Foam
     makePatchTypeField
     (
         fvPatchVectorField,
-        adjointOutletVelocityHeatFvPatchVectorField
+        adjointOutletVelocityPowerFvPatchVectorField
     );
 }
 
