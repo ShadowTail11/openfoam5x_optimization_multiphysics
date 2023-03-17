@@ -3,5 +3,5 @@
 // This includes all functions required even if not used
 // git status
 git add --all
-git commit -m "Fix thermal-fluid optimization algorithm"
+git commit -m "Update thermal-fluid optimization tutorial"
 git push -u origin main
