@@ -1,8 +1,8 @@
 
-// Sefine scalar field Allfsens
+// Define scalar field Allfsens
 
 List<scalarField> AllfList(Pstream::nProcs());
-scalarField localfsens(fsens.internalField());
+scalarField localfsens(f_sens_T.internalField());
 AllfList[Pstream::myProcNo()] = localfsens;
 Pstream::gatherList(AllfList);
 Pstream::scatterList(AllfList);
@@ -19,7 +19,7 @@ scalarField Allfsens(
 // Define scalar field GSENS_U
 
 List<scalarField> AllguList(Pstream::nProcs());
-scalarField localgusens(gsens_U.internalField());
+scalarField localgusens(g_sens_power_loss.internalField());
 AllguList[Pstream::myProcNo()] = localgusens;
 Pstream::gatherList(AllguList);
 Pstream::scatterList(AllguList);
@@ -38,8 +38,8 @@ scaleg = 0;
 
 for(i = 0; i < allcells; i++)
 {
-   scalef = std::max(scalef, mag(fsens[i]));
-   scaleg = std::max(scaleg, mag(gsens_U[i]));
+   scalef = std::max(scalef, mag(f_sens_T[i]));
+   scaleg = std::max(scaleg, mag(g_sens_power_loss[i]));
 }
 
 reduce(scalef, maxOp<scalar>()); 
@@ -90,8 +90,8 @@ if(opt > 1)
 {
    for(i = 0; i < allcells; i++)
    {
-      fsens[i] = Faa[i + mycells];
-      gsens_U[i] = Gbb[i + mycells];
-      gsens[i] = Gdd[i + mycells];
+        f_sens_T[i] = Faa[i + mycells];
+        g_sens_power_loss[i] = Gbb[i + mycells];
+        gsens[i] = Gdd[i + mycells];
    }          
 }

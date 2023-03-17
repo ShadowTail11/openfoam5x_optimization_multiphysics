@@ -41,6 +41,7 @@ License
 
 // Initialize classes and cells
 
+// Function sets the value of a zone of cells
 template<class Type>
 void setCells(
     
@@ -68,23 +69,23 @@ int main(int argc, char *argv[])
     #include "createTime.H"
     #include "createMesh.H"
     #include "createControl.H"
-    #include "createFields.H"
-    #include "readThermalProperties.H" 
+    #include "createFields.H"       // Read & create parameters & fields
     #include "createFvOptions.H"
     #include "initContinuityErrs.H"
-    #include "SIMP_initialize.H"
+    #include "SIMP_initialize.H"    // Initialize other parameters
 
     while (simple.loop())
     {
         Info << "Time = " << runTime.timeName() << nl << endl;
-        #include "primal_equation.H"
-        #include "adjoint_equation_T.H"
 
-        for(i = 0 ; i < 60; i++)
-        {
-           #include "adjoint_flow_U.H"
-        }
-        
+        #include "primal_flow_solver.H"
+        #include "primal_thermal_solver.H"
+        #include "update_primal_properties.H"
+
+        #include "adjoint_thermal_Tb_solver.H"
+        #include "adjoint_flow_T.H"
+        #include "adjoint_flow_U.H"
+
         #include "costfunction.H"
         #include "sensitivity.H"
         
@@ -93,6 +94,8 @@ int main(int argc, char *argv[])
             gamma.write();
             T.write();
             U.write();
+            p.write();
+            nu_eff.write();
         }
 
         Info << "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
@@ -100,12 +103,19 @@ int main(int argc, char *argv[])
         << nl << endl;
 
         // Exit if convergence has been achieved
-        if (dmeanT_RMS < opt_converge && opt > 10) {
+        if (dmeanT_RMS < converge_tol && opt > 20) {
             gamma.write();
             T.write();
             U.write();
-            Info << "Convergence criterion (<" << opt_converge * 100 << "%) has been met after "
-                 << opt-1 << " iterations!" << endl << "Program ending!" << endl;
+            p.write();
+            nu_eff.write();
+            Info << "Convergence criterion (<" << converge_tol * 100 << "%) has been met after "
+                 << opt - 1 << " iterations!" << endl << "Program ending!" << endl;
+
+            Info << "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
+                 << "  ClockTime = " << runTime.elapsedClockTime() << " s"
+                 << nl << endl;
+            
             break;
         }
     }

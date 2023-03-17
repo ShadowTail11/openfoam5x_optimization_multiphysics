@@ -1,11 +1,13 @@
-// 
+// Remove any files from previous run
 std::remove("Voluse.txt");
-std::remove("meanT.txt"); 
-std::remove("Disspower.txt");  
+std::remove("meanT.txt");
+std::remove("Disspower.txt");
 std::remove("Time.txt");
 std::remove("dmeanT_RMS.txt");
+std::remove("Pressure_Drop.txt");
+std::remove("Temperature_Drop.txt");
 
-//    
+// Initialize variables
 scalar C(0);
 scalar DissPower(0);
 scalar meanT(0);
@@ -15,10 +17,14 @@ scalar meanT_prev(meanT);
 scalar dmeanT(0);
 scalar dmeanT_sum(0);
 scalar dmeanT_RMS(0);
+scalar area=gSum(mesh.V());
+scalar pressure_drop(0);
+scalar temperature_drop(0);
+int n_loops(0);
 
 int i = 0, j = 0, k = 0, jk, allcells, nallcells, mycells = 0, iter = 0, opt = 1;
 scalar allcell = gamma.size();      //allcell:length of gamma in the i-th core
-allcells = static_cast<int>(allcell); 
+allcells = static_cast<int>(allcell);
 List<scalar> cellsize(Pstream::nProcs());
 
 for(i = 0; i < Pstream::nProcs(); i++)
@@ -36,10 +42,10 @@ nallcells = static_cast<int>(allcell);    //nallcells:total length of gamma
 for(i = 0; i < Pstream::myProcNo(); i++)
 {
    mycells = mycells + cellsize[i];
-}     
+}
 
 double add1 = 0, add2 = 0, len = std::pow(mesh.V()[0], 1.0 / 3);
-double eta0, eta1, eta5 = 0, del = 0.1, y0, y1, y5; 
+double eta0, eta1, eta5 = 0, del = 0.1, y0, y1, y5;
 
 double *Faa = new double[nallcells];
 double *Gbb = new double[nallcells];
@@ -66,7 +72,6 @@ vectorField Allcellcenter(
    )
 );
 
-int FR = filter_Radius;
 int Nnum[nallcells];
 int (*Nlabel)[125] = new int [nallcells][125];
 double (*Nweight)[125] = new double [nallcells][125];
@@ -83,20 +88,20 @@ for(i = 0; i < nallcells; i++)
 }
 
 int nx, ny, nz, Nx, Ny, Nz;
-nx = static_cast<int>((geo_xmax - geo_xmin + len / 4.0) / len) + FR * 2 + 1;
-ny = static_cast<int>((geo_ymax - geo_ymin + len / 4.0) / len) + FR * 2 + 1;
-nz = static_cast<int>((geo_zmax - geo_zmin + len / 4.0) / len) + FR * 2 + 1;
+nx = static_cast<int>((geo_xmax - geo_xmin + len / 4.0) / len) + r_filter * 2 + 1;
+ny = static_cast<int>((geo_ymax - geo_ymin + len / 4.0) / len) + r_filter * 2 + 1;
+nz = static_cast<int>((geo_zmax - geo_zmin + len / 4.0) / len) + r_filter * 2 + 1;
 
 
 int ***ALLlabel;
 ALLlabel = new int **[nx];
 
-for(i = 0; i < nx; i++) 
+for(i = 0; i < nx; i++)
 {
-   ALLlabel[i] = new int *[ny]; 
+   ALLlabel[i] = new int *[ny];
    for(j = 0; j < ny; j++)
    {
-      ALLlabel[i][j] = new int[nz]; 
+      ALLlabel[i][j] = new int[nz];
    }
 }
 
@@ -116,7 +121,7 @@ for(jk = 0; jk < nallcells; jk++)
    nx = static_cast<int>((Allcellcenter[jk][0] - geo_xmin + len / 4.0) / len);
    ny = static_cast<int>((Allcellcenter[jk][1] - geo_ymin + len / 4.0) / len);
    nz = static_cast<int>((Allcellcenter[jk][2] - geo_zmin + len / 4.0) / len);
-   ALLlabel[nx + FR][ny + FR][nz + FR] = jk;
+   ALLlabel[nx + r_filter][ny + r_filter][nz + r_filter] = jk;
 }
 
 for(jk = 0; jk < nallcells; jk++)
@@ -126,19 +131,19 @@ for(jk = 0; jk < nallcells; jk++)
    ny = static_cast<int>((Allcellcenter[jk][1] - geo_ymin + len / 4.0) / len);
    nz = static_cast<int>((Allcellcenter[jk][2] - geo_zmin + len / 4.0) / len);
 
-   for(i = -FR; i <= FR; i++)
+   for(i = -r_filter; i <= r_filter; i++)
    {
-      for(j = -FR; j <= FR; j++)
+      for(j = -r_filter; j <= r_filter; j++)
       {
-         for(k = -FR; k <= FR; k++)
+         for(k = -r_filter; k <= r_filter; k++)
          {
             Nx = nx + i;
             Ny = ny + j;
             Nz = nz + k;
 
-            if(ALLlabel[Nx + FR][Ny + FR][Nz + FR] >= 0)
+            if(ALLlabel[Nx + r_filter][Ny + r_filter][Nz + r_filter] >= 0)
             {
-               Nlabel[jk][Nnum[jk]] = ALLlabel[Nx + FR][Ny + FR][Nz + FR];
+               Nlabel[jk][Nnum[jk]] = ALLlabel[Nx + r_filter][Ny + r_filter][Nz + r_filter];
                Nweight[jk][Nnum[jk]] = (3.8 - std::sqrt(i * i + j * j + k * k)) * len;
                Nnum[jk]++;
             }
@@ -169,9 +174,9 @@ for(i = 0 ; i < allcells; i++)
 }
 VecRestoreArray(xmma, &xmma_array);
 
-VecDuplicate(xmma, &xold); 
+VecDuplicate(xmma, &xold);
 VecDuplicate(xmma, &xmin);
-VecDuplicate(xmma, &xmax); 
+VecDuplicate(xmma, &xmax);
 
 PetscScalar aMMA[m];
 PetscScalar cMMA[m];
@@ -190,7 +195,7 @@ mma = new MMA(N_dof, m, xmma, aMMA, cMMA, dMMA, mma_init, mma_dec, mma_inc);
 //**********************************************//dfdx
 
 Vec dfdx; // Sensitivities of objective
-VecDuplicate(xmma, &dfdx); 
+VecDuplicate(xmma, &dfdx);
 PetscScalar *dfdx_array;
 VecGetArray(dfdx, &dfdx_array);
 VecRestoreArray(dfdx, &dfdx_array);
@@ -201,12 +206,11 @@ PetscScalar *gx = new PetscScalar[m]; // Array with constraint values
 
 //*****************************************************//dgdx
 Vec *dgdx; // Sensitivities of constraints (vector array)
-VecDuplicateVecs(xmma, m, &dgdx); 
+VecDuplicateVecs(xmma, m, &dgdx);
 PetscScalar **dgdx_array;
 VecGetArrays(dgdx, m, &dgdx_array);
 VecRestoreArrays(dgdx, m, &dgdx_array);
 
 gamma.correctBoundaryConditions();
-qu.correctBoundaryConditions();
-alpha = alphaMax * qu * (1 - gamma) / (qu + gamma);
-DT = (ks + (kf-ks) * gamma * (1 + qu) / (qu + gamma)) / rhoc; 
+alpha_U = alpha_U_max * q_factor * (1 - gamma) / (q_factor + gamma);
+alpha_T_eff = (k_solid + (k_fluid - k_solid) * gamma * (1 + q_factor) / (q_factor + gamma)) / (rho_eff * cp_eff);
