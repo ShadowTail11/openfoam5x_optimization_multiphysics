@@ -1,11 +1,11 @@
 // Remove any files from previous run
-std::remove("Voluse.txt");
-std::remove("meanT.txt");
-std::remove("Disspower.txt");
-std::remove("Time.txt");
-std::remove("dmeanT_RMS.txt");
-std::remove("Pressure_Drop.txt");
-std::remove("Temperature_Drop.txt");
+std::remove("Monitor_Time.txt");
+std::remove("Monitor_PseudoDensityDelta.txt");
+std::remove("Monitor_AverageTemperature.txt");
+std::remove("Monitor_TemperatureDrop.txt");
+std::remove("Monitor_PowerDissipation.txt");
+std::remove("Monitor_PressureDrop.txt");
+std::remove("Monitor_VolumeFraction.txt");
 
 // Initialize variables
 scalar C(0);
@@ -21,6 +21,7 @@ scalar area=gSum(mesh.V());
 scalar pressure_drop(0);
 scalar temperature_drop(0);
 int n_loops(0);
+scalar gamma_rms(0);
 
 int i = 0, j = 0, k = 0, jk, allcells, nallcells, mycells = 0, iter = 0, opt = 1;
 scalar allcell = gamma.size();      //allcell:length of gamma in the i-th core

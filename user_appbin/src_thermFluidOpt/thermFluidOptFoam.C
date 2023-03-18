@@ -88,35 +88,8 @@ int main(int argc, char *argv[])
 
         #include "costFunction.H"
         #include "sensitivity.H"
-        
-        if(runTime.writeTime())
-        {
-            gamma.write();
-            T.write();
-            U.write();
-            p.write();
-            nu_eff.write();
-        }
+        #include "output.h"
 
-        Info << "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
-        << "  ClockTime = " << runTime.elapsedClockTime() << " s"
-        << nl << endl;
-
-        // Exit if convergence has been achieved
-        if (dmeanT_RMS < converge_tol && opt > 20) {
-            gamma.write();
-            T.write();
-            U.write();
-            p.write();
-            nu_eff.write();
-            Info << "Convergence criterion (<" << converge_tol * 100 << "%) has been met after "
-                 << opt - 1 << " iterations!" << endl << "Program ending!" << endl;
-
-            Info << "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
-                 << "  ClockTime = " << runTime.elapsedClockTime() << " s"
-                 << nl << endl;
-            
-            break;
         }
     }
 

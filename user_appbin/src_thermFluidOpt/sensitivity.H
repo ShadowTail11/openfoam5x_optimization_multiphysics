@@ -39,10 +39,15 @@
 
     // Update values
 
+    gamma_rms = 0;
     for(i = 0; i < allcells; i++)
     {
-      gamma[i] = xmma_array[i];
+        gamma_rms += ((std::round(xmma_array[i]) - std::round(gamma[i]))
+                * (std::round(xmma_array[i]) - std::round(gamma[i])));
+
+        gamma[i] = xmma_array[i];
     }
+    gamma_rms = gamma_rms / allcells;
 
     VecRestoreArray(xmma, &xmma_array);
 
@@ -52,19 +57,19 @@
 
     if(opt <= 63)
     {
-      alpha_U_max = alpha_U_max * (opt / 7.0 + 1.0);
+        alpha_U_max = alpha_U_max * (opt / 7.0 + 1.0);
     }
 
     if(opt > 100)
     {
-      alpha_U_max = alpha_U_max * 1.05;
+        alpha_U_max = alpha_U_max * 1.05;
     }
 
     alpha_U_max.value() = Foam::min(alpha_U_max.value(), 10000000.0);
 
     if(opt >= 80)
     {
-      q_factor = 0.005 + (opt - 80) * 1e-4;
+        q_factor = 0.005 + (opt - 80) * 1e-4;
     }
 
     q_factor = Foam::min(q_factor, 0.01);
