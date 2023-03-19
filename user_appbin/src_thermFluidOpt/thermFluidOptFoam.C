@@ -78,20 +78,22 @@ int main(int argc, char *argv[])
     {
         Info << "Time = " << runTime.timeName() << nl << endl;
 
-        #include "primalFlowSolver.H"
-        #include "primalThermalSolver.H"
-        #include "updatePrimalProperties.H"
+        #include "solvePowerLossRef.h"          // Update power loss reference using test region (if needed)
 
-        #include "adjointThermalSolverT.H"
-        #include "adjointThermalSolverU.H"
-        #include "adjointFlowSolverU.H"
+        #include "primalFlowSolver.H"           // Run primal solver for U and p
+        #include "primalThermalSolver.H"        // Run primal solver for T
+        #include "updatePrimalProperties.H"     // Update primal properties that are based on temperature
 
-        #include "costFunction.H"
-        #include "sensitivity.H"
-        #include "output.h"
+        #include "adjointThermalSolverT.H"      // Run adjoint solver for T_adj
+        #include "adjointThermalSolverU.H"      // Run adjoint solver for U_adj_T
+        #include "adjointFlowSolverU.H"         // Run adjoint solver for U_adj_U
 
-        }
+        #include "costFunction.H"               // Calculate the cost function & convergence properties
+        #include "sensitivity.H"                // Calculate sensitivity and update pseudo density accordingly
+        #include "output.h"                     // Check convergence and output monitoring/state variables
+
     }
+}
 
     delete mma;
     PetscFinalize();
