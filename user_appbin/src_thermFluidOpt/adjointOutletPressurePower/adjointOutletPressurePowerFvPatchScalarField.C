@@ -104,9 +104,12 @@ void Foam::adjointOutletPressurePowerFvPatchScalarField::updateCoeffs()
 
     const fvPatchField<vector>& Ucp =
         patch().lookupPatchField<volVectorField, vector>("U_adj_U");
+
+    const fvPatchField<scalar>& nu_effp =
+            patch().lookupPatchField<volScalarField, scalar>("nu_eff");
         
-    const dictionary& transportProperties = db().lookupObject<IOdictionary>("transportProperties");
-     dimensionedScalar nu(transportProperties.lookup("nu"));
+//    const dictionary& transportProperties = db().lookupObject<IOdictionary>("transportProperties");
+//     dimensionedScalar nu(transportProperties.lookup("nu"));
      
     scalarField Up_n = phip / patch().magSf();//Primal
 
@@ -121,7 +124,7 @@ void Foam::adjointOutletPressurePowerFvPatchScalarField::updateCoeffs()
 
     scalarField Ucneigh_n = (Ucp.patchInternalField() & patch().nf());
     
-    operator == ( (Up_n * Ucp_n) +2*nu.value()*deltainv*(Ucp_n-Ucneigh_n) -
+    operator == ( (Up_n * Ucp_n) +2*nu_effp*deltainv*(Ucp_n-Ucneigh_n) -
      (0.5*mag(Up)*mag(Up)) - (Up & patch().Sf()/patch().magSf()) * (Up & patch().Sf()/patch().magSf())) ;
 
     fixedValueFvPatchScalarField::updateCoeffs();

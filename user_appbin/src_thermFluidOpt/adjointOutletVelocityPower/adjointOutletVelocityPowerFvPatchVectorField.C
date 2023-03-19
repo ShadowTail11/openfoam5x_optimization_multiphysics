@@ -102,9 +102,15 @@ void Foam::adjointOutletVelocityPowerFvPatchVectorField::updateCoeffs()
 
     const fvsPatchField<scalar>& phip =
      patch().lookupPatchField<surfaceScalarField, scalar>("phi");
-     
-    const dictionary& transportProperties = db().lookupObject<IOdictionary>("transportProperties");
-     dimensionedScalar nu(transportProperties.lookup("nu"));
+
+
+
+    const fvPatchField<scalar>& nu_effp =
+            patch().lookupPatchField<volScalarField, scalar>("nu_eff");
+
+
+//    const dictionary& transportProperties = db().lookupObject<IOdictionary>("transportProperties");
+//     dimensionedScalar nu(transportProperties.lookup("nu"));
    //const incompressible::RASModel& rasModel =
    //  db().lookupObject<incompressible::RASModel>("RASProperties");
 
@@ -114,20 +120,20 @@ void Foam::adjointOutletVelocityPowerFvPatchVectorField::updateCoeffs()
      patch().deltaCoeffs(); // dist^(-1) 
 
 //Primal velocity, mag of normal component and tangential component
-    scalarField Up_ns = phip/patch().magSf();
+    scalarField Up_ns = phip / patch().magSf();
 
-    vectorField Up_t = Up - (phip * patch().Sf())/(patch().magSf()*patch().magSf());
+    vectorField Up_t = Up - (phip * patch().Sf()) / (patch().magSf() * patch().magSf());
 
 //Tangential component of adjoint velocity in neighbouring node
     vectorField Ucneigh = Ucp.patchInternalField();
-    vectorField Ucneigh_n = (Ucneigh & patch().nf())*patch().nf();
+    vectorField Ucneigh_n = (Ucneigh & patch().nf()) * patch().nf();
     vectorField Ucneigh_t = Ucneigh - Ucneigh_n;
 
-    vectorField Ucp_t = ((Up_ns*Up_t) + nu.value()*deltainv*Ucneigh_t) / (Up_ns+nu.value()*deltainv) ;
+    vectorField Ucp_t = ((Up_ns * Up_t) + nu_effp * deltainv * Ucneigh_t) / (Up_ns + nu_effp * deltainv) ;
 
     vectorField Ucp_n = (phicp * patch().Sf())/(patch().magSf()*patch().magSf());
 
-    operator==(Ucp_t+Ucp_n);
+    operator==(Ucp_t + Ucp_n);
 
     fixedValueFvPatchVectorField::updateCoeffs();
 }
