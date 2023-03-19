@@ -118,6 +118,21 @@ volScalarField gamma(
         zeroGradientFvPatchScalarField::typeName
 );
 
+volScalarField gamma_test(
+
+        IOobject(
+
+                "gamma_test",
+                runTime.timeName(),
+                mesh,
+                IOobject::READ_IF_PRESENT,
+                IOobject::AUTO_WRITE
+        ),
+        mesh,
+        scalar(set_vol_frac),
+        zeroGradientFvPatchScalarField::typeName
+);
+
 // Effective density
 volScalarField rho_eff(
         rho_solid + (rho_fluid - rho_solid) * gamma * (1 + q_factor) / (q_factor + gamma)
@@ -291,45 +306,45 @@ Info << "Reading adjoint kinematic pressure (flow) field p_adj_U\n" << endl;
 
 volScalarField p_adj_U(
 
-    IOobject(
+        IOobject(
 
-        "p_adj_U",
-        runTime.timeName(),
-        mesh,
-        IOobject::READ_IF_PRESENT,
-        IOobject::AUTO_WRITE
-    ),
-    mesh
+                "p_adj_U",
+                runTime.timeName(),
+                mesh,
+                IOobject::READ_IF_PRESENT,
+                IOobject::AUTO_WRITE
+        ),
+        mesh
 );
 
 Info << "Reading adjoint velocity field U_adj_U\n" << endl;
 
 volVectorField U_adj_U(
 
-    IOobject(
+        IOobject(
 
-        "U_adj_U",
-        runTime.timeName(),
-        mesh,
-        IOobject::READ_IF_PRESENT,
-        IOobject::AUTO_WRITE
-    ),
-    mesh
+                "U_adj_U",
+                runTime.timeName(),
+                mesh,
+                IOobject::READ_IF_PRESENT,
+                IOobject::AUTO_WRITE
+        ),
+        mesh
 );
 
 Info << "Reading/calculating face flux field phi_adj_U\n" << endl;
 
 surfaceScalarField phi_adj_U(
 
-    IOobject(
+        IOobject(
 
-        "phi_adj_U",
-        runTime.timeName(),
-        mesh,
-        IOobject::READ_IF_PRESENT,
-        IOobject::AUTO_WRITE
-    ),
-    linearInterpolate(U_adj_U) & mesh.Sf()
+                "phi_adj_U",
+                runTime.timeName(),
+                mesh,
+                IOobject::READ_IF_PRESENT,
+                IOobject::AUTO_WRITE
+        ),
+        linearInterpolate(U_adj_U) & mesh.Sf()
 );
 
 // Set adjoint kinematic pressure reference (flow)
@@ -338,15 +353,76 @@ scalar p_adj_URefValue = 0.0;
 
 setRefCell(
 
-    p_adj_U,
-    simple.dict(),
-    p_adj_URefCell,
-    p_adj_URefValue
+        p_adj_U,
+        simple.dict(),
+        p_adj_URefCell,
+        p_adj_URefValue
 );
 
 mesh.setFluxRequired(p_adj_U.name());
 
-//************************************************************************//property
+//************************************************************************//
+
+Info << "Reading test pressure field p_test\n" << endl;
+
+volScalarField p_test(
+
+        IOobject(
+
+                "p_test",
+                runTime.timeName(),
+                mesh,
+                IOobject::READ_IF_PRESENT,
+                IOobject::AUTO_WRITE
+        ),
+        mesh
+);
+
+Info << "Reading test velocity field U_test\n" << endl;
+
+volVectorField U_test(
+
+        IOobject(
+
+                "U_test",
+                runTime.timeName(),
+                mesh,
+                IOobject::READ_IF_PRESENT,
+                IOobject::AUTO_WRITE
+        ),
+        mesh
+);
+
+Info << "Reading/calculating test face flux field phi_test\n" << endl;
+
+surfaceScalarField phi_test(
+
+        IOobject(
+
+                "phi_test",
+                runTime.timeName(),
+                mesh,
+                IOobject::READ_IF_PRESENT,
+                IOobject::AUTO_WRITE
+        ),
+        linearInterpolate(U_test) & mesh.Sf()
+);
+
+// Set adjoint kinematic pressure reference (flow)
+label p_testRefCell = 0;
+scalar p_testRefValue = 0.0;
+
+setRefCell(
+
+        p_test,
+        simple.dict(),
+        p_testRefCell,
+        p_testRefValue
+);
+
+mesh.setFluxRequired(p_test.name());
+
+//************************************************************************//
 
 
 labelList cells1, cells_solid, cells_fluid;
@@ -354,30 +430,33 @@ labelList cells1, cells_solid, cells_fluid;
 // Set fixed regions
 if (test_area == 1)
 {
-  word zoneName1 = "zone_test";
-  label zoneID1 = mesh.cellZones().findZoneID(zoneName1);
-  cells1 = mesh.cellZones()[zoneID1];
-  setCells(gamma, cells1, 1);
+    word zoneName1 = "zone_test";
+    label zoneID1 = mesh.cellZones().findZoneID(zoneName1);
+    cells1 = mesh.cellZones()[zoneID1];
+    setCells(gamma_test, cells1, 1);
 }
 
 if (solid_area == 1)
 {
-  word zoneName2 = "zone_solid";
-  label zoneID2 = mesh.cellZones().findZoneID(zoneName2);
-  cells_solid = mesh.cellZones()[zoneID2];
-  setCells(gamma, cells_solid, 0);
+    word zoneName2 = "zone_solid";
+    label zoneID2 = mesh.cellZones().findZoneID(zoneName2);
+    cells_solid = mesh.cellZones()[zoneID2];
+    setCells(gamma, cells_solid, 0);
+    setCells(gamma_test, cells_solid, 0);
 }
 
 if (fluid_area == 1)
 {
-  word zoneName3 = "zone_fluid";
-  label zoneID3 = mesh.cellZones().findZoneID(zoneName3);
-  cells_fluid = mesh.cellZones()[zoneID3];
-  setCells(gamma, cells_fluid, 1);
+    word zoneName3 = "zone_fluid";
+    label zoneID3 = mesh.cellZones().findZoneID(zoneName3);
+    cells_fluid = mesh.cellZones()[zoneID3];
+    setCells(gamma, cells_fluid, 1);
+    setCells(gamma_test, cells_fluid, 1);
 }
 
 // Calculate flow resistance
 volScalarField alpha_U(alpha_U_max * q_factor * (1 - gamma) / (q_factor + gamma));
+volScalarField alpha_U_test(alpha_U_max * q_factor * (1 - gamma_test) / (q_factor + gamma_test));
 
 // Create the parallel run pseudo density variable Allgamma
 

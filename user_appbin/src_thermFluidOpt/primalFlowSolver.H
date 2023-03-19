@@ -17,7 +17,7 @@
     }
 
     // Iterate primal solver to calculate velocity U and kinematic pressure p
-    for (i = 0; i < n_loops; i++)
+    for (i = 0; i < 100; i++)
     {
         Info << "Time = " << runTime.timeName() << nl << endl;
 
