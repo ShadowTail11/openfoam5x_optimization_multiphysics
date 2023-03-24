@@ -1,97 +1,33 @@
+f_sens_T_init = f_sens_T_init / gMax(mag(f_sens_T_init.primitiveField()));
+g_sens_power_loss_init = g_sens_power_loss_init / gMax(mag(g_sens_power_loss_init.primitiveField()));
+g_sens_vol_frac_norm.primitiveFieldRef() = 1.0;
 
-// Define scalar field Allfsens
-
-List<scalarField> AllfList(Pstream::nProcs());
-scalarField localfsens(f_sens_T.internalField());
-AllfList[Pstream::myProcNo()] = localfsens;
-Pstream::gatherList(AllfList);
-Pstream::scatterList(AllfList);
-
-scalarField Allfsens(
-
-   ListListOps::combine<scalarField>(
-
-      AllfList,
-      accessOp<scalarField>()
-   )
-);
-
-// Define scalar field GSENS_U
-
-List<scalarField> AllguList(Pstream::nProcs());
-scalarField localgusens(g_sens_power_loss.internalField());
-AllguList[Pstream::myProcNo()] = localgusens;
-Pstream::gatherList(AllguList);
-Pstream::scatterList(AllguList);
-
-scalarField Allgusens(
-
-   ListListOps::combine<scalarField>(
-      
-      AllguList,
-      accessOp<scalarField>()
-   )
-);  
-
-scalef = 0;
-scaleg = 0;
-
-for(i = 0; i < allcells; i++)
+//***********************************//Heaviside_filter
+if (opt > 1)
 {
-   scalef = std::max(scalef, mag(f_sens_T[i]));
-   scaleg = std::max(scaleg, mag(g_sens_power_loss[i]));
+    for (i = 0; i < n_cells; i++)
+    {
+        if (gamma_densityfilter[i] <= eta5)
+        {
+            drho[i] = del * Foam::exp(-del * (1.0 - gamma_densityfilter[i] / eta5)) + Foam::exp(-del);
+        }
+        else
+        {
+            drho[i] = del * Foam::exp(-del * (gamma_densityfilter[i] - eta5) / (1.0 - eta5)) + Foam::exp(-del);
+        }
+    }
+    f_sens_T_init = f_sens_T_init * drho;
+    g_sens_power_loss_init = g_sens_power_loss_init * drho;
+    g_sens_vol_frac_norm = g_sens_vol_frac_norm * drho;
 }
 
-reduce(scalef, maxOp<scalar>()); 
-reduce(scaleg, maxOp<scalar>()); 
+//***********************************//PDE filter
+solve(fvm::laplacian(f_sens_T) - fvm::Sp(b, f_sens_T) + f_sens_T_init * b);
 
-if(opt > 1)
-{
-  for(i = 0; i < nallcells; i++)
-  {
-     if(gamma_densityfilter[i] <= eta5)
-     {
-         drho[i] = del * Foam::exp(-del * (1 - gamma_densityfilter[i] / eta5)) + Foam::exp(-del); 
-     }
-     else
-     {
-         drho[i] = del * Foam::exp(-del * (gamma_densityfilter[i] - eta5) / (1 - eta5)) + Foam::exp(-del); 
-     }
+solve(fvm::laplacian(g_sens_power_loss) - fvm::Sp(b, g_sens_power_loss) + g_sens_power_loss_init * b);
 
-     Allfsens[i] = Allfsens[i] * drho[i];
-     Allgusens[i] = Allgusens[i] * drho[i];
-     gsens[i] = 1.0 / nallcells * drho[i];
-  }
-}
+solve(fvm::laplacian(g_sens_vol_frac) - fvm::Sp(b, g_sens_vol_frac) + g_sens_vol_frac_norm * b);
 
-for(i = 0; i < nallcells; i++)                  //ith node
-{
-   add1 = 0;
-   Faa[i] = 0;
-   Gbb[i] = 0;
-   Gdd[i] = 0;
-
-   for(j = 0; j < Nnum[i]; j++)                 //j nodes around the ith node
-   {
-      add2 = 0;
-
-      for(k = 0; k < Nnum[Nlabel[i][j]]; k++)   //k nodes around the jth node
-      {
-         add2 = add2 + Nweight[Nlabel[i][j]][k];
-      }
-      add1 = Nweight[i][j];
-      Faa[i] = Faa[i] + Allfsens[Nlabel[i][j]] * add1 / add2;
-      Gbb[i] = Gbb[i] + Allgusens[Nlabel[i][j]] * add1 / add2;
-      Gdd[i] = Gdd[i] + gsens[Nlabel[i][j]] * add1 / add2;
-   }
-}
-
-if(opt > 1)
-{
-   for(i = 0; i < allcells; i++)
-   {
-        f_sens_T[i] = Faa[i + mycells];
-        g_sens_power_loss[i] = Gbb[i + mycells];
-        gsens[i] = Gdd[i + mycells];
-   }          
-}
+f_sens_T.primitiveFieldRef() = f_sens_T.primitiveFieldRef() * mesh.V() / gMax(mesh.V());
+g_sens_power_loss.primitiveFieldRef() = g_sens_power_loss.primitiveFieldRef() * mesh.V() / gMax(mesh.V());
+g_sens_vol_frac.primitiveFieldRef() = g_sens_vol_frac.primitiveFieldRef() * mesh.V() / gMax(mesh.V());

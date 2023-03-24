@@ -6,7 +6,7 @@ solve(fvm::laplacian(gamma_densityfilter) - fvm::Sp(b, gamma_densityfilter) + x 
 
 
 //***********************************//Heaviside_filter
-del = Foam::min(0.2 * opt, 100);
+del = Foam::min(0.2 * opt, 100.0);
 eta0 = 0.0001;
 eta1 = 1.0;
 y0 = fun(gamma_densityfilter, mesh.V(), del, eta0, n_cells);
@@ -31,11 +31,11 @@ for(i = 0; i < n_cells; i++)
 {
 if(gamma_densityfilter[i] <= eta5)
 {
-gamma[i] = eta5 * (Foam::exp(-del * (1 - gamma_densityfilter[i] / eta5)) - (1 - gamma_densityfilter[i] / eta5) * Foam::exp(-del));
+gamma[i] = eta5 * (Foam::exp(-del * (1.0 - gamma_densityfilter[i] / eta5)) - (1.0 - gamma_densityfilter[i] / eta5) * Foam::exp(-del));
 }
 else
 {
-gamma[i] = eta5 + (1 - eta5) * (1 - Foam::exp(-del * (gamma_densityfilter[i] - eta5) / (1 - eta5)) + (gamma_densityfilter[i] - eta5) * Foam::exp(-del) / (1 - eta5));
+gamma[i] = eta5 + (1.0 - eta5) * (1.0 - Foam::exp(-del * (gamma_densityfilter[i] - eta5) / (1.0 - eta5)) + (gamma_densityfilter[i] - eta5) * Foam::exp(-del) / (1.0 - eta5));
 }
 }
 

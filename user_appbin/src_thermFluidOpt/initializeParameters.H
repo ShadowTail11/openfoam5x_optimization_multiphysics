@@ -58,7 +58,7 @@ double *Gcc = new double[nallcells];
 double *Gdd = new double[nallcells];
 double *gsens = new double[nallcells];
 //double *gamma_densityfilter = new double[nallcells];
-double *drho = new double[nallcells];
+//double *drho = new double[nallcells];
 
 // Heaviside density filter (only works on uniform mesh)
 

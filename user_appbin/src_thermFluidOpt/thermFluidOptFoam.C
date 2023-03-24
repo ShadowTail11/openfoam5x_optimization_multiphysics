@@ -94,7 +94,6 @@ int main(int argc, char *argv[])
         #include "output.h"                     // Check convergence and output monitoring/state variables
 
     }
-}
 
     delete mma;
     PetscFinalize();

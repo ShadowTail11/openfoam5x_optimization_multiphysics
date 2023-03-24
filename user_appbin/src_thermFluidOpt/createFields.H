@@ -36,6 +36,14 @@ int r_filter = r_filter_scalar;
 scalar set_vol_frac(readScalar(optimizationProperties.lookup("set_vol_frac")));         // Target volume fraction
 scalar set_power_ratio(readScalar(optimizationProperties.lookup("set_power_ratio")));   // Target power loss ratio
 scalar power_loss_ref(readScalar(optimizationProperties.lookup("power_loss_ref")));     // Power loss reference
+
+// Optimization weights
+//scalar weight_U(readScalar(optimizationProperties.lookup("weight_U")));     // Sensitivity weight for velocity term
+//scalar weight_TK(readScalar(optimizationProperties.lookup("weight_TK")));   // Sensitivity weight for thermal conductivity term
+//scalar weight_TQ(readScalar(optimizationProperties.lookup("weight_TQ")));   // Sensitivity weight for heat generation term
+scalar weight_TU(readScalar(optimizationProperties.lookup("weight_TU")));   // Sensitivity weight for thermal diffusivity term
+
+// Adjoint unit correctors
 dimensionedScalar unit_correct("unit_correct", dimensionSet(0,2,-2,-2,0,0,0),1.0);      // Adjoint (U/T)^2 unit correction
 dimensionedScalar unit_correct_U("unit_correct_U", dimensionSet(0,-1,1,0,0,0,0),1.0);   // Adjoint U unit correction
 dimensionedScalar unit_correct_T("unit_correct_T", dimensionSet(0,0,0,-1,0,0,0),1.0);   // Adjoint T unit correction
@@ -135,6 +143,7 @@ volScalarField gamma_densityfilter
         );
 
 volScalarField x(gamma_densityfilter);
+volScalarField drho(x);
 
 volScalarField gamma_test(
 
@@ -496,32 +505,53 @@ scalarField Allgamma(
 // Primary adjoint sensitivity equation for thermal optimization
 volScalarField f_sens_T(
 
-    IOobject(
+        IOobject(
 
-        "f_sens_T",
-        runTime.timeName(),
-        mesh,
-        IOobject::READ_IF_PRESENT,
-        IOobject::AUTO_WRITE
-    ),
-            -alpha_U_max * (1 + q_factor) * q_factor / ((q_factor + gamma) * (q_factor + gamma)) * (U & U_adj_T)
-            + unit_correct * (k_fluid - k_solid) * (1 + q_factor) * q_factor / ((q_factor + gamma) * (q_factor + gamma))
-            * (fvc::grad(T) & fvc::grad(T_adj)) / (rho_eff * cp_eff)
-            + unit_correct * T_adj * q_gen
+                "f_sens_T",
+                runTime.timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::AUTO_WRITE
+        ),
+        - alpha_U_max * (1 + q_factor) * q_factor / ((q_factor + gamma) * (q_factor + gamma)) * (U & U_adj_T) * unit_correct_T / unit_correct
+        - fvc::laplacian((k_fluid-k_solid)*(1+q_factor)*q_factor/((q_factor+gamma)*(q_factor+gamma)), T_adj)/(rho_eff*cp_eff)
+        - q_gen
+        - weight_TU * fvc::div(T_adj * U),
+        zeroGradientFvPatchScalarField::typeName
 );
+
+volScalarField f_sens_T_init(f_sens_T);  // Initialize the normalization of f_sens_T
 
 // Secondary adjoint sensitivity equation for flow optimization
 volScalarField g_sens_power_loss(
 
-    IOobject(
-        "g_sens_power_loss",
-        runTime.timeName(),
-        mesh,
-        IOobject::READ_IF_PRESENT,
-        IOobject::AUTO_WRITE
-    ),
-    -alpha_U_max * (1 + q_factor) * q_factor / ((q_factor + gamma) * (q_factor + gamma)) * (U & U_adj_U)
+        IOobject(
+                "g_sens_power_loss",
+                runTime.timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::AUTO_WRITE
+        ),
+        -alpha_U_max * (1 + q_factor) * q_factor / ((q_factor + gamma) * (q_factor + gamma)) * (U & U_adj_U),
+        zeroGradientFvPatchScalarField::typeName
 );
+
+volScalarField g_sens_power_loss_init(g_sens_power_loss); // Initialize the normalization of g_sense_power_loss
+
+volScalarField g_sens_vol_frac
+        (
+                IOobject
+                        (
+                                "g_sens_vol_frac",
+                                runTime.timeName(),
+                                mesh,
+                                IOobject::NO_READ,
+                                IOobject::AUTO_WRITE
+                        ),
+                gamma,
+                zeroGradientFvPatchScalarField::typeName
+        );
+volScalarField g_sens_vol_frac_norm(gamma);
 
 volScalarField nu_const  = turbulence->nu();
 

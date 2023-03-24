@@ -1,20 +1,20 @@
 {
     Info << "Perform sensitivity analysis" << endl;
 
-    f_sens_T = (
-        -alpha_U_max * (1 + q_factor) * q_factor / ((q_factor + gamma) * (q_factor + gamma)) * (U & U_adj_T)
-        + unit_correct * (k_fluid - k_solid) * (1 + q_factor) * q_factor / ((q_factor + gamma) * (q_factor + gamma))
-        * (fvc::grad(T) & fvc::grad(T_adj)) / (rho_eff * cp_eff)
-        + unit_correct * T_adj * q_gen
+    f_sens_T_init = (
+            - alpha_U_max * (1 + q_factor) * q_factor / ((q_factor + gamma) * (q_factor + gamma)) * (U & U_adj_T) * unit_correct_T / unit_correct
+            - fvc::laplacian((k_fluid-k_solid)*(1+q_factor)*q_factor/((q_factor+gamma)*(q_factor+gamma)), T_adj)/(rho_eff*cp_eff)
+            - q_gen
+            - weight_TU * fvc::div(T_adj * U)
     );
 
-    g_sens_power_loss = (
+    g_sens_power_loss_init = (
             -alpha_U_max * (1 + q_factor) * q_factor / ((q_factor + gamma) * (q_factor + gamma)) * (U & U_adj_U)
     );
 
     #include "HeavisideSens.H"
 
-    gx[0] = DissPower / Foam::max(set_power_ratio * 3 - opt * 0.2, set_power_ratio) - 1.0;
+    gx[0] = DissPower / Foam::max(set_power_ratio * 3.0 - opt * 0.2, set_power_ratio) - 1.0;
     gx[1] = V;
 
     VecGetArray(dfdx, &dfdx_array);
@@ -22,9 +22,9 @@
 
     for(i = 0; i < allcells; i++)
     {
-      dfdx_array[i] = f_sens_T[i] / scalef / nallcells;
-      dgdx_array[0][i] = g_sens_power_loss[i] / scaleg / nallcells;
-      dgdx_array[1][i] = gsens[i];
+        dfdx_array[i] = f_sens_T[i] / n_cells;
+        dgdx_array[0][i] = g_sens_power_loss[i] / n_cells;
+        dgdx_array[1][i] = g_sens_vol_frac[i] / n_cells;
     }
 
     VecRestoreArray(dfdx, &dfdx_array);

@@ -54,7 +54,7 @@ Info << "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
 << nl << endl;
 
 // Exit if convergence has been achieved
-if (dmeanT_RMS < converge_tol && opt > 20) {
+if (dmeanT_RMS < converge_tol && opt > 50) {
     gamma.write();
     T.write();
     U.write();
@@ -68,5 +68,6 @@ if (dmeanT_RMS < converge_tol && opt > 20) {
     << nl << endl;
 
     break;
+}
 
 #endif //THERMFLUIDOPT_OUTPUT_H
