@@ -1,29 +1,30 @@
 {
-    Info<< "Calculating the Cost Function" << endl;
-    meanT_prev = meanT;
-//    V=0;
-//    meanT=0;
-//
-//    for(i = 0; i < allcells; i++)
-//    {
-//      V += gamma[i];
-//      meanT += T[i] * gamma[i];
-//    }
+    Info<< "\nCalculating the monitoring variables" << endl;
 
-    reduce(meanT, sumOp<scalar>());
+    // Temperature
+    T_ave = fvc::domainIntegrate(T * gamma).value() / (area * set_vol_frac);
+
+    Info << "\n--> Average fluid temperature is: " << T_ave << endl;
+
+    T_drop_prev = T_drop;
+    T_drop = (sum(phi.boundaryField()[conPatchList[1]] * T.boundaryField()[conPatchList[1]])
+            / sum(phi.boundaryField()[conPatchList[1]])
+            -sum(phi.boundaryField()[conPatchList[0]] * T.boundaryField()[conPatchList[0]])
+            / sum(phi.boundaryField()[conPatchList[0]]));
+
+    Info << "\n--> Temperature drop between inlet and outlet is: " << T_drop << endl;
+
+    dT_drop = (T_drop - T_drop_prev) / T_drop;
+    dT_drop_ave = (1 - 1 / n_ave) * dT_drop_ave + dT_drop / n_ave;
+
+    Info << "\n--> Percentage change in temperature drop is: " << dT_drop * 100 << "%" << endl;
+
+    // Volume Fraction
     reduce(V, sumOp<scalar>());
-    meanT = fvc::domainIntegrate(T * gamma).value() / (allcells * set_vol_frac);
     V = fvc::domainIntegrate(gamma).value() / area - set_vol_frac;
 
-    dmeanT = (meanT - meanT_prev) / (nallcells * set_vol_frac);
-    if(opt == 1)
-    {
-        dmeanT = 0;
-    }
-    dmeanT_sum = dmeanT_sum * converge_smooth + dmeanT * dmeanT;
-    dmeanT_RMS = std::sqrt(dmeanT_sum / opt) / std::abs(meanT / (nallcells * set_vol_frac) + 0.0000000005);
-
-//DissPower
+    Info<< "\nCalculating the Cost Function" << endl;
+    //DissPower
     DissPower = 0;
     for(i = 0; i < nObjPatch; i++)
     {
@@ -46,10 +47,5 @@
             / sum(phi.boundaryField()[conPatchList[1]])
             -sum(phi.boundaryField()[conPatchList[0]] * p.boundaryField()[conPatchList[0]])
             / sum(phi.boundaryField()[conPatchList[0]])) * rho_fluid.value();
-
-    temperature_drop = (sum(phi.boundaryField()[conPatchList[1]] * T.boundaryField()[conPatchList[1]])
-            / sum(phi.boundaryField()[conPatchList[1]])
-            -sum(phi.boundaryField()[conPatchList[0]] * T.boundaryField()[conPatchList[0]])
-            / sum(phi.boundaryField()[conPatchList[0]]));
 
 }

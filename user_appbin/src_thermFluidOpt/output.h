@@ -18,11 +18,11 @@ if (Pstream::master())
     outfile2.close();
 
     ofstream outfile3("Monitor_AverageTemperature.txt", std::ios::app);
-    outfile3 << meanT << "\n";
+    outfile3 << T_ave << "\n";
     outfile3.close();
 
     ofstream outfile4("Monitor_TemperatureDrop.txt", std::ios::app);
-    outfile4 << temperature_drop << "\n";
+    outfile4 << T_drop << "\n";
     outfile4.close();
 
     ofstream outfile5("Monitor_PowerDissipation.txt", std::ios::app);
@@ -54,7 +54,7 @@ Info << "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
 << nl << endl;
 
 // Exit if convergence has been achieved
-if (dmeanT_RMS < converge_tol && opt > 50) {
+if (dT_drop_ave < converge_tol && opt > 50) {
     gamma.write();
     T.write();
     U.write();

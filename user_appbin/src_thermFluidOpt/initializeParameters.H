@@ -8,18 +8,22 @@ std::remove("Monitor_PressureDrop.txt");
 std::remove("Monitor_VolumeFraction.txt");
 
 // Initialize variables
+scalar area = gSum(mesh.V());                   // Domain area
+scalar len = std::pow(mesh.V()[0], 1.0 / 3);    // Characteristic length of domain
+scalar n_ave = 50;                              // Number of samples to average over in moving average method
+
+scalar T_ave;                                   // Average temperature of domain
+scalar T_drop(0);                               // Temperature drop between inlet and outlet
+scalar T_drop_prev;                             // Previous temperature drop
+scalar dT_drop(0);                              // Percentage change in temperature drop
+scalar dT_drop_ave(dT_drop);                    // Moving average percentage change in temperature drop
+
+
 scalar C(0);
 scalar DissPower(0);
-scalar meanT(0);
 scalar V(0);
 scalar scalef(0),scaleg(0);
-scalar meanT_prev(meanT);
-scalar dmeanT(0);
-scalar dmeanT_sum(0);
-scalar dmeanT_RMS(0);
-scalar area=gSum(mesh.V());
 scalar pressure_drop(0);
-scalar temperature_drop(0);
 int n_loops(0);
 scalar gamma_rms(0);
 
@@ -48,7 +52,7 @@ for(i = 0; i < Pstream::myProcNo(); i++)
    mycells = mycells + cellsize[i];
 }
 
-double add1 = 0, add2 = 0, len = std::pow(mesh.V()[0], 1.0 / 3);
+double add1 = 0, add2 = 0;
 double eta0, eta1, eta5 = 0, del = 0.1, y0, y1, y5;
 b.value()= 1.0 / (r_filter * len / 3.464) / (r_filter * len / 3.464);
 
