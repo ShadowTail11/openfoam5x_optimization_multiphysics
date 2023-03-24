@@ -75,16 +75,4 @@ for(i = 0; i < allcells; i++)
     gamma[i] = Allgamma[i + mycells];
 }
 
-if(solid_area == 1)
-{
-    setCells(gamma, cells_solid, 0);
-}
-
-if(fluid_area == 1)
-{
-    setCells(gamma, cells_fluid, 1);
-}
-
-gamma.correctBoundaryConditions();
-
 }

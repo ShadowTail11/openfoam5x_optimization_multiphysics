@@ -54,25 +54,4 @@
     #include "HeavisideRho.H"
 
     opt++;
-
-    if(opt <= 63)
-    {
-        alpha_U_max = alpha_U_max * (opt / 7.0 + 1.0);
-    }
-
-    if(opt > 100)
-    {
-        alpha_U_max = alpha_U_max * 1.05;
-    }
-
-    alpha_U_max.value() = Foam::min(alpha_U_max.value(), 10000000.0);
-
-    if(opt >= 80)
-    {
-        q_factor = 0.005 + (opt - 80) * 1e-4;
-    }
-
-    q_factor = Foam::min(q_factor, 0.01);
-    alpha_U = alpha_U_max * q_factor * (1 - gamma) / (q_factor + gamma);
-    alpha_T_eff = (k_solid + (k_fluid - k_solid) * gamma * (1 + q_factor) / (q_factor + gamma)) / (rho_eff * cp_eff);
 }

@@ -78,6 +78,7 @@ int main(int argc, char *argv[])
     {
         Info << "Time = " << runTime.timeName() << nl << endl;
 
+        #include "updateOptProperties.h"        // Update optimization-related properties
         #include "solvePowerLossRef.h"          // Update power loss reference using test region (if needed)
 
         #include "primalFlowSolver.H"           // Run primal solver for U and p
