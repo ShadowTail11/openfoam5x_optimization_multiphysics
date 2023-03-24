@@ -1,78 +1,42 @@
 {
 Info<< "\nImplement Heaviside_rho function\n" << endl;
 
-localr = gamma.internalField();
-AllrList[Pstream::myProcNo()] = localr;
-Pstream::gatherList(AllrList);
-Pstream::scatterList(AllrList);
-Allgamma = ListListOps::combine<scalarField>(AllrList, accessOp<scalarField>());
+//***********************************//PDE filter
+solve(fvm::laplacian(gamma_densityfilter) - fvm::Sp(b, gamma_densityfilter) + x * b);
 
-for(i = 0; i<nallcells; i++)
-{
-    add1 = 0;
-    add2 = 0;
 
-    for(j = 0; j<Nnum[i]; j++)
-    {
-        add1 = add1 + Nweight[i][j] * Allgamma[Nlabel[i][j]];
-        add2 = add2 + Nweight[i][j];
-    }
-    gamma_densityfilter[i] = add1 /
-    add2;
-}
-
-if(opt > 1)
-{
-    del = del + 0.3;
-}
-
-del = Foam::min(del, 100);
-
+//***********************************//Heaviside_filter
+del = Foam::min(0.2 * opt, 100);
 eta0 = 0.0001;
 eta1 = 1.0;
-y0 = fun(gamma_densityfilter, del, eta0, nallcells);
-y1 = fun(gamma_densityfilter, del, eta1, nallcells);
+y0 = fun(gamma_densityfilter, mesh.V(), del, eta0, n_cells);
 
-for(i = 1; i < 20; i++)    //solve eta5
+do
 {
-    eta5 = (eta0 + eta1) / 2.0;
-    y5 = fun(gamma_densityfilter, del, eta5, nallcells);
+eta5 = (eta0 + eta1) / 2.0;
+y5 = fun(gamma_densityfilter, mesh.V(), del, eta5, n_cells);
 
-    if(y0 *y5<0)
-    {
-        eta1 = eta5;
-        y1 = y5;
-    }
-    else
-    {
-        eta0 = eta5;
-        y0 = y5;
-    }
+if(y0 * y5 < 0)
+{
+eta1 = eta5;
 }
-
-for(i = 0; i<nallcells; i++)
+else
 {
-    if(gamma_densityfilter[i] <= eta5)
-    {
-        Allgamma[i] = (
-        eta5 *(Foam::exp(-del * (1.0 - gamma_densityfilter[i] / eta5))
-        - (1.0 - gamma_densityfilter[i] / eta5) * Foam::exp(-del))
-        );
-    }
-    else
-    {
-        Allgamma[i] = (
-            eta5 + (1 - eta5)
-            * (1 - Foam::exp(-
-            del *(gamma_densityfilter[i]
-            - eta5) / (1.0 - eta5)) + (gamma_densityfilter[i] - eta5) * Foam::exp(-del) / (1 - eta5))
-        );
-    }
+eta0 = eta5;
+y0 = y5;
 }
+} while ((eta1 - eta0) > 0.0001);
 
-for(i = 0; i < allcells; i++)
+for(i = 0; i < n_cells; i++)
 {
-    gamma[i] = Allgamma[i + mycells];
+if(gamma_densityfilter[i] <= eta5)
+{
+gamma[i] = eta5 * (Foam::exp(-del * (1 - gamma_densityfilter[i] / eta5)) - (1 - gamma_densityfilter[i] / eta5) * Foam::exp(-del));
+}
+else
+{
+gamma[i] = eta5 + (1 - eta5) * (1 - Foam::exp(-del * (gamma_densityfilter[i] - eta5) / (1 - eta5)) + (gamma_densityfilter[i] - eta5) * Foam::exp(-del) / (1 - eta5));
+}
 }
 
 }

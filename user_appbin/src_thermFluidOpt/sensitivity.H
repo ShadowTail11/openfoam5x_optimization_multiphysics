@@ -45,7 +45,7 @@
         gamma_rms += ((std::round(xmma_array[i]) - std::round(gamma[i]))
                 * (std::round(xmma_array[i]) - std::round(gamma[i])));
 
-        gamma[i] = xmma_array[i];
+        x[i] = xmma_array[i];
     }
     gamma_rms = gamma_rms / allcells;
 

@@ -23,6 +23,9 @@ scalar temperature_drop(0);
 int n_loops(0);
 scalar gamma_rms(0);
 
+scalar n_cells(gamma.size());                   // The number of cells in the domain
+n_cells = static_cast<int>(n_cells);            // Force n_cells to be an integer
+
 int i = 0, j = 0, k = 0, jk, allcells, nallcells, mycells = 0, iter = 0, opt = 1;
 scalar allcell = gamma.size();      //allcell:length of gamma in the i-th core
 allcells = static_cast<int>(allcell);
@@ -47,13 +50,14 @@ for(i = 0; i < Pstream::myProcNo(); i++)
 
 double add1 = 0, add2 = 0, len = std::pow(mesh.V()[0], 1.0 / 3);
 double eta0, eta1, eta5 = 0, del = 0.1, y0, y1, y5;
+b.value()= 1.0 / (r_filter * len / 3.464) / (r_filter * len / 3.464);
 
 double *Faa = new double[nallcells];
 double *Gbb = new double[nallcells];
 double *Gcc = new double[nallcells];
 double *Gdd = new double[nallcells];
 double *gsens = new double[nallcells];
-double *gamma_densityfilter = new double[nallcells];
+//double *gamma_densityfilter = new double[nallcells];
 double *drho = new double[nallcells];
 
 // Heaviside density filter (only works on uniform mesh)

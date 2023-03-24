@@ -29,6 +29,7 @@ scalar mma_inc(readScalar(optimizationProperties.lookup("mma_inc")));           
 scalar mma_limit(readScalar(optimizationProperties.lookup("mma_limit")));       // Optimization limit
 scalar raa0(readScalar(optimizationProperties.lookup("raa0")));                 // MMA smoothing parameter
 scalar r_filter_scalar(readScalar(optimizationProperties.lookup("r_filter")));  // Density filter radius
+dimensionedScalar b("b", dimensionSet(0,-2,0,0,0,0,0),1.0);                     // Filter radius of the PDE filter
 int r_filter = r_filter_scalar;
 
 // Cost function constraints
@@ -117,6 +118,23 @@ volScalarField gamma(
         scalar(set_vol_frac),
         zeroGradientFvPatchScalarField::typeName
 );
+
+volScalarField gamma_densityfilter
+        (
+                IOobject
+                        (
+                                "gamma_densityfilter",
+                                runTime.timeName(),
+                                mesh,
+                                IOobject::NO_READ,
+                                IOobject::AUTO_WRITE
+                        ),
+                mesh,
+                scalar(set_vol_frac),
+                zeroGradientFvPatchScalarField::typeName
+        );
+
+volScalarField x(gamma_densityfilter);
 
 volScalarField gamma_test(
 
