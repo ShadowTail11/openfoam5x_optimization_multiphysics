@@ -46,6 +46,12 @@ if (runTime.writeTime())
     U.write();
     p.write();
     nu_eff.write();
+
+    f_sens_T.write();
+    f_sens_TU.write();
+    f_sens_TK.write();
+    f_sens_TT.write();
+    g_sens_power_loss.write();
 }
 
 // Print elapsed time
@@ -61,6 +67,13 @@ if (dT_drop_ave < converge_tol && vol_frac_conv < converge_tol && power_loss_con
     U.write();
     p.write();
     nu_eff.write();
+
+    f_sens_T.write();
+    f_sens_TU.write();
+    f_sens_TK.write();
+    f_sens_TT.write();
+    g_sens_power_loss.write();
+
     Info << "Convergence criterion (<" << converge_tol * 100 << "%) has been met after "
     << opt - 1 << " iterations!" << endl << "Program ending!" << endl;
 
@@ -70,5 +83,7 @@ if (dT_drop_ave < converge_tol && vol_frac_conv < converge_tol && power_loss_con
 
     break;
 }
+
+opt++;
 
 #endif //THERMFLUIDOPT_OUTPUT_H

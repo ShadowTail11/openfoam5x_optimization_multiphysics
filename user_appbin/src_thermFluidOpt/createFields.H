@@ -17,19 +17,19 @@ IOdictionary optimizationProperties(
 );
 
 // Domain definition
-scalar solid_area(readScalar(optimizationProperties.lookup("solid_area")));     // Is solid region set? (1=yes)
-scalar fluid_area(readScalar(optimizationProperties.lookup("fluid_area")));     // Is fluid region used? (1=yes)
-scalar test_area(readScalar(optimizationProperties.lookup("test_area")));       // Is test region used? (1=yes)
-scalar geo_dim(readScalar(optimizationProperties.lookup("geo_dim")));           // Dimensions of solver (2D vs. 3D)
+scalar solid_area(readScalar(optimizationProperties.lookup("solid_area")));             // Is solid region set? (1=yes)
+scalar fluid_area(readScalar(optimizationProperties.lookup("fluid_area")));             // Is fluid region used? (1=yes)
+scalar test_area(readScalar(optimizationProperties.lookup("test_area")));               // Is test region used? (1=yes)
+scalar geo_dim(readScalar(optimizationProperties.lookup("geo_dim")));                   // Dimensions of solver (2D vs. 3D)
 
 // Optimization properties
-scalar mma_init(readScalar(optimizationProperties.lookup("mma_init")));         // Initial optimization increment
-scalar mma_dec(readScalar(optimizationProperties.lookup("mma_dec")));           // Optimization decrement
-scalar mma_inc(readScalar(optimizationProperties.lookup("mma_inc")));           // Optimization increment
-scalar mma_limit(readScalar(optimizationProperties.lookup("mma_limit")));       // Optimization limit
-scalar raa0(readScalar(optimizationProperties.lookup("raa0")));                 // MMA smoothing parameter
-scalar r_filter_scalar(readScalar(optimizationProperties.lookup("r_filter")));  // Density filter radius
-dimensionedScalar b("b", dimensionSet(0,-2,0,0,0,0,0),1.0);                     // Filter radius of the PDE filter
+scalar mma_init(readScalar(optimizationProperties.lookup("mma_init")));                 // Initial optimization increment
+scalar mma_dec(readScalar(optimizationProperties.lookup("mma_dec")));                   // Optimization decrement
+scalar mma_inc(readScalar(optimizationProperties.lookup("mma_inc")));                   // Optimization increment
+scalar mma_limit(readScalar(optimizationProperties.lookup("mma_limit")));               // Optimization limit
+scalar raa0(readScalar(optimizationProperties.lookup("raa0")));                         // MMA smoothing parameter
+scalar r_filter_scalar(readScalar(optimizationProperties.lookup("r_filter")));          // Density filter radius
+dimensionedScalar b("b", dimensionSet(0,-2,0,0,0,0,0),1.0);                             // Filter radius of the PDE filter
 int r_filter = r_filter_scalar;
 
 // Cost function constraints
@@ -38,10 +38,12 @@ scalar set_power_ratio(readScalar(optimizationProperties.lookup("set_power_ratio
 scalar power_loss_ref(readScalar(optimizationProperties.lookup("power_loss_ref")));     // Power loss reference
 
 // Optimization weights
-//scalar weight_U(readScalar(optimizationProperties.lookup("weight_U")));     // Sensitivity weight for velocity term
-//scalar weight_TK(readScalar(optimizationProperties.lookup("weight_TK")));   // Sensitivity weight for thermal conductivity term
-//scalar weight_TQ(readScalar(optimizationProperties.lookup("weight_TQ")));   // Sensitivity weight for heat generation term
-scalar weight_TU(readScalar(optimizationProperties.lookup("weight_TU")));   // Sensitivity weight for thermal diffusivity term
+scalar weight_TU(readScalar(optimizationProperties.lookup("weight_TU")));               // Sensitivity weight for thermal velocity term
+scalar weight_TK(readScalar(optimizationProperties.lookup("weight_TK")));               // Sensitivity weight for thermal conductivity term
+scalar weight_TQ(readScalar(optimizationProperties.lookup("weight_TQ")));               // Sensitivity weight for heat generation term
+scalar weight_TT(readScalar(optimizationProperties.lookup("weight_TT")));               // Sensitivity weight for thermal diffusivity term
+scalar weight_T(readScalar(optimizationProperties.lookup("weight_T")));                 // Sensitivity weight for thermal term
+scalar weight_U(readScalar(optimizationProperties.lookup("weight_U")));                 // Sensitivity weight for velocity term
 
 // Adjoint unit correctors
 dimensionedScalar unit_correct("unit_correct", dimensionSet(0,2,-2,-2,0,0,0),1.0);      // Adjoint (U/T)^2 unit correction
@@ -156,7 +158,7 @@ volScalarField gamma_test(
                 IOobject::AUTO_WRITE
         ),
         mesh,
-        scalar(set_vol_frac),
+        scalar(0),
         zeroGradientFvPatchScalarField::typeName
 );
 
@@ -256,8 +258,14 @@ volVectorField U(
 // Sets reference point for pressure
 label pRefCell = 0;
 scalar pRefValue = 0.0;
-setRefCell(p, simple.dict(), pRefCell, pRefValue);
-mesh.setFluxRequired(p.name());
+
+setRefCell(
+
+        p,
+        simple.dict(),
+        pRefCell,
+        pRefValue
+);
 
 // Set turbulence model and create pointer to model
 singlePhaseTransportModel laminarTransport(U, phi);
@@ -503,6 +511,45 @@ scalarField Allgamma(
 );
 
 // Primary adjoint sensitivity equation for thermal optimization
+volScalarField f_sens_TU(
+
+        IOobject(
+
+                "f_sens_TU",
+                runTime.timeName(),
+                mesh,
+                IOobject::READ_IF_PRESENT,
+                IOobject::AUTO_WRITE
+        ),
+        - weight_TU * alpha_U_max * (1 + q_factor) * q_factor / ((q_factor + gamma) * (q_factor + gamma)) * (U & U_adj_T) * unit_correct_T / unit_correct
+);
+
+volScalarField f_sens_TK(
+
+        IOobject(
+
+                "f_sens_TK",
+                runTime.timeName(),
+                mesh,
+                IOobject::READ_IF_PRESENT,
+                IOobject::AUTO_WRITE
+        ),
+        - weight_TK * fvc::laplacian((k_fluid-k_solid)*(1+q_factor)*q_factor/((q_factor+gamma)*(q_factor+gamma)), T_adj)/(rho_eff*cp_eff)
+);
+
+volScalarField f_sens_TT(
+
+        IOobject(
+
+                "f_sens_TT",
+                runTime.timeName(),
+                mesh,
+                IOobject::READ_IF_PRESENT,
+                IOobject::AUTO_WRITE
+        ),
+        - weight_TT * fvc::div(T_adj * U)
+);
+
 volScalarField f_sens_T(
 
         IOobject(
@@ -513,10 +560,10 @@ volScalarField f_sens_T(
                 IOobject::NO_READ,
                 IOobject::AUTO_WRITE
         ),
-        - alpha_U_max * (1 + q_factor) * q_factor / ((q_factor + gamma) * (q_factor + gamma)) * (U & U_adj_T) * unit_correct_T / unit_correct
-        + fvc::laplacian((k_fluid-k_solid)*(1+q_factor)*q_factor/((q_factor+gamma)*(q_factor+gamma)), T_adj)/(rho_eff*cp_eff)
-        + q_gen
-        - weight_TU * fvc::div(T_adj * U),
+        - weight_TU * alpha_U_max * (1 + q_factor) * q_factor / ((q_factor + gamma) * (q_factor + gamma)) * (U & U_adj_T) * unit_correct_T / unit_correct
+        + weight_TK * fvc::laplacian((k_fluid-k_solid)*(1+q_factor)*q_factor/((q_factor+gamma)*(q_factor+gamma)), T_adj)/(rho_eff*cp_eff)
+        + weight_TQ * q_gen
+        - weight_TT * fvc::div(T_adj * U),
         zeroGradientFvPatchScalarField::typeName
 );
 
@@ -539,21 +586,21 @@ volScalarField g_sens_power_loss(
 volScalarField g_sens_power_loss_init(g_sens_power_loss); // Initialize the normalization of g_sense_power_loss
 
 volScalarField g_sens_vol_frac
-        (
-                IOobject
-                        (
-                                "g_sens_vol_frac",
-                                runTime.timeName(),
-                                mesh,
-                                IOobject::NO_READ,
-                                IOobject::AUTO_WRITE
-                        ),
-                gamma,
-                zeroGradientFvPatchScalarField::typeName
-        );
+(
+        IOobject
+                (
+                        "g_sens_vol_frac",
+                        runTime.timeName(),
+                        mesh,
+                        IOobject::NO_READ,
+                        IOobject::AUTO_WRITE
+                ),
+        gamma,
+        zeroGradientFvPatchScalarField::typeName
+);
 volScalarField g_sens_vol_frac_norm(gamma);
 
-volScalarField nu_const  = turbulence->nu();
+volScalarField nu_const = turbulence->nu();
 
 // Effective viscosity with optional temperature dependent capabilities
 volScalarField nu_eff(

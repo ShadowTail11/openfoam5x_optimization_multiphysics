@@ -1,11 +1,23 @@
 {
-    Info << "Perform sensitivity analysis" << endl;
+    Info << "Performing sensitivity analysis" << endl;
+
+    f_sens_TU = (
+            - weight_TU * alpha_U_max * (1 + q_factor) * q_factor / ((q_factor + gamma) * (q_factor + gamma)) * (U & U_adj_T) * unit_correct_T / unit_correct
+    );
+
+    f_sens_TK = (
+            - weight_TK * fvc::laplacian((k_fluid-k_solid)*(1+q_factor)*q_factor/((q_factor+gamma)*(q_factor+gamma)), T_adj)/(rho_eff*cp_eff)
+    );
+
+    f_sens_TT = (
+            - weight_TT * fvc::div(T_adj * U)
+    );
 
     f_sens_T_init = (
-            - alpha_U_max * (1 + q_factor) * q_factor / ((q_factor + gamma) * (q_factor + gamma)) * (U & U_adj_T) * unit_correct_T / unit_correct
-            + fvc::laplacian((k_fluid-k_solid)*(1+q_factor)*q_factor/((q_factor+gamma)*(q_factor+gamma)), T_adj)/(rho_eff*cp_eff)
-            + q_gen
-            - weight_TU * fvc::div(T_adj * U)
+            - weight_TU * alpha_U_max * (1 + q_factor) * q_factor / ((q_factor + gamma) * (q_factor + gamma)) * (U & U_adj_T) * unit_correct_T / unit_correct
+            + weight_TK * fvc::laplacian((k_fluid-k_solid)*(1+q_factor)*q_factor/((q_factor+gamma)*(q_factor+gamma)), T_adj)/(rho_eff*cp_eff)
+            + weight_TQ * q_gen
+            - weight_TT * fvc::div(T_adj * U)
     );
 
     g_sens_power_loss_init = (
@@ -22,15 +34,15 @@
 
     for(i = 0; i < n_cells; i++)
     {
-        dfdx_array[i] = f_sens_T[i] / n_cells;
-        dgdx_array[0][i] = g_sens_power_loss[i] / n_cells;
+        dfdx_array[i] = weight_T * f_sens_T[i] / n_cells;
+        dgdx_array[0][i] = weight_U * g_sens_power_loss[i] / n_cells;
         dgdx_array[1][i] = g_sens_vol_frac[i] / n_cells;
     }
 
     VecRestoreArray(dfdx, &dfdx_array);
     VecRestoreArrays(dgdx, m, &dgdx_array);
 
-    Info << "\nRun mmasub\n" << endl;
+    Info << "\nRunning Method of Moving Asymptotes Solver\n" << endl;
 
     mma->SetOuterMovelimit(Xmin, Xmax, mma_limit, xmma, xmin, xmax);
     mma->Update(xmma, dfdx, gx, dgdx, xmin, xmax, raa0, mma_dec, mma_inc);
@@ -56,5 +68,4 @@
 
     #include "HeavisideRho.H"
 
-    opt++;
 }
