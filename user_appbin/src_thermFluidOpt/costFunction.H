@@ -14,7 +14,7 @@
 
     Info << "\n--> Temperature drop between inlet and outlet is: " << T_drop << endl;
 
-    dT_drop = (T_drop - T_drop_prev) / T_drop;
+    dT_drop = abs((T_drop - T_drop_prev) / T_drop);
     dT_drop_ave = (1 - 1 / n_ave) * dT_drop_ave + dT_drop / n_ave;
 
     Info << "\n--> Percentage change in temperature drop is: " << dT_drop * 100 << "%" << endl;

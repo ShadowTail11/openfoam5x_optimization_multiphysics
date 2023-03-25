@@ -36,6 +36,14 @@ if (Pstream::master())
     ofstream outfile7("Monitor_VolumeFraction.txt", std::ios::app);
     outfile7 << fvc::domainIntegrate(gamma).value() / area << "\n";
     outfile7.close();
+
+    ofstream outfile8("Monitor_CalcCheck_01.txt", std::ios::app);
+    outfile8 << dT_drop << "\n";
+    outfile8.close();
+
+    ofstream outfile9("Monitor_CalcCheck_02.txt", std::ios::app);
+    outfile9 << dT_drop_ave << "\n";
+    outfile9.close();
 }
 
 // Write mesh data

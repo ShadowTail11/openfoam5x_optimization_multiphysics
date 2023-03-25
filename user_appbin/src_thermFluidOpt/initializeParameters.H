@@ -6,11 +6,13 @@ std::remove("Monitor_TemperatureDrop.txt");
 std::remove("Monitor_PowerDissipation.txt");
 std::remove("Monitor_PressureDrop.txt");
 std::remove("Monitor_VolumeFraction.txt");
+std::remove("Monitor_CalcCheck_01.txt");
+std::remove("Monitor_CalcCheck_02.txt");
 
 // Initialize variables
 scalar area = gSum(mesh.V());                   // Domain area
 scalar len = std::pow(mesh.V()[0], 1.0 / 3);    // Characteristic length of domain
-scalar n_ave = 50;                              // Number of samples to average over in moving average method
+scalar n_ave = 30;                              // Number of samples to average over in moving average method
 
 scalar T_ave;                                   // Average temperature of domain
 scalar T_drop(0);                               // Temperature drop between inlet and outlet
