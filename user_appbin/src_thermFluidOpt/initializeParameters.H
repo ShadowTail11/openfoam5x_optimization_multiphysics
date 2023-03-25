@@ -6,10 +6,13 @@ std::remove("Monitor_TemperatureDrop.txt");
 std::remove("Monitor_PowerDissipation.txt");
 std::remove("Monitor_PressureDrop.txt");
 std::remove("Monitor_VolumeFraction.txt");
-std::remove("Monitor_CalcCheck_01.txt");
-std::remove("Monitor_CalcCheck_02.txt");
 
 // Initialize variables
+int opt(1);                                     // Optimization loop counter
+int i, n_loops;                                 // Initialize loop counters (generic and solver)
+scalar n_cells(gamma.size());                   // The number of cells in the domain
+n_cells = static_cast<int>(n_cells);            // Force n_cells to be an integer
+
 scalar area = gSum(mesh.V());                   // Domain area
 scalar len = std::pow(mesh.V()[0], 1.0 / 3);    // Characteristic length of domain
 scalar n_ave = 30;                              // Number of samples to average over in moving average method
@@ -33,154 +36,25 @@ scalar power_loss_ratio;                        // Power loss ratio of the fluid
 scalar cost_power_loss_ratio;                   // Cost variable for power loss ratio of the fluid
 scalar power_loss_conv;                         // Percentage difference between power loss ratio and target
 
-scalar C(0);
-scalar scalef(0),scaleg(0);
-int n_loops(0);
-scalar gamma_rms(0);
+scalar gamma_switch(0);                         // Number of cells that switch between fluid and solid
+scalar gamma_switch_prev;                       // Previous number of cells that switch between fluid and solid
+scalar dgamma_switch(0);                        // Percentage change in number of cells that switch material
+scalar dgamma_switch_ave(0);                    // Moving average of percent change in number of material switched cells
 
-scalar n_cells(gamma.size());                   // The number of cells in the domain
-n_cells = static_cast<int>(n_cells);            // Force n_cells to be an integer
-
-int i = 0, j = 0, k = 0, jk, allcells, nallcells, mycells = 0, iter = 0, opt = 1;
-scalar allcell = gamma.size();      //allcell:length of gamma in the i-th core
-allcells = static_cast<int>(allcell);
-List<scalar> cellsize(Pstream::nProcs());
-
-for(i = 0; i < Pstream::nProcs(); i++)
-{
-   cellsize[i] = 0;
-}
-
-cellsize[Pstream::myProcNo()] = allcells;
-reduce(cellsize, sumOp<List<scalar>>());
-reduce(allcell, sumOp<scalar>());
-nallcells = static_cast<int>(allcell);    //nallcells:total length of gamma
-
-//
-
-for(i = 0; i < Pstream::myProcNo(); i++)
-{
-   mycells = mycells + cellsize[i];
-}
-
-double add1 = 0, add2 = 0;
+// Heaviside filter variables
 double eta0, eta1, eta5 = 0, del = 0.1, y0, y1, y5;
 b.value()= 1.0 / (r_filter * len / 3.464) / (r_filter * len / 3.464);
 
-double *Faa = new double[nallcells];
-double *Gbb = new double[nallcells];
-double *Gcc = new double[nallcells];
-double *Gdd = new double[nallcells];
-double *gsens = new double[nallcells];
-//double *gamma_densityfilter = new double[nallcells];
-//double *drho = new double[nallcells];
+// PETSc variables
 
-// Heaviside density filter (only works on uniform mesh)
+PetscInt m = 2;                 // Number of cost function constraints
+PetscInt n_dof = n_cells;
+PetscInt N_dof = n_cells;
 
-List<vectorField> AllcellList(Pstream::nProcs());
-vectorField localcell(mesh.C());
-AllcellList[Pstream::myProcNo()] = localcell;
-Pstream::gatherList(AllcellList);
-Pstream::scatterList(AllcellList);
+PetscScalar Xmin = 0;           // Min. value of design variables
+PetscScalar Xmax = 1;           // Max. value of design variables
 
-vectorField Allcellcenter(
-
-   ListListOps::combine<vectorField>(
-
-      AllcellList,
-      accessOp<vectorField>()
-   )
-);
-
-int Nnum[nallcells];
-int (*Nlabel)[125] = new int [nallcells][125];
-double (*Nweight)[125] = new double [nallcells][125];
-double geo_xmax = -1000, geo_ymax = -1000, geo_zmax = -1000, geo_xmin = 1000, geo_ymin = 1000, geo_zmin = 1000;
-
-for(i = 0; i < nallcells; i++)
-{
-   geo_xmax = std::max(geo_xmax, Allcellcenter[i][0]);
-   geo_ymax = std::max(geo_ymax, Allcellcenter[i][1]);
-   geo_zmax = std::max(geo_zmax, Allcellcenter[i][2]);
-   geo_xmin = std::min(geo_xmin, Allcellcenter[i][0]);
-   geo_ymin = std::min(geo_ymin, Allcellcenter[i][1]);
-   geo_zmin = std::min(geo_zmin, Allcellcenter[i][2]);
-}
-
-int nx, ny, nz, Nx, Ny, Nz;
-nx = static_cast<int>((geo_xmax - geo_xmin + len / 4.0) / len) + r_filter * 2 + 1;
-ny = static_cast<int>((geo_ymax - geo_ymin + len / 4.0) / len) + r_filter * 2 + 1;
-nz = static_cast<int>((geo_zmax - geo_zmin + len / 4.0) / len) + r_filter * 2 + 1;
-
-
-int ***ALLlabel;
-ALLlabel = new int **[nx];
-
-for(i = 0; i < nx; i++)
-{
-   ALLlabel[i] = new int *[ny];
-   for(j = 0; j < ny; j++)
-   {
-      ALLlabel[i][j] = new int[nz];
-   }
-}
-
-for(i = 0; i < nx; i++)
-{
-   for(j = 0; j < ny; j++)
-   {
-      for(k = 0; k < nz; k++)
-      {
-         ALLlabel[i][j][k] = -1;
-      }
-   }
-}
-
-for(jk = 0; jk < nallcells; jk++)
-{
-   nx = static_cast<int>((Allcellcenter[jk][0] - geo_xmin + len / 4.0) / len);
-   ny = static_cast<int>((Allcellcenter[jk][1] - geo_ymin + len / 4.0) / len);
-   nz = static_cast<int>((Allcellcenter[jk][2] - geo_zmin + len / 4.0) / len);
-   ALLlabel[nx + r_filter][ny + r_filter][nz + r_filter] = jk;
-}
-
-for(jk = 0; jk < nallcells; jk++)
-{
-   Nnum[jk] = 0;
-   nx = static_cast<int>((Allcellcenter[jk][0] - geo_xmin + len / 4.0) / len);
-   ny = static_cast<int>((Allcellcenter[jk][1] - geo_ymin + len / 4.0) / len);
-   nz = static_cast<int>((Allcellcenter[jk][2] - geo_zmin + len / 4.0) / len);
-
-   for(i = -r_filter; i <= r_filter; i++)
-   {
-      for(j = -r_filter; j <= r_filter; j++)
-      {
-         for(k = -r_filter; k <= r_filter; k++)
-         {
-            Nx = nx + i;
-            Ny = ny + j;
-            Nz = nz + k;
-
-            if(ALLlabel[Nx + r_filter][Ny + r_filter][Nz + r_filter] >= 0)
-            {
-               Nlabel[jk][Nnum[jk]] = ALLlabel[Nx + r_filter][Ny + r_filter][Nz + r_filter];
-               Nweight[jk][Nnum[jk]] = (3.8 - std::sqrt(i * i + j * j + k * k)) * len;
-               Nnum[jk]++;
-            }
-         }
-      }
-   }
-}
-
-//***********************************//Petsc
-
-PetscInt n_dof, N_dof, m=2;     //m:number of constraints
-n_dof = allcells;
-N_dof = nallcells;
-
-PetscScalar Xmin=0;           // Min. value of design variables
-PetscScalar Xmax=1;           // Max. value of design variables
-
+// Initialize Method of Moving Asymptotes (MMA) bounds and communications
 Vec xmma, xold, xmin, xmax;
 PetscScalar *xmma_array;
 VecCreate(PETSC_COMM_WORLD, &xmma);
@@ -188,7 +62,7 @@ VecSetSizes(xmma, n_dof, N_dof);
 VecSetFromOptions(xmma);
 VecGetArray(xmma, &xmma_array);
 
-for(i = 0 ; i < allcells; i++)
+for(i = 0 ; i < n_cells; i++)
 {
   xmma_array[i] = gamma[i];
 }
@@ -212,25 +86,19 @@ for (PetscInt i = 0; i < m; i++)
 MMA *mma;
 mma = new MMA(N_dof, m, xmma, aMMA, cMMA, dMMA, mma_init, mma_dec, mma_inc);
 
-//**********************************************//dfdx
-
-Vec dfdx; // Sensitivities of objective
+// Sensitivities vectors of objective
+Vec dfdx;
 VecDuplicate(xmma, &dfdx);
 PetscScalar *dfdx_array;
 VecGetArray(dfdx, &dfdx_array);
 VecRestoreArray(dfdx, &dfdx_array);
 
-//*****************************************************//gx
+// Array with cost function constraint values
+PetscScalar *gx = new PetscScalar[m];
 
-PetscScalar *gx = new PetscScalar[m]; // Array with constraint values
-
-//*****************************************************//dgdx
-Vec *dgdx; // Sensitivities of constraints (vector array)
+// Sensitivities of cost function constraints
+Vec *dgdx;
 VecDuplicateVecs(xmma, m, &dgdx);
 PetscScalar **dgdx_array;
 VecGetArrays(dgdx, m, &dgdx_array);
 VecRestoreArrays(dgdx, m, &dgdx_array);
-
-gamma.correctBoundaryConditions();
-alpha_U = alpha_U_max * q_factor * (1 - gamma) / (q_factor + gamma);
-alpha_T_eff = (k_solid + (k_fluid - k_solid) * gamma * (1 + q_factor) / (q_factor + gamma)) / (rho_eff * cp_eff);

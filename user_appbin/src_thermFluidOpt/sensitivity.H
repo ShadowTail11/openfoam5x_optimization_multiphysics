@@ -20,7 +20,7 @@
     VecGetArray(dfdx, &dfdx_array);
     VecGetArrays(dgdx, m, &dgdx_array);
 
-    for(i = 0; i < allcells; i++)
+    for(i = 0; i < n_cells; i++)
     {
         dfdx_array[i] = f_sens_T[i] / n_cells;
         dgdx_array[0][i] = g_sens_power_loss[i] / n_cells;
@@ -39,15 +39,18 @@
 
     // Update values
 
-    gamma_rms = 0;
-    for(i = 0; i < allcells; i++)
+    gamma_switch_prev = gamma_switch;
+    gamma_switch = 0;
+    for(i = 0; i < n_cells; i++)
     {
-        gamma_rms += ((std::round(xmma_array[i]) - std::round(gamma[i]))
-                * (std::round(xmma_array[i]) - std::round(gamma[i])));
-
+        gamma_switch += abs(std::round(xmma_array[i]) - std::round(gamma[i]));
         x[i] = xmma_array[i];
     }
-    gamma_rms = gamma_rms / allcells;
+    gamma_switch = gamma_switch / n_cells;
+    Info << "\n--> The percentage of cells that switch material is: " << gamma_switch << endl;
+
+    dgamma_switch = abs((gamma_switch - gamma_switch_prev) / (gamma_switch + SMALL));
+    dgamma_switch_ave = (1 - 1 / n_ave) * dgamma_switch_ave + dgamma_switch / n_ave;
 
     VecRestoreArray(xmma, &xmma_array);
 

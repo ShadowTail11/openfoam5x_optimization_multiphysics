@@ -14,7 +14,7 @@ if (Pstream::master())
     outfile1.close();
 
     ofstream outfile2("Monitor_PseudoDensityDelta.txt", std::ios::app);
-    outfile2 << std::sqrt(gamma_rms) << "\n";
+    outfile2 << gamma_switch << "\n";
     outfile2.close();
 
     ofstream outfile3("Monitor_AverageTemperature.txt", std::ios::app);
@@ -34,16 +34,8 @@ if (Pstream::master())
     outfile6.close();
 
     ofstream outfile7("Monitor_VolumeFraction.txt", std::ios::app);
-    outfile7 << fvc::domainIntegrate(gamma).value() / area << "\n";
+    outfile7 << vol_frac << "\n";
     outfile7.close();
-
-    ofstream outfile8("Monitor_CalcCheck_01.txt", std::ios::app);
-    outfile8 << P_drop << "\n";
-    outfile8.close();
-
-    ofstream outfile9("Monitor_CalcCheck_02.txt", std::ios::app);
-    outfile9 << dP_drop << "\n";
-    outfile9.close();
 }
 
 // Write mesh data
@@ -62,7 +54,8 @@ Info << "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
 << nl << endl;
 
 // Exit if convergence has been achieved
-if (dT_drop_ave < converge_tol && vol_frac_conv < converge_tol && power_loss_conv < converge_tol && opt > 50) {
+if (dT_drop_ave < converge_tol && vol_frac_conv < converge_tol && power_loss_conv < converge_tol && dgamma_switch_ave < 0.001 && opt > 50)
+{
     gamma.write();
     T.write();
     U.write();
