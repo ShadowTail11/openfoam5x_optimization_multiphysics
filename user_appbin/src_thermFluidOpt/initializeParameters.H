@@ -24,6 +24,11 @@ scalar vol_frac;                                // Volume fraction of domain
 scalar cost_vol_frac;                           // Cost variable for volume fraction
 scalar vol_frac_conv;                           // Percentage difference between volume fraction and target
 
+scalar P_drop(0);                               // Pressure drop between inlet and outlet
+scalar P_drop_prev;                             // Previous pressure drop
+scalar dP_drop(0);                              // Percentage change in pressure drop
+
+
 scalar C(0);
 scalar DissPower(0);
 scalar V(0);

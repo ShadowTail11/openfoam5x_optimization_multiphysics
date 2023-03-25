@@ -30,7 +30,7 @@ if (Pstream::master())
     outfile5.close();
 
     ofstream outfile6("Monitor_PressureDrop.txt", std::ios::app);
-    outfile6 << pressure_drop << "\n";
+    outfile6 << P_drop << "\n";
     outfile6.close();
 
     ofstream outfile7("Monitor_VolumeFraction.txt", std::ios::app);
@@ -38,11 +38,11 @@ if (Pstream::master())
     outfile7.close();
 
     ofstream outfile8("Monitor_CalcCheck_01.txt", std::ios::app);
-    outfile8 << cost_vol_frac << "\n";
+    outfile8 << P_drop << "\n";
     outfile8.close();
 
     ofstream outfile9("Monitor_CalcCheck_02.txt", std::ios::app);
-    outfile9 << vol_frac_conv << "\n";
+    outfile9 << dP_drop << "\n";
     outfile9.close();
 }
 
