@@ -20,6 +20,9 @@ scalar T_drop_prev;                             // Previous temperature drop
 scalar dT_drop(0);                              // Percentage change in temperature drop
 scalar dT_drop_ave(dT_drop);                    // Moving average percentage change in temperature drop
 
+scalar vol_frac;                                // Volume fraction of domain
+scalar cost_vol_frac;                           // Cost variable for volume fraction
+scalar vol_frac_conv;                           // Percentage difference between volume fraction and target
 
 scalar C(0);
 scalar DissPower(0);

@@ -38,11 +38,11 @@ if (Pstream::master())
     outfile7.close();
 
     ofstream outfile8("Monitor_CalcCheck_01.txt", std::ios::app);
-    outfile8 << dT_drop << "\n";
+    outfile8 << cost_vol_frac << "\n";
     outfile8.close();
 
     ofstream outfile9("Monitor_CalcCheck_02.txt", std::ios::app);
-    outfile9 << dT_drop_ave << "\n";
+    outfile9 << vol_frac_conv << "\n";
     outfile9.close();
 }
 
@@ -62,7 +62,7 @@ Info << "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
 << nl << endl;
 
 // Exit if convergence has been achieved
-if (dT_drop_ave < converge_tol && opt > 50) {
+if (dT_drop_ave < converge_tol && vol_frac_conv < converge_tol && opt > 50) {
     gamma.write();
     T.write();
     U.write();

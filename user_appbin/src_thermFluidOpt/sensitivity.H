@@ -15,7 +15,7 @@
     #include "HeavisideSens.H"
 
     gx[0] = DissPower / Foam::max(set_power_ratio * 3.0 - opt * 0.2, set_power_ratio) - 1.0;
-    gx[1] = V;
+    gx[1] = cost_vol_frac;
 
     VecGetArray(dfdx, &dfdx_array);
     VecGetArrays(dgdx, m, &dgdx_array);

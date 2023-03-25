@@ -20,8 +20,14 @@
     Info << "\n--> Percentage change in temperature drop is: " << dT_drop * 100 << "%" << endl;
 
     // Volume Fraction
-    reduce(V, sumOp<scalar>());
-    V = fvc::domainIntegrate(gamma).value() / area - set_vol_frac;
+    vol_frac = fvc::domainIntegrate(gamma).value() / area;
+
+    Info << "\n--> Volume fraction is: " << vol_frac << endl;
+
+    cost_vol_frac = vol_frac - set_vol_frac;
+    vol_frac_conv = abs(cost_vol_frac / set_vol_frac);
+
+    Info << "\n--> Percentage change difference between volume fraction and target is: " << vol_frac_conv * 100 << "%" << endl;
 
     Info<< "\nCalculating the Cost Function" << endl;
     //DissPower
