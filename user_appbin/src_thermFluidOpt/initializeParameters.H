@@ -1,4 +1,4 @@
-// Remove any files from previous run
+// Remove monitoring files from previous run
 std::remove("Monitor_Time.txt");
 std::remove("Monitor_PseudoDensityDelta.txt");
 std::remove("Monitor_AverageTemperature.txt");
@@ -28,12 +28,13 @@ scalar P_drop(0);                               // Pressure drop between inlet a
 scalar P_drop_prev;                             // Previous pressure drop
 scalar dP_drop(0);                              // Percentage change in pressure drop
 
+scalar power_loss;                              // Power loss of the fluid
+scalar power_loss_ratio;                        // Power loss ratio of the fluid
+scalar cost_power_loss_ratio;                   // Cost variable for power loss ratio of the fluid
+scalar power_loss_conv;                         // Percentage difference between power loss ratio and target
 
 scalar C(0);
-scalar DissPower(0);
-scalar V(0);
 scalar scalef(0),scaleg(0);
-scalar pressure_drop(0);
 int n_loops(0);
 scalar gamma_rms(0);
 

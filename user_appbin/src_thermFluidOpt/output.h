@@ -26,7 +26,7 @@ if (Pstream::master())
     outfile4.close();
 
     ofstream outfile5("Monitor_PowerDissipation.txt", std::ios::app);
-    outfile5 << DissPower << "\n";
+    outfile5 << power_loss_ratio << "\n";
     outfile5.close();
 
     ofstream outfile6("Monitor_PressureDrop.txt", std::ios::app);
@@ -62,7 +62,7 @@ Info << "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
 << nl << endl;
 
 // Exit if convergence has been achieved
-if (dT_drop_ave < converge_tol && vol_frac_conv < converge_tol && opt > 50) {
+if (dT_drop_ave < converge_tol && vol_frac_conv < converge_tol && power_loss_conv < converge_tol && opt > 50) {
     gamma.write();
     T.write();
     U.write();
