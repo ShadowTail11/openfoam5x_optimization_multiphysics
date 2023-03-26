@@ -1,0 +1,157 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  5                                     |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+convertToMeters 0.01;
+
+// Design Space Control
+psi             0.5;
+
+// Reference Values
+x_wall0         -0.5;
+x_cell0         200.0;
+
+// X coordinates
+x_wall          -0.5;
+x_cell          160;
+x_inlet         -0.1;
+x_mid           0.0;
+
+// Y coordinates
+y_inlet     -0.2;
+y_start     0.0;
+y_dom       1.0;
+y_outlet    1.2;
+
+// Z coordinates
+z_extrude   -0.0025;
+z_base      0.0;
+
+vertices
+(
+    ($x_wall     $y_start   $z_extrude) // 0
+    ($x_mid      $y_start   $z_extrude) // 1
+    ($x_mid      $y_dom     $z_extrude) // 2
+    ($x_wall     $y_dom     $z_extrude) // 3
+    ($x_mid      $y_outlet  $z_extrude) // 4
+    ($x_inlet    $y_outlet  $z_extrude) // 5
+    ($x_inlet    $y_dom     $z_extrude) // 6
+    ($x_inlet    $y_start   $z_extrude) // 7
+    ($x_inlet    $y_inlet   $z_extrude) // 8
+    ($x_mid      $y_inlet   $z_extrude) // 9
+
+    ($x_wall     $y_start   $z_base)    // 10
+    ($x_mid      $y_start   $z_base)    // 11
+    ($x_mid      $y_dom     $z_base)    // 12
+    ($x_wall     $y_dom     $z_base)    // 13
+    ($x_mid      $y_outlet  $z_base)    // 14
+    ($x_inlet    $y_outlet  $z_base)    // 15
+    ($x_inlet    $y_dom     $z_base)    // 16
+    ($x_inlet    $y_start   $z_base)    // 17
+    ($x_inlet    $y_inlet   $z_base)    // 18
+    ($x_mid      $y_inlet   $z_base)    // 19
+);
+
+blocks
+(
+    hex (0 7 6 3 10 17 16 13)
+    ($x_cell 400 1)
+    simpleGrading (1 1 1)
+
+    hex (7 1 2 6 17 11 12 16)
+    zone_test
+    (40 400 1)
+    simpleGrading (1 1 1)
+
+    hex (6 2 4 5 16 12 14 15)
+    zone_fluid
+    (40 80 1)
+    simpleGrading (1 1 1)
+
+    hex (1 7 8 9 11 17 18 19)
+    zone_fluid
+    (40 80 1)
+    simpleGrading (1 1 1)
+);
+
+edges
+(
+);
+
+boundary
+(
+    inlet
+    {
+        type patch;
+        faces
+        (
+            (4 5 15 14)
+        );
+    }
+
+    outlet
+    {
+        type patch;
+        faces
+        (
+            (19 18 8 9)
+        );
+    }
+
+    Wall
+    {
+        type wall;
+        faces
+        (
+            (0 10 13 3)
+            (0 7 17 10)
+            (7 8 18 17)
+            (5 6 16 15)
+            (6 3 13 16)
+        );
+    }
+
+    right
+    {
+        type symmetry;
+        faces
+        (
+            (1 2 12 11)
+            (2 4 14 12)
+            (9 1 11 19)
+        );
+    }
+
+    frontAndBack
+    {
+        type empty;
+        faces
+        (
+            (0 3 6 7)
+            (6 2 1 7)
+            (9 8 7 1)
+            (6 5 4 2)
+            (10 17 16 13)
+            (17 11 12 16)
+            (11 17 18 19)
+            (12 14 15 16)
+        );
+    }
+);
+
+mergePatchPairs
+(
+);
+
+// ************************************************************************* //
