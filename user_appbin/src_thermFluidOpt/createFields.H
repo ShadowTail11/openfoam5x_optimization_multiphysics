@@ -493,23 +493,6 @@ if (fluid_area == 1)
 volScalarField alpha_U(alpha_U_max * q_factor * (1 - gamma) / (q_factor + gamma));
 volScalarField alpha_U_test(alpha_U_max * q_factor * (1 - gamma_test) / (q_factor + gamma_test));
 
-// Create the parallel run pseudo density variable Allgamma
-
-//List<scalarField> AllrList(Pstream::nProcs());
-//scalarField localr(gamma.internalField());
-//AllrList[Pstream::myProcNo()] = localr;
-//Pstream::gatherList(AllrList);
-//Pstream::scatterList(AllrList);
-//
-//scalarField Allgamma(
-//
-//    ListListOps::combine<scalarField>(
-//
-//        AllrList,
-//        accessOp<scalarField>()
-//    )
-//);
-
 // Primary adjoint sensitivity equation for thermal optimization
 volScalarField f_sens_TU(
 

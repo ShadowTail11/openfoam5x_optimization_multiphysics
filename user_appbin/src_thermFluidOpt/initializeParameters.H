@@ -9,9 +9,10 @@ std::remove("Monitor_VolumeFraction.txt");
 
 // Initialize variables
 int opt(1);                                     // Optimization loop counter
-int i, n_loops;                                 // Initialize loop counters (generic and solver)
+int i, n_loops;                                 // Initialize loop counters (generic and solver, respectively)
 scalar n_cells(gamma.size());                   // The number of cells in the domain
 n_cells = static_cast<int>(n_cells);            // Force n_cells to be an integer
+int opt_threshold = -1;                         // Updated to iteration count when merit value is within 2x of tolerance
 
 scalar area = gSum(mesh.V());                   // Domain area
 scalar len = std::pow(mesh.V()[0], 1.0 / 3);    // Characteristic length of domain
@@ -25,7 +26,7 @@ scalar dT_drop_ave(dT_drop);                    // Moving average percentage cha
 
 scalar vol_frac;                                // Volume fraction of domain
 scalar cost_vol_frac;                           // Cost variable for volume fraction
-scalar vol_frac_conv;                           // Percentage difference between volume fraction and target
+scalar vol_frac_conv(0);                        // Percentage difference between volume fraction and target
 
 scalar P_drop(0);                               // Pressure drop between inlet and outlet
 scalar P_drop_prev;                             // Previous pressure drop
@@ -34,7 +35,7 @@ scalar dP_drop(0);                              // Percentage change in pressure
 scalar power_loss;                              // Power loss of the fluid
 scalar power_loss_ratio;                        // Power loss ratio of the fluid
 scalar cost_power_loss_ratio;                   // Cost variable for power loss ratio of the fluid
-scalar power_loss_conv;                         // Percentage difference between power loss ratio and target
+scalar power_loss_conv(0);                      // Percentage difference between power loss ratio and target
 
 scalar gamma_switch(0);                         // Number of cells that switch between fluid and solid
 scalar gamma_switch_prev;                       // Previous number of cells that switch between fluid and solid

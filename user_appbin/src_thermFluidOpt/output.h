@@ -58,7 +58,7 @@
     << nl << endl;
 
     // Exit if convergence has been achieved
-    if (dT_drop_ave < merit_tol && vol_frac_conv < merit_tol && power_loss_conv < merit_tol && dgamma_switch_ave < gamma_tol && opt > 50)
+    if (opt > 50 && dgamma_switch_ave < gamma_tol && power_loss_conv < merit_tol && dT_drop_ave < merit_tol)
     {
         gamma.write();
         T.write();
