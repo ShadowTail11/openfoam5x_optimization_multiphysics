@@ -1,3 +1,7 @@
+/*
+ * This header calculates the sensitivity and constraint functions, performs the optimization, and applies Heaviside filtering
+ */
+
 {
     Info << "Performing sensitivity analysis" << endl;
 

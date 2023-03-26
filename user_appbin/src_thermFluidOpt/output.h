@@ -60,6 +60,12 @@
     // Exit if convergence has been achieved
     if (opt > 50 && dgamma_switch_ave < gamma_tol && power_loss_conv < merit_tol && dT_drop_ave < merit_tol)
     {
+        // Round pseudo density so each node is either solid (gamma=0) or fluid (gamma=1) rather than porous (0<gamma<1)
+        forAll(gamma, i)
+        {
+            gamma[i] = std::round(gamma[i]);
+        }
+
         gamma.write();
         T.write();
         U.write();

@@ -1,3 +1,7 @@
+//
+// The header file initialized parameters not initialized previously.
+//
+
 // Remove monitoring files from previous run
 std::remove("Monitor_Time.txt");
 std::remove("Monitor_PseudoDensityDelta.txt");

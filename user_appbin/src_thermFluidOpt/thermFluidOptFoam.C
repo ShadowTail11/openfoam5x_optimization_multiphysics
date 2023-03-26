@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
     #include "createTime.H"
     #include "createMesh.H"
     #include "createControl.H"
-    #include "createFields.H"           // Read & create parameters & fields
+    #include "createFields.H"           // Create parameters & fields
     #include "createFvOptions.H"
     #include "initContinuityErrs.H"
     #include "initializeParameters.H"   // Initialize other parameters

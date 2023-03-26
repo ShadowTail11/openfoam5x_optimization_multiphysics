@@ -35,8 +35,8 @@ if (opt_threshold == -1 && opt > 50 && dgamma_switch_ave < 2 * gamma_tol && powe
 // Increase flow resistance and RAMP function as temperature drop approaches convergence
 if (opt_threshold > 0 && opt > opt_threshold)
 {
-    alpha_U_max = alpha_U_max * 1.05;
-    q_factor = 0.005 + (opt - opt_threshold) * 1e-4;
+    alpha_U_max = alpha_U_max * 1.1;
+    q_factor += 2e-4;
 }
 
 // Limit flow resistance to a maximum threshold

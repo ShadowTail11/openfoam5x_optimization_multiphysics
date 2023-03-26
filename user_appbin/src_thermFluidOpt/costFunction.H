@@ -1,5 +1,5 @@
 /*
- * This function calculates cost functions and convergence tracking variables.
+ * This header calculates cost functions and convergence tracking variables.
  */
 
 {

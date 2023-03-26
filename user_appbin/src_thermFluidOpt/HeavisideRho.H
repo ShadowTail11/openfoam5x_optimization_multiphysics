@@ -1,11 +1,14 @@
-{
-    Info<< "\nImplement Heaviside_rho function\n" << endl;
+/*
+ * This header implements the heaviside and PDE filter into the results of the MMA algorithm to get the pseudo density
+ */
 
-    //***********************************//PDE filter
+{
+    Info << "\nImplementing Heaviside_rho function\n" << endl;
+
+    // Implement PDE filter
     solve(fvm::laplacian(gamma_densityfilter) - fvm::Sp(b, gamma_densityfilter) + x * b);
 
-
-    //***********************************//Heaviside_filter
+    // Implement Heaviside filter
     del = Foam::min(0.2 * opt, 100.0);
     eta0 = 0.0001;
     eta1 = 1.0;
@@ -31,14 +34,17 @@
     {
         if(gamma_densityfilter[i] <= eta5)
         {
-            gamma[i] = eta5 * (Foam::exp(-del * (1.0 - gamma_densityfilter[i] / eta5)) - (1.0 - gamma_densityfilter[i] / eta5) * Foam::exp(-del));
+            gamma[i] = (eta5 * (Foam::exp(-del * (1.0 - gamma_densityfilter[i] / eta5))
+                    - (1.0 - gamma_densityfilter[i] / eta5) * Foam::exp(-del)));
         }
         else
         {
-            gamma[i] = eta5 + (1.0 - eta5) * (1.0 - Foam::exp(-del * (gamma_densityfilter[i] - eta5) / (1.0 - eta5)) + (gamma_densityfilter[i] - eta5) * Foam::exp(-del) / (1.0 - eta5));
+            gamma[i] = (eta5 + (1.0 - eta5) * (1.0 - Foam::exp(-del * (gamma_densityfilter[i] - eta5) / (1.0 - eta5))
+                    + (gamma_densityfilter[i] - eta5) * Foam::exp(-del) / (1.0 - eta5)));
         }
     }
 
+    // Reset permanent material regions and correct pseudo density boundary
     if(solid_area==1)
     {
         setCells(gamma, cells_solid, 0);
@@ -48,5 +54,4 @@
         setCells(gamma, cells_fluid, 1);
     }
     gamma.correctBoundaryConditions();
-
 }
