@@ -18,7 +18,7 @@
 
     Info << "\n--> Temperature drop between inlet and outlet is: " << T_drop << endl;
 
-    dT_drop = abs((T_drop - T_drop_prev) / T_drop);
+    dT_drop = abs((T_drop - T_drop_prev) / (T_drop + SMALL));
     dT_drop_ave = (1 - 1 / n_ave) * dT_drop_ave + dT_drop / n_ave;
 
     Info << "\n--> Percentage change in temperature drop is: " << dT_drop * 100 << "%" << endl;
@@ -32,7 +32,7 @@
 
     Info << "\n--> Pressure drop between inlet and outlet is: " << P_drop << endl;
 
-    dP_drop = abs((P_drop - P_drop_prev) / P_drop);
+    dP_drop = abs((P_drop - P_drop_prev) / (P_drop + SMALL));
 
     Info << "\n--> Percentage change in pressure drop is: " << dP_drop * 100 << "%" << endl;
 
@@ -69,6 +69,6 @@
 
     power_loss_conv = abs(cost_power_loss_ratio / set_power_ratio);
 
-    Info << "\n--> Percentage change difference between power dissipation ratio and target is: " << power_loss_conv * 100 << "%" << endl;
+    Info << "\n--> Percentage change difference between power dissipation ratio and target is: " << power_loss_conv * 100 << "%\n" << endl;
 
 }

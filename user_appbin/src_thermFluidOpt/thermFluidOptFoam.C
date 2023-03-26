@@ -36,7 +36,7 @@ License
 #include <stdio.h>
 #include "petsc.h"
 #include "petscvec.h"
-#include <MMA.h>
+#include "MMA/MMA.h"
 #include <mpi.h>
 
 // Initialize classes and cells
@@ -94,9 +94,6 @@ int main(int argc, char *argv[])
         #include "output.h"                     // Check convergence and output monitoring/state variables
 
     }
-
-    delete mma;
-    PetscFinalize();
 
     Info << "End\n" << endl;
     

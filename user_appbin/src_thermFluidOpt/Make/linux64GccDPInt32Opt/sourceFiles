@@ -3,4 +3,5 @@ adjointOutletPressureHeat/adjointOutletPressureHeatFvPatchScalarField.C \
 adjointOutletVelocityHeat/adjointOutletVelocityHeatFvPatchVectorField.C \
 adjointOutletPressurePower/adjointOutletPressurePowerFvPatchScalarField.C \
 adjointOutletVelocityPower/adjointOutletVelocityPowerFvPatchVectorField.C \
+MMA/MMA.C \
 thermFluidOptFoam.C 

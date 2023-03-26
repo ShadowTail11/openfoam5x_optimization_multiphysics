@@ -29,8 +29,8 @@ scalar mma_inc(readScalar(optimizationProperties.lookup("mma_inc")));           
 scalar mma_limit(readScalar(optimizationProperties.lookup("mma_limit")));               // Optimization limit
 scalar raa0(readScalar(optimizationProperties.lookup("raa0")));                         // MMA smoothing parameter
 scalar r_filter_scalar(readScalar(optimizationProperties.lookup("r_filter")));          // Density filter radius
-dimensionedScalar b("b", dimensionSet(0,-2,0,0,0,0,0),1.0);                             // Filter radius of the PDE filter
 int r_filter = r_filter_scalar;
+dimensionedScalar b("b", dimensionSet(0,-2,0,0,0,0,0),1.0);                             // Filter radius of the PDE filter
 
 // Cost function constraints
 scalar set_vol_frac(readScalar(optimizationProperties.lookup("set_vol_frac")));         // Target volume fraction
@@ -45,14 +45,14 @@ scalar weight_TT(readScalar(optimizationProperties.lookup("weight_TT")));       
 scalar weight_T(readScalar(optimizationProperties.lookup("weight_T")));                 // Sensitivity weight for thermal term
 scalar weight_U(readScalar(optimizationProperties.lookup("weight_U")));                 // Sensitivity weight for velocity term
 
-// Adjoint unit correctors
+// Adjoint unit correctors (used because adjoint variables have inverse units of parent, but OpenFOAM uses same units)
 dimensionedScalar unit_correct("unit_correct", dimensionSet(0,2,-2,-2,0,0,0),1.0);      // Adjoint (U/T)^2 unit correction
 dimensionedScalar unit_correct_U("unit_correct_U", dimensionSet(0,-1,1,0,0,0,0),1.0);   // Adjoint U unit correction
 dimensionedScalar unit_correct_T("unit_correct_T", dimensionSet(0,0,0,-1,0,0,0),1.0);   // Adjoint T unit correction
 
 // Convergence controls
-scalar converge_tol(readScalar(optimizationProperties.lookup("converge_tol")));         // Convergence tolerance
-scalar converge_smooth(readScalar(optimizationProperties.lookup("converge_smooth")));   // Smooths convergence (max=1)
+scalar merit_tol(readScalar(optimizationProperties.lookup("merit_tol")));               // Convergence tolerance for merit parameters
+scalar gamma_tol(readScalar(optimizationProperties.lookup("gamma_tol")));               // Convergence tolerance for pseudo density gamma
 
 Info << "Reading thermal properties\n" << endl;
 
@@ -495,20 +495,20 @@ volScalarField alpha_U_test(alpha_U_max * q_factor * (1 - gamma_test) / (q_facto
 
 // Create the parallel run pseudo density variable Allgamma
 
-List<scalarField> AllrList(Pstream::nProcs());
-scalarField localr(gamma.internalField());
-AllrList[Pstream::myProcNo()] = localr;
-Pstream::gatherList(AllrList);
-Pstream::scatterList(AllrList);
-
-scalarField Allgamma(
-
-    ListListOps::combine<scalarField>(
-
-        AllrList,
-        accessOp<scalarField>()
-    )
-);
+//List<scalarField> AllrList(Pstream::nProcs());
+//scalarField localr(gamma.internalField());
+//AllrList[Pstream::myProcNo()] = localr;
+//Pstream::gatherList(AllrList);
+//Pstream::scatterList(AllrList);
+//
+//scalarField Allgamma(
+//
+//    ListListOps::combine<scalarField>(
+//
+//        AllrList,
+//        accessOp<scalarField>()
+//    )
+//);
 
 // Primary adjoint sensitivity equation for thermal optimization
 volScalarField f_sens_TU(
@@ -628,9 +628,9 @@ volScalarField nu_eff(
 
 // Establish path reference for inlet and outlet
 dictionary Fun1 = mesh.solutionDict().subDict("power_dissipation");
-int nObjPatch = Fun1.lookupOrDefault<scalar>("numberConstraintPatches",2);      //number of patch
-wordList conPatchNames = Fun1.lookup("constraintPatchesNames");                 //function name
-label conPatchList[nObjPatch];                                                  //patch list
+const int nObjPatch = Fun1.lookupOrDefault<scalar>("numberConstraintPatches",2);    // Number of patches
+wordList conPatchNames = Fun1.lookup("constraintPatchesNames");                     // Function name
+label conPatchList[nObjPatch];                                                      // Patch list
 int i_loop;
 for (i_loop = 0; i_loop < nObjPatch; i_loop++)
 {

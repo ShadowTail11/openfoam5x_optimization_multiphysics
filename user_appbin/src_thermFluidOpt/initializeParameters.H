@@ -42,63 +42,22 @@ scalar dgamma_switch(0);                        // Percentage change in number o
 scalar dgamma_switch_ave(0);                    // Moving average of percent change in number of material switched cells
 
 // Heaviside filter variables
-double eta0, eta1, eta5 = 0, del = 0.1, y0, y1, y5;
+double eta0, eta1, eta5 = 0, del = 0.1, y0, y5;
 b.value()= 1.0 / (r_filter * len / 3.464) / (r_filter * len / 3.464);
 
-// PETSc variables
-
-PetscInt m = 2;                 // Number of cost function constraints
-PetscInt n_dof = n_cells;
-PetscInt N_dof = n_cells;
-
-PetscScalar Xmin = 0;           // Min. value of design variables
-PetscScalar Xmax = 1;           // Max. value of design variables
-
-// Initialize Method of Moving Asymptotes (MMA) bounds and communications
-Vec xmma, xold, xmin, xmax;
-PetscScalar *xmma_array;
-VecCreate(PETSC_COMM_WORLD, &xmma);
-VecSetSizes(xmma, n_dof, N_dof);
-VecSetFromOptions(xmma);
-VecGetArray(xmma, &xmma_array);
-
-for(i = 0 ; i < n_cells; i++)
+// Initialize Method of Moving Asymptotes (MMA)
+int m_constraints = 2;                                      // Number of constraints
+MMA mma(n_cells, m_constraints);                            // Set MMA optimization size
+mma.asyminit = mma_init;                                    // Set initial movement
+mma.asymdec = mma_dec;                                      // Set decrement size
+mma.asyminc = mma_inc;                                      // Set increment size
+mma.raa0 = raa0;                                            // Set smoothing factor
+mma.movelimit = mma_limit;                                  // Set movement limit
+std::vector<double> xmma(n_cells);                          // Vector that stores optimized gamma
+std::vector<double> dfdx(n_cells);                          // Vector that stores sensitivity function
+std::vector<double> gx(m_constraints);                      // Vector that stores constraint values
+std::vector<std::vector<double>> dgdx(m_constraints);       // Vector that stores constrain functions
+for (int i = 0; i < m_constraints; i++)                     // Resize constraint vector to size of domain
 {
-  xmma_array[i] = gamma[i];
+    dgdx[i].resize(n_cells);
 }
-VecRestoreArray(xmma, &xmma_array);
-
-VecDuplicate(xmma, &xold);
-VecDuplicate(xmma, &xmin);
-VecDuplicate(xmma, &xmax);
-
-PetscScalar aMMA[m];
-PetscScalar cMMA[m];
-PetscScalar dMMA[m];
-
-for (PetscInt i = 0; i < m; i++)
-{
-  aMMA[i] = 0.0;
-  dMMA[i] = 1.0;
-  cMMA[i] = 1000.0;
-}
-
-MMA *mma;
-mma = new MMA(N_dof, m, xmma, aMMA, cMMA, dMMA, mma_init, mma_dec, mma_inc);
-
-// Sensitivities vectors of objective
-Vec dfdx;
-VecDuplicate(xmma, &dfdx);
-PetscScalar *dfdx_array;
-VecGetArray(dfdx, &dfdx_array);
-VecRestoreArray(dfdx, &dfdx_array);
-
-// Array with cost function constraint values
-PetscScalar *gx = new PetscScalar[m];
-
-// Sensitivities of cost function constraints
-Vec *dgdx;
-VecDuplicateVecs(xmma, m, &dgdx);
-PetscScalar **dgdx_array;
-VecGetArrays(dgdx, m, &dgdx_array);
-VecRestoreArrays(dgdx, m, &dgdx_array);
