@@ -8,12 +8,18 @@ Info << "\nUpdating parameters related to optimization process " << endl;
 // Reset permanent solid and fluid regions, respectively
 if (solid_area == 1)
 {
-    setCells(gamma, cells_solid, 0);
+    forAll(cells_solid, i)
+    {
+        gamma[cells_solid[i]] = 0;
+    }
 }
 
 if (fluid_area == 1)
 {
-    setCells(gamma, cells_fluid, 1);
+    forAll(cells_fluid, i)
+    {
+        gamma[cells_fluid[i]] = 1;
+    }
 }
 
 // Ensure rapid increase in flow resistance in early iterations
@@ -27,9 +33,6 @@ if (opt_threshold == -1 && opt > 50 && dgamma_switch_ave < 2 * gamma_tol && powe
 {
     opt_threshold = opt;
     Info << "\nNearing convergence. Optimization threshold updated to: " << opt_threshold << endl;
-    ofstream outfile8("CheckThreshold.txt", std::ios::app);
-    outfile8 << opt_threshold << "\n";
-    outfile8.close();
 }
 
 // Increase flow resistance and RAMP function as temperature drop approaches convergence

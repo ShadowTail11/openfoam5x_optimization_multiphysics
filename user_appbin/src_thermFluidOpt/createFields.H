@@ -354,14 +354,17 @@ mesh.setFluxRequired(p_test.name());
 
 // Set pseudo density values in fixed material regions
 
-labelList cells1, cells_solid, cells_fluid;
+labelList cells_test, cells_solid, cells_fluid;
 
 if (test_area == 1)
 {
     word zoneName1 = "zone_test";
     label zoneID1 = mesh.cellZones().findZoneID(zoneName1);
-    cells1 = mesh.cellZones()[zoneID1];
-    setCells(gamma_test, cells1, 1);
+    cells_test = mesh.cellZones()[zoneID1];
+    forAll(cells_test, i)
+    {
+        gamma_test[cells_test[i]] = 1;
+    }
 }
 
 if (solid_area == 1)
@@ -369,8 +372,11 @@ if (solid_area == 1)
     word zoneName2 = "zone_solid";
     label zoneID2 = mesh.cellZones().findZoneID(zoneName2);
     cells_solid = mesh.cellZones()[zoneID2];
-    setCells(gamma, cells_solid, 0);
-    setCells(gamma_test, cells_solid, 0);
+    forAll(cells_solid, i)
+    {
+        gamma_test[cells_solid[i]] = 0;
+        gamma[cells_solid[i]] = 0;
+    }
 }
 
 if (fluid_area == 1)
@@ -378,15 +384,18 @@ if (fluid_area == 1)
     word zoneName3 = "zone_fluid";
     label zoneID3 = mesh.cellZones().findZoneID(zoneName3);
     cells_fluid = mesh.cellZones()[zoneID3];
-    setCells(gamma, cells_fluid, 1);
-    setCells(gamma_test, cells_fluid, 1);
+    forAll(cells_fluid, i)
+    {
+        gamma_test[cells_fluid[i]] = 1;
+        gamma[cells_fluid[i]] = 1;
+    }
 }
 
 // Calculate flow resistance
 volScalarField alpha_U(alpha_U_max * q_factor * (1 - gamma) / (q_factor + gamma));
 volScalarField alpha_U_test(alpha_U_max * q_factor * (1 - gamma_test) / (q_factor + gamma_test));
 
-// Primary adjoint sensitivity equation for thermal optimization
+// Primary adjoint sensitivity equation for thermal optimization (with broken up into subcomponents and whole term)
 volScalarField f_sens_TU(
 
         IOobject(
@@ -503,12 +512,11 @@ volScalarField nu_eff(
 );
 
 // Establish path reference for inlet and outlet
-dictionary Fun1 = mesh.solutionDict().subDict("power_dissipation");
-const int nObjPatch = Fun1.lookupOrDefault<scalar>("numberConstraintPatches",2);    // Number of patches
-wordList conPatchNames = Fun1.lookup("constraintPatchesNames");                     // Function name
-label conPatchList[nObjPatch];                                                      // Patch list
-int i_loop;
-for (i_loop = 0; i_loop < nObjPatch; i_loop++)
+dictionary inlet_outlet = mesh.solutionDict().subDict("inlet_outlet");                  // Reference subDict in fvSolution
+const int nObjPatch = inlet_outlet.lookupOrDefault<int>("numberConstraintPatches",2);   // Number of patches
+wordList conPatchNames = inlet_outlet.lookup("constraintPatchesNames");                 // Function name
+label conPatchList[nObjPatch];                                                          // Patch list
+for (int i_loop = 0; i_loop < nObjPatch; i_loop++)
 {
     conPatchList[i_loop] = mesh.boundaryMesh().findPatchID(conPatchNames[i_loop]);
 }

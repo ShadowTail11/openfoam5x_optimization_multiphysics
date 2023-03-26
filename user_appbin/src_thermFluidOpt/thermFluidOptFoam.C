@@ -22,57 +22,30 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 \*---------------------------------------------------------------------------*/
 
+// Provide help information
+static char help[] = "Thermal-fluid topology optimization solver\n";
+
 // Include necessary libraries
-
-#include "fvCFD.H"
-#include "singlePhaseTransportModel.H"
-#include "turbulentTransportModel.H"
-#include "simpleControl.H"
-#include "fvOptions.H"
-#include <math.h>
-#include <fstream>
-#include <iostream>
-#include <iosfwd>
-#include <stdio.h>
-#include "petsc.h"
-#include "petscvec.h"
-#include "MMA/MMA.h"
-#include <mpi.h>
-
-// Initialize classes and cells
-
-// Function sets the value of a zone of cells
-template<class Type>
-void setCells(
-    
-    GeometricField<Type, fvPatchField, volMesh>& vf,
-    const labelList& cells,
-    double value
-)
-{
-    forAll(cells, i)
-    {
-        vf[cells[i]] = value;
-    }
-}
-
-scalar fun(volScalarField &gamma,const scalarField &V,double del,double eta,int n);
-static char help[] = "topology optimization \n";
+#include "fvCFD.H"                              // Establishes basic CFD capabilities
+#include "singlePhaseTransportModel.H"          // Establishes single phase transport model
+#include "turbulentTransportModel.H"            // Establishes turbulent model
+#include "simpleControl.H"                      // Creates SIMPLE control
+#include "fvOptions.H"                          // Establishes fvOptions
+#include <math.h>                               // Enables standard math functions
+#include "MMA/MMA.h"                            // Enables use of Method of Moving Asymptotes
+#include <delta_gamma_filter.c>                 // Function that differentiates Heaviside filter by pseudo density
 
 // Begin main program
-
 int main(int argc, char *argv[])
 {
-    PetscInitialize(&argc,&argv,PETSC_NULL,help);
-    #include "postProcess.H"
-    #include "setRootCase.H"
-    #include "createTime.H"
-    #include "createMesh.H"
-    #include "createControl.H"
-    #include "createFields.H"           // Create parameters & fields
-    #include "createFvOptions.H"
-    #include "initContinuityErrs.H"
-    #include "initializeParameters.H"   // Initialize other parameters
+    #include "setRootCase.H"                    // Sets root case
+    #include "createTime.H"                     // Creates time
+    #include "createMesh.H"                     // Creates mesh
+    #include "createControl.H"                  // Enables controls
+    #include "createFields.H"                   // Create parameters & fields
+    #include "createFvOptions.H"                // Creates fvOptions for relaxation factors
+    #include "initContinuityErrs.H"             // Enables continuity error tracking
+    #include "initializeParameters.H"           // Initialize other parameters
 
     while (simple.loop())
     {
@@ -92,38 +65,7 @@ int main(int argc, char *argv[])
         #include "costFunction.H"               // Calculate the cost function & convergence properties
         #include "sensitivity.H"                // Calculate sensitivity and update pseudo density accordingly
         #include "output.h"                     // Check convergence and output monitoring/state variables
-
     }
-
     Info << "End\n" << endl;
-    
     return 0;
-}
-
-
-//*********************************************************//function
-
-scalar fun(volScalarField &gamma,const scalarField &V,double del,double eta,int n)
-{
-    int i;
-    scalar z=0;
-    double *x = new double[n];
-
-    for (i = 0; i < n; i++)
-    {
-        if (gamma[i] <= eta)
-        {
-            x[i] = eta * (Foam::exp(-del * (1 - gamma[i] / eta)) - (1 - gamma[i] / eta) * Foam::exp(-del));
-        }
-        else
-        {
-            x[i] = eta + (1 - eta) * (1 - Foam::exp(-del * (gamma[i] - eta) / (1 - eta)) + (gamma[i] - eta) * Foam::exp(-del) / (1 - eta));
-        }
-    }
-    for (i = 0; i < n; i++)
-    {
-        z = z + (gamma[i] - x[i]) * V[i];
-    }
-    delete x;
-    return {z};
 }

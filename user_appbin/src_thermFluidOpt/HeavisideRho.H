@@ -12,12 +12,12 @@
     del = Foam::min(0.2 * opt, 100.0);
     eta0 = 0.0001;
     eta1 = 1.0;
-    y0 = fun(gamma_densityfilter, mesh.V(), del, eta0, n_cells);
+    y0 = delta_gamma_filter(gamma_densityfilter, mesh.V(), del, eta0, n_cells);
 
     do
     {
         eta5 = (eta0 + eta1) / 2.0;
-        y5 = fun(gamma_densityfilter, mesh.V(), del, eta5, n_cells);
+        y5 = delta_gamma_filter(gamma_densityfilter, mesh.V(), del, eta5, n_cells);
 
         if(y0 * y5 < 0)
         {
@@ -45,13 +45,19 @@
     }
 
     // Reset permanent material regions and correct pseudo density boundary
-    if(solid_area==1)
+    if (solid_area == 1)
     {
-        setCells(gamma, cells_solid, 0);
+        forAll(cells_solid, i)
+        {
+            gamma[cells_solid[i]] = 0;
+        }
     }
-    if(fluid_area==1)
+    if (fluid_area == 1)
     {
-        setCells(gamma, cells_fluid, 1);
+        forAll(cells_fluid, i)
+        {
+            gamma[cells_fluid[i]] = 1;
+        }
     }
     gamma.correctBoundaryConditions();
 }

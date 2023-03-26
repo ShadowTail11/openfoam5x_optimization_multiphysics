@@ -44,7 +44,7 @@
     cost_vol_frac = vol_frac - set_vol_frac;
     vol_frac_conv = abs(cost_vol_frac / set_vol_frac);
 
-    Info << "\n--> Percentage change difference between volume fraction and target is: " << vol_frac_conv * 100 << "%" << endl;
+    Info << "\n--> Percentage difference between volume fraction and target is: " << vol_frac_conv * 100 << "%" << endl;
 
     //// Power loss ratio (used for monitoring, cost, & convergence)
     power_loss = 0;
@@ -65,10 +65,10 @@
 
     Info << "\n--> Power dissipation ratio is: " << power_loss_ratio << endl;
 
-    cost_power_loss_ratio = power_loss_ratio / Foam::max(set_power_ratio * 3.0 - opt * 0.2, set_power_ratio) - 1.0;
+    cost_power_loss_ratio = power_loss_ratio / Foam::max(set_power_ratio * 3.0 - opt * 0.4, set_power_ratio) - 1.0;
 
-    power_loss_conv = abs(cost_power_loss_ratio / set_power_ratio);
+    power_loss_conv = abs(power_loss_ratio / set_power_ratio - 1);
 
-    Info << "\n--> Percentage change difference between power dissipation ratio and target is: " << power_loss_conv * 100 << "%\n" << endl;
+    Info << "\n--> Percentage difference between power dissipation ratio and target is: " << power_loss_conv * 100 << "%\n" << endl;
 
 }
