@@ -1,0 +1,7 @@
+
+adjointOutletPressurePower/adjointOutletPressurePowerFvPatchScalarField.C
+adjointOutletVelocityPower/adjointOutletVelocityPowerFvPatchVectorField.C
+MMA/MMA.C
+
+fluidOptFoam.C
+EXE = $(FOAM_USER_APPBIN)/fluidOptFoam
