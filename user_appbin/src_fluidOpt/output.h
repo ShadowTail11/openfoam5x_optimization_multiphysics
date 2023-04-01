@@ -15,7 +15,7 @@
         outfile2 << gamma_switch << "\n";
         outfile2.close();
 
-        ofstream outfile3("Monitor_PowerDissipation.txt", std::ios::app);
+        ofstream outfile3("Monitor_PowerLoss.txt", std::ios::app);
         outfile3 << power_loss_ratio << "\n";
         outfile3.close();
 

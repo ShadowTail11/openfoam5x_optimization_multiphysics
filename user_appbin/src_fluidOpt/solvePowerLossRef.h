@@ -106,5 +106,10 @@
         // Write parameters to
         U_test.write();
         gamma_test.write();
+
+        // Output power loss reference value
+        ofstream outfile6("PowerLoss_Reference.txt", std::ios::app);
+        outfile6 << power_loss_ref << "\n";
+        outfile6.close();
     }
 }

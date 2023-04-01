@@ -5,9 +5,10 @@
 // Remove monitoring files from previous run
 std::remove("Monitor_Time.txt");
 std::remove("Monitor_PseudoDensityDelta.txt");
-std::remove("Monitor_PowerDissipation.txt");
+std::remove("Monitor_PowerLoss.txt");
 std::remove("Monitor_PressureDrop.txt");
 std::remove("Monitor_VolumeFraction.txt");
+std::remove("PowerLoss_Reference.txt");
 
 // Initialize variables
 int opt(1);                                     // Optimization loop counter
