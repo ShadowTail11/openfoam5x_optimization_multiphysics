@@ -19,7 +19,7 @@
     for(i = 0; i < n_cells; i++)
     {
         xmma[i] = x[i];
-        dfdx[i] = adjoint_sensitivity[i] / n_cells;
+        dfdx[i] = weight_sens * adjoint_sensitivity[i] / n_cells;
         dgdx[0][i] = cost_sensitivity[i] / n_cells;
     }
 

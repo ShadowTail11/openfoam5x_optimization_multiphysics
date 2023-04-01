@@ -33,9 +33,10 @@ scalar raa0(readScalar(optimizationProperties.lookup("raa0")));                 
 int r_filter(round(readScalar(optimizationProperties.lookup("r_filter"))));             // Density filter radius
 dimensionedScalar b("b", dimensionSet(0,-2,0,0,0,0,0),1.0);                             // Filter radius of the PDE filter
 
-// Cost function constraints
+// Adjoint solver controls
 scalar set_vol_frac(readScalar(optimizationProperties.lookup("set_vol_frac")));         // Target volume fraction
 scalar power_loss_ref(readScalar(optimizationProperties.lookup("power_loss_ref")));     // Power loss reference
+scalar weight_sens(readScalar(optimizationProperties.lookup("weight_sens")));           // Weight factor for sensitivity function
 
 // Convergence controls
 scalar merit_tol(readScalar(optimizationProperties.lookup("merit_tol")));               // Convergence tolerance for merit parameters
