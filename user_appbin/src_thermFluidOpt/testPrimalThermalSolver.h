@@ -14,11 +14,11 @@
         // Define primal energy equation
         fvScalarMatrix T_testEqn
         (
-                gamma * fvm::div(phi_test, T_test)       // Thermal diffusivity
-                - fvm::laplacian(alpha_T_eff, T_test)    // Thermal conduction term
+                fvm::div(phi_test, T_test)                  // Thermal diffusivity
+                - fvm::laplacian(alpha_T_eff, T_test)       // Thermal conduction term
                 ==
-                fvOptions(T_test) + q_gen * (1 - gamma)  // Heat generation in solid region
-//                fvOptions(T_test) + q_gen                // Heat generation in whole domain
+                fvOptions(T_test) + q_gen * (1 - gamma)     // Heat generation in solid region
+//                fvOptions(T_test) + q_gen                 // Heat generation in whole domain
         );
 
         // Relax and solve for temperature T_test
