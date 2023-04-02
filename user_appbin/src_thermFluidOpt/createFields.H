@@ -76,6 +76,9 @@ volScalarField k_eff(
         k_solid + (k_fluid - k_solid) * gamma * (1 + q_factor) / (q_factor + gamma)
 );
 
+// Specific heat generation within the solid region
+dimensionedScalar q_gen = Q / (rho_solid * cp_solid);
+
 // Effective thermal diffusivity
 volScalarField alpha_T_eff
 (

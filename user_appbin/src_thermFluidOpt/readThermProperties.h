@@ -29,5 +29,5 @@ dimensionedScalar rho_solid(thermalProperties.lookup("rho_solid")); // Solid den
 dimensionedScalar cp_solid(thermalProperties.lookup("cp_solid"));   // Solid specific heat capacity
 
 // Heat transfer properties
-dimensionedScalar q_gen(thermalProperties.lookup("q_gen"));         // Specific heat generation Q/(rho*cp)
+dimensionedScalar Q(thermalProperties.lookup("Q"));                 // Heat generation [W/m^3]
 dimensionedScalar T_min(thermalProperties.lookup("T_min"));         // Minimum temperature of domain
