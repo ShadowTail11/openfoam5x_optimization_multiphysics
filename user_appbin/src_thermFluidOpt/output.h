@@ -23,7 +23,7 @@
         outfile4 << T_drop << "\n";
         outfile4.close();
 
-        ofstream outfile5("Monitor_PowerDissipation.txt", std::ios::app);
+        ofstream outfile5("Monitor_PowerLoss.txt", std::ios::app);
         outfile5 << power_loss_ratio << "\n";
         outfile5.close();
 

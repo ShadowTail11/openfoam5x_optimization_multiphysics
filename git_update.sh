@@ -3,5 +3,5 @@
 // This includes all functions required even if not used
 // git status
 git add --all
-git commit -m "Expand zone_test to include temperature and pressure drop in thermFluidOptFoam"
+git commit -m "Update monitor file name to Monitor_PowerLoss in thermFluidOptFoam"
 git push -u origin main

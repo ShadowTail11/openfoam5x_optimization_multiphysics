@@ -7,7 +7,7 @@ std::remove("Monitor_Time.txt");
 std::remove("Monitor_PseudoDensityDelta.txt");
 std::remove("Monitor_AverageTemperature.txt");
 std::remove("Monitor_TemperatureDrop.txt");
-std::remove("Monitor_PowerDissipation.txt");
+std::remove("Monitor_PowerLoss.txt");
 std::remove("Monitor_PressureDrop.txt");
 std::remove("Monitor_VolumeFraction.txt");
 std::remove("Reference_Test_Zone.txt");
