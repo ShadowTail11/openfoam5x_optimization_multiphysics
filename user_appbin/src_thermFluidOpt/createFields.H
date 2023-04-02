@@ -406,7 +406,7 @@ volScalarField f_sens_TU(
                 IOobject::READ_IF_PRESENT,
                 IOobject::AUTO_WRITE
         ),
-        - weight_TU * alpha_U_max * (1 + q_factor) * q_factor / ((q_factor + gamma) * (q_factor + gamma)) * (U & U_adj_T) * unit_correct_T / unit_correct
+        - weight_sens_TU * alpha_U_max * (1 + q_factor) * q_factor / ((q_factor + gamma) * (q_factor + gamma)) * (U & U_adj_T) * unit_correct_T / unit_correct
 );
 
 volScalarField f_sens_TK(
@@ -419,7 +419,7 @@ volScalarField f_sens_TK(
                 IOobject::READ_IF_PRESENT,
                 IOobject::AUTO_WRITE
         ),
-        - weight_TK * fvc::laplacian((k_fluid-k_solid)*(1+q_factor)*q_factor/((q_factor+gamma)*(q_factor+gamma)), T_adj)/(rho_eff*cp_eff)
+        - weight_sens_TK * fvc::laplacian((k_fluid-k_solid)*(1+q_factor)*q_factor/((q_factor+gamma)*(q_factor+gamma)), T_adj)/(rho_eff*cp_eff)
 );
 
 volScalarField f_sens_TT(
@@ -432,7 +432,7 @@ volScalarField f_sens_TT(
                 IOobject::READ_IF_PRESENT,
                 IOobject::AUTO_WRITE
         ),
-        - weight_TT * fvc::div(T_adj * U)
+        - weight_sens_TT * fvc::div(T_adj * U)
 );
 
 volScalarField f_sens_T(
@@ -445,10 +445,10 @@ volScalarField f_sens_T(
                 IOobject::NO_READ,
                 IOobject::AUTO_WRITE
         ),
-        - weight_TU * alpha_U_max * (1 + q_factor) * q_factor / ((q_factor + gamma) * (q_factor + gamma)) * (U & U_adj_T) * unit_correct_T / unit_correct
-        + weight_TK * fvc::laplacian((k_fluid-k_solid)*(1+q_factor)*q_factor/((q_factor+gamma)*(q_factor+gamma)), T_adj)/(rho_eff*cp_eff)
-        + weight_TQ * q_gen
-        - weight_TT * fvc::div(T_adj * U),
+        - weight_sens_TU * alpha_U_max * (1 + q_factor) * q_factor / ((q_factor + gamma) * (q_factor + gamma)) * (U & U_adj_T) * unit_correct_T / unit_correct
+        + weight_sens_TK * fvc::laplacian((k_fluid-k_solid)*(1+q_factor)*q_factor/((q_factor+gamma)*(q_factor+gamma)), T_adj)/(rho_eff*cp_eff)
+        + weight_sens_TQ * q_gen
+        - weight_sens_TT * fvc::div(T_adj * U),
         zeroGradientFvPatchScalarField::typeName
 );
 

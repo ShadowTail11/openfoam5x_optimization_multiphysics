@@ -40,12 +40,12 @@ scalar set_power_ratio(readScalar(optimizationProperties.lookup("set_power_ratio
 scalar power_loss_ref(readScalar(optimizationProperties.lookup("power_loss_ref")));     // Power loss reference
 
 // Optimization weights
-scalar weight_TU(readScalar(optimizationProperties.lookup("weight_TU")));               // Sensitivity weight for thermal velocity term
-scalar weight_TK(readScalar(optimizationProperties.lookup("weight_TK")));               // Sensitivity weight for thermal conductivity term
-scalar weight_TQ(readScalar(optimizationProperties.lookup("weight_TQ")));               // Sensitivity weight for heat generation term
-scalar weight_TT(readScalar(optimizationProperties.lookup("weight_TT")));               // Sensitivity weight for thermal diffusivity term
-scalar weight_T(readScalar(optimizationProperties.lookup("weight_T")));                 // Sensitivity weight for thermal term
-scalar weight_U(readScalar(optimizationProperties.lookup("weight_U")));                 // Sensitivity weight for velocity term
+scalar weight_sens_TU(readScalar(optimizationProperties.lookup("weight_sens_TU")));     // Sensitivity weight for thermal velocity term
+scalar weight_sens_TK(readScalar(optimizationProperties.lookup("weight_sens_TK")));     // Sensitivity weight for thermal conductivity term
+scalar weight_sens_TQ(readScalar(optimizationProperties.lookup("weight_sens_TQ")));     // Sensitivity weight for heat generation term
+scalar weight_sens_TT(readScalar(optimizationProperties.lookup("weight_sens_TT")));     // Sensitivity weight for thermal diffusivity term
+scalar weight_sens_T(readScalar(optimizationProperties.lookup("weight_sens_T")));       // Sensitivity weight for thermal term
+scalar weight_cost_U(readScalar(optimizationProperties.lookup("weight_cost_U")));       // Sensitivity weight for velocity term
 
 // Adjoint unit correctors (used because adjoint variables have inverse units of parent, but OpenFOAM uses same units)
 dimensionedScalar unit_correct("unit_correct", dimensionSet(0,2,-2,-2,0,0,0),1.0);      // Adjoint (U/T)^2 unit correction

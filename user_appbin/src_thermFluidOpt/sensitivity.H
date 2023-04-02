@@ -7,22 +7,22 @@
 
     // Update sensitivity functions
     f_sens_TU = (
-            - weight_TU * alpha_U_max * (1 + q_factor) * q_factor / ((q_factor + gamma) * (q_factor + gamma)) * (U & U_adj_T) * unit_correct_T / unit_correct
+            - weight_sens_TU * alpha_U_max * (1 + q_factor) * q_factor / ((q_factor + gamma) * (q_factor + gamma)) * (U & U_adj_T) * unit_correct_T / unit_correct
     );
 
     f_sens_TK = (
-            - weight_TK * fvc::laplacian((k_fluid-k_solid)*(1+q_factor)*q_factor/((q_factor+gamma)*(q_factor+gamma)), T_adj)/(rho_eff*cp_eff)
+            - weight_sens_TK * fvc::laplacian((k_fluid-k_solid)*(1+q_factor)*q_factor/((q_factor+gamma)*(q_factor+gamma)), T_adj)/(rho_eff*cp_eff)
     );
 
     f_sens_TT = (
-            - weight_TT * fvc::div(T_adj * U)
+            - weight_sens_TT * fvc::div(T_adj * U)
     );
 
     f_sens_T_init = (
-            - weight_TU * alpha_U_max * (1 + q_factor) * q_factor / ((q_factor + gamma) * (q_factor + gamma)) * (U & U_adj_T) * unit_correct_T / unit_correct
-            + weight_TK * fvc::laplacian((k_fluid-k_solid)*(1+q_factor)*q_factor/((q_factor+gamma)*(q_factor+gamma)), T_adj)/(rho_eff*cp_eff)
-            + weight_TQ * q_gen
-            - weight_TT * fvc::div(T_adj * U)
+            - weight_sens_TU * alpha_U_max * (1 + q_factor) * q_factor / ((q_factor + gamma) * (q_factor + gamma)) * (U & U_adj_T) * unit_correct_T / unit_correct
+            + weight_sens_TK * fvc::laplacian((k_fluid-k_solid)*(1+q_factor)*q_factor/((q_factor+gamma)*(q_factor+gamma)), T_adj)/(rho_eff*cp_eff)
+            + weight_sens_TQ * q_gen
+            - weight_sens_TT * fvc::div(T_adj * U)
     );
 
     g_sens_power_loss_init = (
@@ -39,8 +39,8 @@
     for(i = 0; i < n_cells; i++)
     {
         xmma[i] = x[i];
-        dfdx[i] = weight_T * f_sens_T[i] / n_cells;
-        dgdx[0][i] = weight_U * g_sens_power_loss[i] / n_cells;
+        dfdx[i] = weight_sens_T * f_sens_T[i] / n_cells;
+        dgdx[0][i] = weight_cost_U * g_sens_power_loss[i] / n_cells;
         dgdx[1][i] = g_sens_vol_frac[i] / n_cells;
     }
 
