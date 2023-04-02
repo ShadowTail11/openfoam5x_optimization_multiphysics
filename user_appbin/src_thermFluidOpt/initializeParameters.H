@@ -1,5 +1,5 @@
 //
-// The header file initialized parameters not initialized previously.
+// This header file initialized parameters not initialized previously.
 //
 
 // Remove monitoring files from previous run
@@ -10,6 +10,7 @@ std::remove("Monitor_TemperatureDrop.txt");
 std::remove("Monitor_PowerDissipation.txt");
 std::remove("Monitor_PressureDrop.txt");
 std::remove("Monitor_VolumeFraction.txt");
+std::remove("Reference_Test_Zone.txt");
 
 // Initialize variables
 int opt(1);                                     // Optimization loop counter

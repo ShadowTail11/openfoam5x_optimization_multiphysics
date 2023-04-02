@@ -122,6 +122,21 @@ volScalarField T_adj(
         mesh
 );
 
+Info << "Reading reference temperature field T\n" << endl;
+
+volScalarField T_test(
+
+        IOobject(
+
+                "T_test",
+                runTime.timeName(),
+                mesh,
+                IOobject::MUST_READ,
+                IOobject::AUTO_WRITE
+        ),
+        mesh
+);
+
 Info << "Reading kinematic pressure field p\n" << endl;
 
 volScalarField p(
@@ -393,7 +408,7 @@ if (fluid_area == 1)
 
 // Calculate flow resistance
 volScalarField alpha_U(alpha_U_max * q_factor * (1 - gamma) / (q_factor + gamma));
-volScalarField alpha_U_test(alpha_U_max * q_factor * (1 - gamma_test) / (q_factor + gamma_test));
+volScalarField alpha_U_test(alpha_U_limit * q_factor * (1 - gamma_test) / (q_factor + gamma_test));
 
 // Primary adjoint sensitivity equation for thermal optimization (with broken up into subcomponents and whole term)
 volScalarField f_sens_TU(

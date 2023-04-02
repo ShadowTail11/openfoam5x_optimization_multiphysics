@@ -8,19 +8,19 @@
     // Iterate thermal solver to calculate temperature T
     for (i = 0; i < 2; i++)
     {
-        Info << "\nSolve for primal heat\n" << endl;
+        Info << "\nSolve for T\n" << endl;
 
-        // Define primal energy equation
+        // Define primal energy equation for test condition
         fvScalarMatrix TEqn
         (
-            fvm::div(phi, T)                    // Thermal diffusivity
+            fvm::div(phi, T)               // Thermal diffusivity
             - fvm::laplacian(alpha_T_eff, T)    // Thermal conduction term
             ==
             fvOptions(T) + q_gen * (1 - gamma)  // Heat generation in solid region
 //            fvOptions(T) + q_gen              // Heat generation in whole domain
         );
 
-        // Relax and solve for temperature T
+        // Relax and solve for temperature T_test
         TEqn.relax();
         fvOptions.constrain(TEqn);
         TEqn.solve();

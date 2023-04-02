@@ -782,7 +782,9 @@ $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/createFvOptions.H \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/initContinuityErrs.H \
 initializeParameters.H \
 updateOptProperties.h \
-solvePowerLossRef.h \
+refTestSolver.h \
+testPrimalFlowSolver.h \
+testPrimalThermalSolver.h \
 primalFlowSolver.H \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/continuityErrs.H \
 primalThermalSolver.H \

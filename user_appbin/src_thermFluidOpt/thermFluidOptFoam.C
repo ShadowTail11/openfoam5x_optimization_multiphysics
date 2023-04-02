@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
         Info << "Time = " << runTime.timeName() << nl << endl;
 
         #include "updateOptProperties.h"        // Update optimization-related properties
-        #include "solvePowerLossRef.h"          // Update power loss reference using test region (if needed)
+        #include "refTestSolver.h"              // Initialize reference values using test region (if test_area = 1)
 
         #include "primalFlowSolver.H"           // Run primal solver for U and p
         #include "primalThermalSolver.H"        // Run primal solver for T
