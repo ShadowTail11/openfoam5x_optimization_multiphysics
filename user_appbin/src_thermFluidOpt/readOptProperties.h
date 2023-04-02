@@ -30,8 +30,7 @@ scalar mma_dec(readScalar(optimizationProperties.lookup("mma_dec")));           
 scalar mma_inc(readScalar(optimizationProperties.lookup("mma_inc")));                   // Optimization increment
 scalar mma_limit(readScalar(optimizationProperties.lookup("mma_limit")));               // Optimization limit
 scalar raa0(readScalar(optimizationProperties.lookup("raa0")));                         // MMA smoothing parameter
-scalar r_filter_scalar(readScalar(optimizationProperties.lookup("r_filter")));          // Density filter radius
-int r_filter = r_filter_scalar;
+int r_filter(round(readScalar(optimizationProperties.lookup("r_filter"))));             // Density filter radius
 dimensionedScalar b("b", dimensionSet(0,-2,0,0,0,0,0),1.0);                             // Filter radius of the PDE filter
 
 // Cost function constraints
