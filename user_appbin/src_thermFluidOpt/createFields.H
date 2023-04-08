@@ -61,20 +61,50 @@ volScalarField gamma_test(
         zeroGradientFvPatchScalarField::typeName
 );
 
-// Effective density
-volScalarField rho_eff(
-        rho_solid + (rho_fluid - rho_solid) * gamma * (1 + q_factor) / (q_factor + gamma)
-);
+// Set pseudo density values in fixed material regions
 
-// Effective heat capacity
-volScalarField cp_eff(
-        cp_solid + (cp_fluid - cp_solid) * gamma * (1 + q_factor) / (q_factor + gamma)
-);
+labelList cells_test, cells_solid, cells_fluid;
 
-// Effective thermal conductivity
-volScalarField k_eff(
-        k_solid + (k_fluid - k_solid) * gamma * (1 + q_factor) / (q_factor + gamma)
-);
+if (test_area == 1)
+{
+    word zoneName1 = "zone_test";
+    label zoneID1 = mesh.cellZones().findZoneID(zoneName1);
+    cells_test = mesh.cellZones()[zoneID1];
+    forAll(cells_test, i)
+    {
+        gamma_test[cells_test[i]] = 1;
+    }
+}
+
+if (solid_area == 1)
+{
+    word zoneName2 = "zone_solid";
+    label zoneID2 = mesh.cellZones().findZoneID(zoneName2);
+    cells_solid = mesh.cellZones()[zoneID2];
+    forAll(cells_solid, i)
+    {
+        gamma_test[cells_solid[i]] = 0;
+        gamma[cells_solid[i]] = 0;
+    }
+}
+
+if (fluid_area == 1)
+{
+    word zoneName3 = "zone_fluid";
+    label zoneID3 = mesh.cellZones().findZoneID(zoneName3);
+    cells_fluid = mesh.cellZones()[zoneID3];
+    forAll(cells_fluid, i)
+    {
+        gamma_test[cells_fluid[i]] = 1;
+        gamma[cells_fluid[i]] = 1;
+    }
+}
+
+// Compute effective parameters that transition between fluid and solid using the RAMP function
+volScalarField ramp(q_factor * (1 - gamma) / (q_factor + gamma));                   // RAMP Function
+volScalarField rho_eff(rho_fluid + (rho_solid - rho_fluid) * ramp);                 // Effective density
+volScalarField cp_eff(cp_fluid + (cp_solid - cp_fluid) * ramp);                     // Effective heat capacity
+volScalarField k_eff(k_fluid + (k_solid - k_fluid) * ramp);                         // Effective thermal conductivity
 
 // Specific heat generation within the solid region
 dimensionedScalar q_gen = Q / (rho_solid * cp_solid);
@@ -83,15 +113,39 @@ dimensionedScalar q_gen = Q / (rho_solid * cp_solid);
 volScalarField alpha_T_eff
 (
         IOobject
-                (
-                        "alpha_T_eff",
-                        runTime.timeName(),
-                        mesh,
-                        IOobject::READ_IF_PRESENT,
-                        IOobject::AUTO_WRITE
-                ),
-        (k_solid + (k_fluid - k_solid) * gamma * (1 + q_factor) / (q_factor + gamma)) / (rho_eff * cp_eff)
+        (
+                "alpha_T_eff",
+                runTime.timeName(),
+                mesh,
+                IOobject::READ_IF_PRESENT,
+                IOobject::AUTO_WRITE
+        ),
+        k_eff / (rho_eff * cp_eff)
 );
+
+// Compute effective parameters that transition between fluid and solid using the RAMP function for the test zone
+volScalarField ramp_test(q_factor * (1 - gamma_test) / (q_factor + gamma_test));    // RAMP Function
+volScalarField rho_eff_test(rho_fluid + (rho_solid - rho_fluid) * ramp_test);       // Effective density
+volScalarField cp_eff_test(cp_fluid + (cp_solid - cp_fluid) * ramp_test);           // Effective heat capacity
+volScalarField k_eff_test(k_fluid + (k_solid - k_fluid) * ramp_test);               // Effective thermal conductivity
+
+// Effective thermal diffusivity
+volScalarField alpha_T_eff_test
+        (
+                IOobject
+                        (
+                                "alpha_T_eff_test",
+                                runTime.timeName(),
+                                mesh,
+                                IOobject::READ_IF_PRESENT,
+                                IOobject::AUTO_WRITE
+                        ),
+                k_eff_test / (rho_eff_test * cp_eff_test)
+        );
+
+// Calculate flow resistance
+volScalarField alpha_U(alpha_U_max * ramp);
+volScalarField alpha_U_test(alpha_U_limit * q_factor * (1 - gamma_test) / (q_factor + gamma_test));
 
 // Fields related to primal and adjoint functions
 
@@ -369,49 +423,6 @@ setRefCell(
 );
 
 mesh.setFluxRequired(p_test.name());
-
-// Set pseudo density values in fixed material regions
-
-labelList cells_test, cells_solid, cells_fluid;
-
-if (test_area == 1)
-{
-    word zoneName1 = "zone_test";
-    label zoneID1 = mesh.cellZones().findZoneID(zoneName1);
-    cells_test = mesh.cellZones()[zoneID1];
-    forAll(cells_test, i)
-    {
-        gamma_test[cells_test[i]] = 1;
-    }
-}
-
-if (solid_area == 1)
-{
-    word zoneName2 = "zone_solid";
-    label zoneID2 = mesh.cellZones().findZoneID(zoneName2);
-    cells_solid = mesh.cellZones()[zoneID2];
-    forAll(cells_solid, i)
-    {
-        gamma_test[cells_solid[i]] = 0;
-        gamma[cells_solid[i]] = 0;
-    }
-}
-
-if (fluid_area == 1)
-{
-    word zoneName3 = "zone_fluid";
-    label zoneID3 = mesh.cellZones().findZoneID(zoneName3);
-    cells_fluid = mesh.cellZones()[zoneID3];
-    forAll(cells_fluid, i)
-    {
-        gamma_test[cells_fluid[i]] = 1;
-        gamma[cells_fluid[i]] = 1;
-    }
-}
-
-// Calculate flow resistance
-volScalarField alpha_U(alpha_U_max * q_factor * (1 - gamma) / (q_factor + gamma));
-volScalarField alpha_U_test(alpha_U_limit * q_factor * (1 - gamma_test) / (q_factor + gamma_test));
 
 // Primary adjoint sensitivity equation for thermal optimization (with broken up into subcomponents and whole term)
 volScalarField f_sens_TU(

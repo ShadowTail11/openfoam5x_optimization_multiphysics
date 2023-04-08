@@ -1,0 +1,8 @@
+SOURCE = \
+adjointOutletPressureHeat/adjointOutletPressureHeatFvPatchScalarField.C \
+adjointOutletVelocityHeat/adjointOutletVelocityHeatFvPatchVectorField.C \
+adjointOutletPressurePower/adjointOutletPressurePowerFvPatchScalarField.C \
+adjointOutletVelocityPower/adjointOutletVelocityPowerFvPatchVectorField.C \
+tractionDisplacement/tractionDisplacementFvPatchVectorField.C \
+MMA/MMA.C \
+thermFluidStructOptFoam.C 
