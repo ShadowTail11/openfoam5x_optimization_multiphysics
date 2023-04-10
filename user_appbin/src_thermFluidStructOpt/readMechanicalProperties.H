@@ -90,11 +90,11 @@ else
 }
 mesh.setFluxRequired(D.name());
 
-volScalarField gsensCompliance
+volScalarField cost_sens_comp
 (
     IOobject
     (
-        "gsensCompliance",
+        "cost_sens_comp",
         runTime.timeName(),
         mesh,
         IOobject::NO_READ,
@@ -103,6 +103,6 @@ volScalarField gsensCompliance
     -gradD&&(rho*(3*gamma*gamma*(E-Emin)/(2.0*(1.0 + Po))*twoSymm(gradD))),
     zeroGradientFvPatchScalarField::typeName
 );
-volScalarField gsenshCompliance(gsensCompliance);
+volScalarField cost_sens_comp0(cost_sens_comp);
 
 

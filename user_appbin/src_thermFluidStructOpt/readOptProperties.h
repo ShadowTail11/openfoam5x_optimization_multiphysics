@@ -36,10 +36,10 @@ int r_filter(round(readScalar(optimizationProperties.lookup("r_filter"))));     
 dimensionedScalar b("b", dimensionSet(0,-2,0,0,0,0,0),1.0);                             // Filter radius of the PDE filter
 
 // RAMP function constant (increases transition rate between fluid and solid)
-scalar q_factor(readScalar(optimizationProperties.lookup("q_factor")));                // Shape factor used to scale ramp function
-scalar q_factor_limit(readScalar(optimizationProperties.lookup("q_factor_limit")));    // Shape factor limit
-scalar dq_factor(readScalar(optimizationProperties.lookup("dq_factor")));              // Percent increase rate for shape factor (near convergence)
-scalar n_rapid(round(readScalar(optimizationProperties.lookup("n_rapid"))));           // Factor that controls when to increase q_factor based on proximity to convergence
+scalar q_ramp(readScalar(optimizationProperties.lookup("q_ramp")));                // Shape factor used to scale ramp function
+scalar q_ramp_limit(readScalar(optimizationProperties.lookup("q_ramp_limit")));    // Shape factor limit
+scalar dq_ramp(readScalar(optimizationProperties.lookup("dq_ramp")));              // Percent increase rate for shape factor (near convergence)
+scalar n_rapid(round(readScalar(optimizationProperties.lookup("n_rapid"))));           // Factor that controls when to increase q_ramp based on proximity to convergence
 
 
 //// Adjoint Optimization Controls

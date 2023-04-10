@@ -217,20 +217,20 @@ wordList conPatchNames = inlet_outlet.lookup("constraintPatchesNames");         
 label conPatchList[nObjPatch];                                                          // Patch list
 for (int i_loop = 0; i_loop < nObjPatch; i_loop++)
 {
-conPatchList[i_loop] = mesh.boundaryMesh().findPatchID(conPatchNames[i_loop]);
+    conPatchList[i_loop] = mesh.boundaryMesh().findPatchID(conPatchNames[i_loop]);
 }
 
-volScalarField gsensPowerDiss
+volScalarField cost_sens_power_loss
 (
     IOobject
     (
-        "gsensPowerDiss",
+        "cost_sens_power_loss",
         runTime.timeName(),
         mesh,
         IOobject::NO_READ,
         IOobject::AUTO_WRITE
     ),
-    -alpha_U_max * (1 + q_factor) * q_factor / ((q_factor + gamma) * (q_factor + gamma)) * (U & U_adj_U),
+    -alpha_U_max * (1 + q_ramp) * q_ramp / ((q_ramp + gamma) * (q_ramp + gamma)) * (U & U_adj_U),
     zeroGradientFvPatchScalarField::typeName
 );
-volScalarField gsenshPowerDiss(gsensPowerDiss);
+volScalarField cost_sens_power_loss0(cost_sens_power_loss);

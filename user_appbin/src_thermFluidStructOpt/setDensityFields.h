@@ -34,7 +34,7 @@ volScalarField gamma_filter
 
 volScalarField x(gamma_filter);                                     // Field used for Heaviside sensitivity calculation
 volScalarField drho(x);                                             // Density factor used in Heaviside function
-volScalarField ramp(q_factor * (1 - gamma) / (q_factor + gamma));   // RAMP Function
+volScalarField ramp(q_ramp * (1 - gamma) / (q_ramp + gamma));       // RAMP Function
 
 // Set pseudo density values in fixed material regions
 labelList cells_solid,cells_fluid,cells_test;
@@ -45,7 +45,7 @@ if (solid_area)
     cells_solid=mesh.cellZones()[zoneID];
     forAll(cells_solid, i)
     {
-        x[cells_solid[i]]=0;
+        x[cells_solid[i]] = 0;
     }
 }
 if (fluid_area)
@@ -55,7 +55,7 @@ if (fluid_area)
     cells_fluid=mesh.cellZones()[zoneID];
     forAll(cells_fluid, i)
     {
-        x[cells_fluid[i]]=1.0;
+        x[cells_fluid[i]] = 1.0;
     }
 }
 if (test_area)
@@ -65,15 +65,15 @@ if (test_area)
     cells_test=mesh.cellZones()[zoneID];
     forAll(cells_test, i)
     {
-        x[cells_test[i]]=1.0;
-        gamma[cells_test[i]]=1.0;
+        x[cells_test[i]] = 1.0;
+        gamma[cells_test[i]] = 1.0;
     }
 }
-volScalarField gsensVol
+volScalarField cost_sens_vol_frac
 (
         IOobject
         (
-                "gsensVol",
+                "cost_sens_vol_frac",
                 runTime.timeName(),
                 mesh,
                 IOobject::NO_READ,
@@ -82,4 +82,4 @@ volScalarField gsensVol
         gamma,
         zeroGradientFvPatchScalarField::typeName
 );
-volScalarField gsenshVol(gamma);
+volScalarField cost_sens_vol_frac0(gamma);

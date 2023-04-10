@@ -51,12 +51,11 @@
         D.write();
         sigmaD.write();
         nu_eff.write();
-//
-//        f_sens_T.write();
-//        f_sens_TU.write();
-//        f_sens_TK.write();
-//        f_sens_TT.write();
-//        g_sens_power_loss.write();
+
+        obj_sens_T.write();
+        cost_sens_power_loss.write();
+        cost_sens_comp.write();
+        cost_sens_vol_frac.write();
     }
 
     // Print elapsed time
@@ -64,36 +63,37 @@
     << "  ClockTime = " << runTime.elapsedClockTime() << " s"
     << nl << endl;
 
-//    // Exit if convergence has been achieved
-//    if (opt > 50 && dgamma_switch_ave < gamma_tol && power_loss_conv < merit_tol && dT_drop_ave < merit_tol)
-//    {
-//        // Round pseudo density so each node is either solid (gamma=0) or fluid (gamma=1) rather than porous (0<gamma<1)
-//        forAll(gamma, i)
-//        {
-//            gamma[i] = std::round(gamma[i]);
-//        }
-//
-//        gamma.write();
-//        T.write();
-//        U.write();
-//        p.write();
-//        nu_eff.write();
-//
-//        f_sens_T.write();
-//        f_sens_TU.write();
-//        f_sens_TK.write();
-//        f_sens_TT.write();
-//        g_sens_power_loss.write();
-//
-//        Info << "Convergence criterion (<" << merit_tol * 100 << "%) has been met after "
-//        << opt - 1 << " iterations!" << endl << "Program ending!" << endl;
-//
-//        Info << "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
-//        << "  ClockTime = " << runTime.elapsedClockTime() << " s"
-//        << nl << endl;
-//
-//        break;
-//    }
+    // Exit if convergence has been achieved
+    if (opt > 50 && dgamma_switch_ave < gamma_tol && power_loss_conv < merit_tol && dT_drop_ave < merit_tol)
+    {
+        // Round pseudo density so each node is either solid (gamma=0) or fluid (gamma=1) rather than porous (0<gamma<1)
+        forAll(gamma, i)
+        {
+            gamma[i] = std::round(gamma[i]);
+        }
+
+        gamma.write();
+        T.write();
+        U.write();
+        p.write();
+        D.write();
+        sigmaD.write();
+        nu_eff.write();
+
+        obj_sens_T.write();
+        cost_sens_power_loss.write();
+        cost_sens_comp.write();
+        cost_sens_vol_frac.write();
+
+        Info << "Convergence criterion (<" << merit_tol * 100 << "%) has been met after "
+        << opt - 1 << " iterations!" << endl << "Program ending!" << endl;
+
+        Info << "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
+        << "  ClockTime = " << runTime.elapsedClockTime() << " s"
+        << nl << endl;
+
+        break;
+    }
 
     opt++;
 }
