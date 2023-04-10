@@ -42,8 +42,8 @@ int main(int argc, char *argv[])
     #include "createTime.H"                     // Creates time
     #include "createMesh.H"                     // Creates mesh
     #include "createControl.H"                  // Enables controls
-    #include "createFields.H"                   // Create parameters & fields
     #include "createFvOptions.H"                // Creates fvOptions for relaxation factors
+    #include "createFields.H"                   // Create parameters & fields
     #include "initContinuityErrs.H"             // Enables continuity error tracking
     #include "initializeParameters.H"           // Initialize other parameters
 

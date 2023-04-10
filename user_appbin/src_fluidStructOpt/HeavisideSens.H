@@ -13,18 +13,18 @@ if(solid_area)
 {
     forAll(cells_solid, i)
     {
-        adjoint_sensitivity_init[cells_solid[i]]=0;
-        gsenshCompliance[cells_solid[i]]=0;
-        cost_sensitivity_init[cells_solid[i]]=0;
+        adjoint_sensitivity_init[cells_solid[i]] = 0;
+        gsenshCompliance[cells_solid[i]] = 0;
+        cost_sensitivity_init[cells_solid[i]] = 0;
     }
 }
 if(fluid_area)
 {
     forAll(cells_fluid, i)
     {
-        adjoint_sensitivity_init[cells_fluid[i]]=0;
-        gsenshCompliance[cells_fluid[i]]=0;
-        cost_sensitivity_init[cells_fluid[i]]=0;
+        adjoint_sensitivity_init[cells_fluid[i]] = 0;
+        gsenshCompliance[cells_fluid[i]] = 0;
+        cost_sensitivity_init[cells_fluid[i]] = 0;
     }
 }
 

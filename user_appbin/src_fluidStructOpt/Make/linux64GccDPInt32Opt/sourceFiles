@@ -2,4 +2,5 @@ SOURCE = \
 adjointOutletPressurePower/adjointOutletPressurePowerFvPatchScalarField.C \
 adjointOutletVelocityPower/adjointOutletVelocityPowerFvPatchVectorField.C \
 MMA/MMA.C \
+tractionDisplacement/tractionDisplacementFvPatchVectorField.C \
 fluidStructOptFoam.C 

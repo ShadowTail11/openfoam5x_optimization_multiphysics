@@ -772,13 +772,13 @@ $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/createControl.H \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/createPisoControl.H \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/createPimpleControl.H \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/createSimpleControl.H \
+$(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/createFvOptions.H \
 createFields.H \
 readOptProperties.h \
 readTransProperties.h \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/createMRF.H \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/createPhi.H \
 readMechProperties.h \
-$(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/createFvOptions.H \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/initContinuityErrs.H \
 initializeParameters.H \
 updateOptProperties.h \
