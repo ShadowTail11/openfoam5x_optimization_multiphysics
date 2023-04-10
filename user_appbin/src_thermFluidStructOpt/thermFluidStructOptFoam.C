@@ -66,7 +66,8 @@ int main(int argc, char *argv[])
 
         #include "costFunction.H"               // Calculate the cost function & convergence properties
         #include "sensitivity.H"                // Calculate sensitivity and update pseudo density accordingly
+        #include "output.h"                     // Check convergence and output monitoring/state variables
     }
-    #include "finalize.H"
+    Info << "End\n" << endl;
     return 0;
 }

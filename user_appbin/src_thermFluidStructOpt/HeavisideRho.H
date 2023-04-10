@@ -36,3 +36,5 @@ for(i=0;i<n;i++)
      xh[i]=eta5+(1-eta5)*(1-Foam::exp(-del*(xp[i]-eta5)/(1-eta5))+(xp[i]-eta5)*Foam::exp(-del)/(1-eta5));
    }   
 }
+
+xh.correctBoundaryConditions();

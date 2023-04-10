@@ -1,6 +1,4 @@
 
-opt++;
-
 //不可设计域
 if(solid_area)
 {
@@ -17,11 +15,6 @@ if(fluid_area)
    }
 }
 xh.correctBoundaryConditions();
-if(runTime.writeTime())
-{
-   xh.write();  
-   T.write();
-}
 
 //流体问题一些参数的放松
 rex=63;

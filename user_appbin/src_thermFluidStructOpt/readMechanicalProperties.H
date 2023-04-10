@@ -59,7 +59,7 @@ volSymmTensorField sigmaD
         runTime.timeName(),
         mesh,
         IOobject::NO_READ,
-        IOobject::NO_WRITE
+        IOobject::AUTO_WRITE
     ),
     mu*twoSymm(gradD) + (lambda*I)*tr(gradD)
 );
