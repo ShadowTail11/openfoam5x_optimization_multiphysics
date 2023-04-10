@@ -45,84 +45,84 @@ namespace Foam
                            Class adjointOutletPressurePowerFvPatch Declaration
 \*---------------------------------------------------------------------------*/
 
-class adjointOutletPressurePowerFvPatchScalarField
-:
-    public fixedValueFvPatchScalarField
-{
+    class adjointOutletPressurePowerFvPatchScalarField
+            :
+                    public fixedValueFvPatchScalarField
+    {
 
-public:
+    public:
 
-    //- Runtime type information
-    TypeName("adjointOutletPressurePower");
+        //- Runtime type information
+        TypeName("adjointOutletPressurePower");
 
 
-    // Constructors
+        // Constructors
 
         //- Construct from patch and internal field
         adjointOutletPressurePowerFvPatchScalarField
-        (
-            const fvPatch&,
-            const DimensionedField<scalar, volMesh>&
-        );
+                (
+                        const fvPatch&,
+                        const DimensionedField<scalar, volMesh>&
+                );
 
         //- Construct from patch, internal field and dictionary
         adjointOutletPressurePowerFvPatchScalarField
-        (
-            const fvPatch&,
-            const DimensionedField<scalar, volMesh>&,
-            const dictionary&
-        );
+                (
+                        const fvPatch&,
+                        const DimensionedField<scalar, volMesh>&,
+                        const dictionary&
+                );
 
         //- Construct by mapping given adjointOutletPressurePowerFvPatchScalarField
         //  onto a new patch
         adjointOutletPressurePowerFvPatchScalarField
-        (
-            const adjointOutletPressurePowerFvPatchScalarField&,
-            const fvPatch&,
-            const DimensionedField<scalar, volMesh>&,
-            const fvPatchFieldMapper&
-        );
+                (
+                        const adjointOutletPressurePowerFvPatchScalarField&,
+                        const fvPatch&,
+                        const DimensionedField<scalar, volMesh>&,
+                        const fvPatchFieldMapper&
+                );
 
         //- Construct and return a clone
         virtual tmp<fvPatchScalarField> clone() const
         {
             return tmp<fvPatchScalarField>
-            (
-                new adjointOutletPressurePowerFvPatchScalarField(*this)
-            );
+                    (
+                            new adjointOutletPressurePowerFvPatchScalarField(*this)
+                    );
         }
 
         //- Construct as copy setting internal field reference
         adjointOutletPressurePowerFvPatchScalarField
-        (
-            const adjointOutletPressurePowerFvPatchScalarField&,
-            const DimensionedField<scalar, volMesh>&
-        );
+                (
+                        const adjointOutletPressurePowerFvPatchScalarField&,
+                        const DimensionedField<scalar, volMesh>&
+                );
 
         //- Construct and return a clone setting internal field reference
         virtual tmp<fvPatchScalarField> clone
-        (
-            const DimensionedField<scalar, volMesh>& iF
-        ) const
+                (
+                        const DimensionedField<scalar, volMesh>& iF
+                ) const
         {
             return tmp<fvPatchScalarField>
-            (
-                new adjointOutletPressurePowerFvPatchScalarField(*this, iF)
-            );
+                    (
+                            new adjointOutletPressurePowerFvPatchScalarField(*this, iF)
+                    );
         }
 
 
-    // Member functions
+        // Member functions
 
         // Evaluation functions
 
-            //- Update the coefficients associated with the patch field
-            virtual void updateCoeffs();
+        //- Update the coefficients associated with the patch field
+        virtual void updateCoeffs();
 
 
         //- Write
         virtual void write(Ostream&) const;
-};
+    };
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

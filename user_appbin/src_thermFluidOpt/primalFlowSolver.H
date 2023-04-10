@@ -6,18 +6,18 @@
  */
 
 {
-    // Set initial loop to run longer to ensure stability
-    if (opt == 1)
-    {
-        n_loops = 100;
-    }
-    else
-    {
-        n_loops = 60;
-    }
+//    // Set initial loop to run longer to ensure stability
+//    if (opt == 1)
+//    {
+//        n_loops = 100;
+//    }
+//    else
+//    {
+//        n_loops = 60;
+//    }
 
     // Iterate primal solver to calculate velocity U and kinematic pressure p
-    for (i = 0; i < 100; i++)
+    for (i = 0; i < 40; i++)
     {
         Info << "Time = " << runTime.timeName() << nl << endl;
 

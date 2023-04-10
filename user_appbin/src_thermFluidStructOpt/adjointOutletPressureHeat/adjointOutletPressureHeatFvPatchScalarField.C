@@ -34,53 +34,53 @@ License
 
 Foam::adjointOutletPressureHeatFvPatchScalarField::
 adjointOutletPressureHeatFvPatchScalarField
-(
-    const fvPatch& p,
-    const DimensionedField<scalar, volMesh>& iF
-)
-:
-    fixedValueFvPatchScalarField(p, iF)
+        (
+                const fvPatch& p,
+                const DimensionedField<scalar, volMesh>& iF
+        )
+        :
+        fixedValueFvPatchScalarField(p, iF)
 {}
 
 
 Foam::adjointOutletPressureHeatFvPatchScalarField::
 adjointOutletPressureHeatFvPatchScalarField
-(
-    const adjointOutletPressureHeatFvPatchScalarField& ptf,
-    const fvPatch& p,
-    const DimensionedField<scalar, volMesh>& iF,
-    const fvPatchFieldMapper& mapper
-)
-:
-    fixedValueFvPatchScalarField(ptf, p, iF, mapper)
+        (
+                const adjointOutletPressureHeatFvPatchScalarField& ptf,
+                const fvPatch& p,
+                const DimensionedField<scalar, volMesh>& iF,
+                const fvPatchFieldMapper& mapper
+        )
+        :
+        fixedValueFvPatchScalarField(ptf, p, iF, mapper)
 {}
 
 
 Foam::adjointOutletPressureHeatFvPatchScalarField::
 adjointOutletPressureHeatFvPatchScalarField
-(
-    const fvPatch& p,
-    const DimensionedField<scalar, volMesh>& iF,
-    const dictionary& dict
-)
-:
-    fixedValueFvPatchScalarField(p, iF)
+        (
+                const fvPatch& p,
+                const DimensionedField<scalar, volMesh>& iF,
+                const dictionary& dict
+        )
+        :
+        fixedValueFvPatchScalarField(p, iF)
 {
     fvPatchField<scalar>::operator=
-    (
-        scalarField("value", dict, p.size())
-    );
+            (
+                    scalarField("value", dict, p.size())
+            );
 }
 
 
 Foam::adjointOutletPressureHeatFvPatchScalarField::
 adjointOutletPressureHeatFvPatchScalarField
-(
-    const adjointOutletPressureHeatFvPatchScalarField& tppsf,
-    const DimensionedField<scalar, volMesh>& iF
-)
-:
-    fixedValueFvPatchScalarField(tppsf, iF)
+        (
+                const adjointOutletPressureHeatFvPatchScalarField& tppsf,
+                const DimensionedField<scalar, volMesh>& iF
+        )
+        :
+        fixedValueFvPatchScalarField(tppsf, iF)
 {}
 
 
@@ -94,31 +94,36 @@ void Foam::adjointOutletPressureHeatFvPatchScalarField::updateCoeffs()
     }
 
     const fvsPatchField<scalar>& phip =
-        patch().lookupPatchField<surfaceScalarField, scalar>("phi");
+            patch().lookupPatchField<surfaceScalarField, scalar>("phi");
 
     const fvsPatchField<scalar>& phiap =
-        patch().lookupPatchField<surfaceScalarField, scalar>("phib");
+            patch().lookupPatchField<surfaceScalarField, scalar>("phi_adj_T");
 
     const fvPatchField<vector>& Uap =
-        patch().lookupPatchField<volVectorField, vector>("Ub");
+            patch().lookupPatchField<volVectorField, vector>("U_adj_T");
 
-    const dictionary& transportProperties = db().lookupObject<IOdictionary>("transportProperties");
-     dimensionedScalar nu(transportProperties.lookup("nu"));
-     
+
+
+    const fvPatchField<scalar>& nu_effp =
+            patch().lookupPatchField<volScalarField, scalar>("nu_eff");
+
+//    const dictionary& transportProperties = db().lookupObject<IOdictionary>("transportProperties");
+//     dimensionedScalar nu(transportProperties.lookup("nu"));
+
     scalarField Up_n = phip / patch().magSf();//Primal
 
     scalarField Uap_n = phiap / patch().magSf();//Adjoint
 
-   // const incompressible::hahaha& rasModel =
-//	 db().lookupObject<incompressible::hahaha>("RASProperties");
+    // const incompressible::hahaha& rasModel =
+//  db().lookupObject<incompressible::hahaha>("RASProperties");
 
-   // scalarField nueff = rasModel.nuEff()().boundaryField()[patch().index()];
+    // scalarField nueff = rasModel.nu_eff()().boundaryField()[patch().index()];
 
     const scalarField& deltainv = patch().deltaCoeffs(); // distance^(-1)
 
     scalarField Uaneigh_n = (Uap.patchInternalField() & patch().nf());
-    
-    operator ==((Up_n * Uap_n) +2*nu.value()*deltainv*(Uap_n-Uaneigh_n));
+
+    operator ==((Up_n * Uap_n) +2*nu_effp*deltainv*(Uap_n-Uaneigh_n));
 
     fixedValueFvPatchScalarField::updateCoeffs();
 }
@@ -137,8 +142,8 @@ namespace Foam
 {
     makePatchTypeField
     (
-        fvPatchScalarField,
-        adjointOutletPressureHeatFvPatchScalarField
+            fvPatchScalarField,
+            adjointOutletPressureHeatFvPatchScalarField
     );
 }
 

@@ -1,18 +1,18 @@
 
 //***********************************//PDE filter
-fvScalarMatrix Eqn4(fvm::laplacian(xp)-fvm::Sp(b,xp)+x*b);
+fvScalarMatrix Eqn4(fvm::laplacian(gamma_filter)-fvm::Sp(b,gamma_filter)+x*b);
 Eqn4.solve();
 
 //***********************************//Heaviside_filter
 del=Foam::min(0.2*opt,100);
 eta0=0.0001;
 eta1=1.0;
-y0=diff(xp,mesh.V(),del,eta0,n);
+y0=diff(gamma_filter, mesh.V(), del, eta0, n_cells);
 reduce(y0, sumOp<scalar>());
 do
 {
   eta5=(eta0+eta1)/2.0;
-  y5=diff(xp,mesh.V(),del,eta5,n);
+  y5=diff(gamma_filter, mesh.V(), del, eta5, n_cells);
   reduce(y5, sumOp<scalar>());
   if(y0*y5<0)
   { 
@@ -25,16 +25,16 @@ do
   }
 } while ((eta1-eta0)>0.0001);
 
-for(i=0;i<n;i++)
+for(i=0;i<n_cells;i++)
 {
-   if(xp[i]<=eta5)
+   if(gamma_filter[i]<=eta5)
    {
-     xh[i]=eta5*(Foam::exp(-del*(1-xp[i]/eta5))-(1-xp[i]/eta5)*Foam::exp(-del)); 
+        gamma[i]=eta5*(Foam::exp(-del*(1-gamma_filter[i]/eta5))-(1-gamma_filter[i]/eta5)*Foam::exp(-del));
    }
    else
    {
-     xh[i]=eta5+(1-eta5)*(1-Foam::exp(-del*(xp[i]-eta5)/(1-eta5))+(xp[i]-eta5)*Foam::exp(-del)/(1-eta5));
+        gamma[i]=eta5+(1-eta5)*(1-Foam::exp(-del*(gamma_filter[i]-eta5)/(1-eta5))+(gamma_filter[i]-eta5)*Foam::exp(-del)/(1-eta5));
    }   
 }
 
-xh.correctBoundaryConditions();
+gamma.correctBoundaryConditions();

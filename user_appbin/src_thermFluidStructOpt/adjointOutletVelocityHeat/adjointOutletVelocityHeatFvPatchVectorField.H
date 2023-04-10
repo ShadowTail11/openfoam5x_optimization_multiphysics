@@ -45,81 +45,81 @@ namespace Foam
                  Class adjointOutletVelocityHeatFvPatch Declaration
 \*---------------------------------------------------------------------------*/
 
-class adjointOutletVelocityHeatFvPatchVectorField
-:
-    public fixedValueFvPatchVectorField
-{
+    class adjointOutletVelocityHeatFvPatchVectorField
+            :
+                    public fixedValueFvPatchVectorField
+    {
 
-public:
+    public:
 
-    //- Runtime type information
-    TypeName("adjointOutletVelocityHeat");
+        //- Runtime type information
+        TypeName("adjointOutletVelocityHeat");
 
 
-    // Constructors
+        // Constructors
 
         //- Construct from patch and internal field
         adjointOutletVelocityHeatFvPatchVectorField
-        (
-            const fvPatch&,
-            const DimensionedField<vector, volMesh>&
-        );
+                (
+                        const fvPatch&,
+                        const DimensionedField<vector, volMesh>&
+                );
 
         //- Construct from patch, internal field and dictionary
         adjointOutletVelocityHeatFvPatchVectorField
-        (
-            const fvPatch&,
-            const DimensionedField<vector, volMesh>&,
-            const dictionary&
-        );
+                (
+                        const fvPatch&,
+                        const DimensionedField<vector, volMesh>&,
+                        const dictionary&
+                );
 
         //- Construct by mapping given adjointOutletVelocityHeatFvPatchVectorField
         //  onto a new patch
         adjointOutletVelocityHeatFvPatchVectorField
-        (
-            const adjointOutletVelocityHeatFvPatchVectorField&,
-            const fvPatch&,
-            const DimensionedField<vector, volMesh>&,
-            const fvPatchFieldMapper&
-        );
+                (
+                        const adjointOutletVelocityHeatFvPatchVectorField&,
+                        const fvPatch&,
+                        const DimensionedField<vector, volMesh>&,
+                        const fvPatchFieldMapper&
+                );
 
         //- Construct and return a clone
         virtual tmp<fvPatchVectorField> clone() const
         {
             return tmp<fvPatchVectorField>
-            (
-                new adjointOutletVelocityHeatFvPatchVectorField(*this)
-            );
+                    (
+                            new adjointOutletVelocityHeatFvPatchVectorField(*this)
+                    );
         }
 
         //- Construct as copy setting internal field reference
         adjointOutletVelocityHeatFvPatchVectorField
-        (
-            const adjointOutletVelocityHeatFvPatchVectorField&,
-            const DimensionedField<vector, volMesh>&
-        );
+                (
+                        const adjointOutletVelocityHeatFvPatchVectorField&,
+                        const DimensionedField<vector, volMesh>&
+                );
 
         //- Construct and return a clone setting internal field reference
         virtual tmp<fvPatchVectorField> clone
-        (
-            const DimensionedField<vector, volMesh>& iF
-        ) const
+                (
+                        const DimensionedField<vector, volMesh>& iF
+                ) const
         {
             return tmp<fvPatchVectorField>
-            (
-                new adjointOutletVelocityHeatFvPatchVectorField(*this, iF)
-            );
+                    (
+                            new adjointOutletVelocityHeatFvPatchVectorField(*this, iF)
+                    );
         }
 
 
-    // Member functions
+        // Member functions
 
         //- Update the coefficients associated with the patch field
         virtual void updateCoeffs();
 
         //- Write
         virtual void write(Ostream&) const;
-};
+    };
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

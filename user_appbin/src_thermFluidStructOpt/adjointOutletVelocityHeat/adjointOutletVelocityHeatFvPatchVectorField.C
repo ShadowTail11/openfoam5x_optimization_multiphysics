@@ -34,24 +34,24 @@ License
 
 Foam::adjointOutletVelocityHeatFvPatchVectorField::
 adjointOutletVelocityHeatFvPatchVectorField
-(
-    const fvPatch& p,
-    const DimensionedField<vector, volMesh>& iF
-)
-:
-    fixedValueFvPatchVectorField(p, iF)
+        (
+                const fvPatch& p,
+                const DimensionedField<vector, volMesh>& iF
+        )
+        :
+        fixedValueFvPatchVectorField(p, iF)
 {}
 
 
 Foam::adjointOutletVelocityHeatFvPatchVectorField::
 adjointOutletVelocityHeatFvPatchVectorField
-(
-    const fvPatch& p,
-    const DimensionedField<vector, volMesh>& iF,
-    const dictionary& dict
-)
-:
-    fixedValueFvPatchVectorField(p, iF)
+        (
+                const fvPatch& p,
+                const DimensionedField<vector, volMesh>& iF,
+                const dictionary& dict
+        )
+        :
+        fixedValueFvPatchVectorField(p, iF)
 {
     fvPatchVectorField::operator=(vectorField("value", dict, p.size()));
 }
@@ -59,25 +59,25 @@ adjointOutletVelocityHeatFvPatchVectorField
 
 Foam::adjointOutletVelocityHeatFvPatchVectorField::
 adjointOutletVelocityHeatFvPatchVectorField
-(
-    const adjointOutletVelocityHeatFvPatchVectorField& ptf,
-    const fvPatch& p,
-    const DimensionedField<vector, volMesh>& iF,
-    const fvPatchFieldMapper& mapper
-)
-:
-    fixedValueFvPatchVectorField(ptf, p, iF, mapper)
+        (
+                const adjointOutletVelocityHeatFvPatchVectorField& ptf,
+                const fvPatch& p,
+                const DimensionedField<vector, volMesh>& iF,
+                const fvPatchFieldMapper& mapper
+        )
+        :
+        fixedValueFvPatchVectorField(ptf, p, iF, mapper)
 {}
 
 
 Foam::adjointOutletVelocityHeatFvPatchVectorField::
 adjointOutletVelocityHeatFvPatchVectorField
-(
-    const adjointOutletVelocityHeatFvPatchVectorField& pivpvf,
-    const DimensionedField<vector, volMesh>& iF
-)
-:
-    fixedValueFvPatchVectorField(pivpvf, iF)
+        (
+                const adjointOutletVelocityHeatFvPatchVectorField& pivpvf,
+                const DimensionedField<vector, volMesh>& iF
+        )
+        :
+        fixedValueFvPatchVectorField(pivpvf, iF)
 {}
 
 
@@ -92,26 +92,31 @@ void Foam::adjointOutletVelocityHeatFvPatchVectorField::updateCoeffs()
     }
 
     const fvsPatchField<scalar>& phiap =
-        patch().lookupPatchField<surfaceScalarField, scalar>("phib");
+            patch().lookupPatchField<surfaceScalarField, scalar>("phi_adj_T");
 
     const fvPatchField<vector>& Up =
-        patch().lookupPatchField<volVectorField, vector>("U");
+            patch().lookupPatchField<volVectorField, vector>("U");
 
     const fvPatchField<vector>& Uap =
-    	patch().lookupPatchField<volVectorField, vector>("Ub");
+            patch().lookupPatchField<volVectorField, vector>("U_adj_T");
 
     const fvsPatchField<scalar>& phip =
-    	patch().lookupPatchField<surfaceScalarField, scalar>("phi");
-    	
-    const dictionary& transportProperties = db().lookupObject<IOdictionary>("transportProperties");
-     dimensionedScalar nu(transportProperties.lookup("nu"));
-   //const incompressible::RASModel& rasModel =
-   // 	db().lookupObject<incompressible::RASModel>("RASProperties");
+            patch().lookupPatchField<surfaceScalarField, scalar>("phi");
 
-   // scalarField nueff = rasModel.nuEff()().boundaryField()[patch().index()];
 
-    const scalarField& deltainv = 
-    	patch().deltaCoeffs(); // dist^(-1) 
+
+    const fvPatchField<scalar>& nu_effp =
+            patch().lookupPatchField<volScalarField, scalar>("nu_eff");
+
+//    const dictionary& transportProperties = db().lookupObject<IOdictionary>("transportProperties");
+//     dimensionedScalar nu(transportProperties.lookup("nu"));
+    //const incompressible::RASModel& rasModel =
+    //  db().lookupObject<incompressible::RASModel>("RASProperties");
+
+    // scalarField nueff = rasModel.nu_eff()().boundaryField()[patch().index()];
+
+    const scalarField& deltainv =
+            patch().deltaCoeffs(); // dist^(-1)
 
 //Primal velocity, mag of normal component and tangential component
     scalarField Up_ns = phip/patch().magSf();
@@ -123,7 +128,7 @@ void Foam::adjointOutletVelocityHeatFvPatchVectorField::updateCoeffs()
     vectorField Uaneigh_n = (Uaneigh & patch().nf())*patch().nf();
     vectorField Uaneigh_t = Uaneigh - Uaneigh_n;
 
-    vectorField Uap_t = (nu.value()*deltainv*Uaneigh_t) / (Up_ns+nu.value()*deltainv) ;
+    vectorField Uap_t = (nu_effp*deltainv*Uaneigh_t) / (Up_ns+nu_effp*deltainv) ;
 
     vectorField Uap_n = (phiap * patch().Sf())/(patch().magSf()*patch().magSf());
 
@@ -146,8 +151,8 @@ namespace Foam
 {
     makePatchTypeField
     (
-        fvPatchVectorField,
-        adjointOutletVelocityHeatFvPatchVectorField
+            fvPatchVectorField,
+            adjointOutletVelocityHeatFvPatchVectorField
     );
 }
 

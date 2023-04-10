@@ -34,53 +34,53 @@ License
 
 Foam::adjointOutletPressurePowerFvPatchScalarField::
 adjointOutletPressurePowerFvPatchScalarField
-(
-    const fvPatch& p,
-    const DimensionedField<scalar, volMesh>& iF
-)
-:
-    fixedValueFvPatchScalarField(p, iF)
+        (
+                const fvPatch& p,
+                const DimensionedField<scalar, volMesh>& iF
+        )
+        :
+        fixedValueFvPatchScalarField(p, iF)
 {}
 
 
 Foam::adjointOutletPressurePowerFvPatchScalarField::
 adjointOutletPressurePowerFvPatchScalarField
-(
-    const adjointOutletPressurePowerFvPatchScalarField& ptf,
-    const fvPatch& p,
-    const DimensionedField<scalar, volMesh>& iF,
-    const fvPatchFieldMapper& mapper
-)
-:
-    fixedValueFvPatchScalarField(ptf, p, iF, mapper)
+        (
+                const adjointOutletPressurePowerFvPatchScalarField& ptf,
+                const fvPatch& p,
+                const DimensionedField<scalar, volMesh>& iF,
+                const fvPatchFieldMapper& mapper
+        )
+        :
+        fixedValueFvPatchScalarField(ptf, p, iF, mapper)
 {}
 
 
 Foam::adjointOutletPressurePowerFvPatchScalarField::
 adjointOutletPressurePowerFvPatchScalarField
-(
-    const fvPatch& p,
-    const DimensionedField<scalar, volMesh>& iF,
-    const dictionary& dict
-)
-:
-    fixedValueFvPatchScalarField(p, iF)
+        (
+                const fvPatch& p,
+                const DimensionedField<scalar, volMesh>& iF,
+                const dictionary& dict
+        )
+        :
+        fixedValueFvPatchScalarField(p, iF)
 {
     fvPatchField<scalar>::operator=
-    (
-        scalarField("value", dict, p.size())
-    );
+            (
+                    scalarField("value", dict, p.size())
+            );
 }
 
 
 Foam::adjointOutletPressurePowerFvPatchScalarField::
 adjointOutletPressurePowerFvPatchScalarField
-(
-    const adjointOutletPressurePowerFvPatchScalarField& tppsf,
-    const DimensionedField<scalar, volMesh>& iF
-)
-:
-    fixedValueFvPatchScalarField(tppsf, iF)
+        (
+                const adjointOutletPressurePowerFvPatchScalarField& tppsf,
+                const DimensionedField<scalar, volMesh>& iF
+        )
+        :
+        fixedValueFvPatchScalarField(tppsf, iF)
 {}
 
 
@@ -94,35 +94,38 @@ void Foam::adjointOutletPressurePowerFvPatchScalarField::updateCoeffs()
     }
 
     const fvsPatchField<scalar>& phip =
-        patch().lookupPatchField<surfaceScalarField, scalar>("phi");
+            patch().lookupPatchField<surfaceScalarField, scalar>("phi");
 
-    const fvsPatchField<scalar>& phiap =
-        patch().lookupPatchField<surfaceScalarField, scalar>("phia");
+    const fvsPatchField<scalar>& phicp =
+            patch().lookupPatchField<surfaceScalarField, scalar>("phi_adj_U");
 
     const fvPatchField<vector>& Up =
-        patch().lookupPatchField<volVectorField, vector>("U");
+            patch().lookupPatchField<volVectorField, vector>("U");
 
-    const fvPatchField<vector>& Uap =
-        patch().lookupPatchField<volVectorField, vector>("Ua");
-        
-    const dictionary& transportProperties = db().lookupObject<IOdictionary>("transportProperties");
-     dimensionedScalar nu(transportProperties.lookup("nu"));
-     
+    const fvPatchField<vector>& Ucp =
+            patch().lookupPatchField<volVectorField, vector>("U_adj_U");
+
+    const fvPatchField<scalar>& nu_effp =
+            patch().lookupPatchField<volScalarField, scalar>("nu_eff");
+
+//    const dictionary& transportProperties = db().lookupObject<IOdictionary>("transportProperties");
+//     dimensionedScalar nu(transportProperties.lookup("nu"));
+
     scalarField Up_n = phip / patch().magSf();//Primal
 
-    scalarField Uap_n = phiap / patch().magSf();//Adjoint
+    scalarField Ucp_n = phicp / patch().magSf();//Adjoint
 
-   // const incompressible::RASModel& rasModel =
-//	 db().lookupObject<incompressible::RASModel>("RASProperties");
+    // const incompressible::RASModel& rasModel =
+//  db().lookupObject<incompressible::RASModel>("RASProperties");
 
-   // scalarField nueff = rasModel.nuEff()().boundaryField()[patch().index()];
+    // scalarField nueff = rasModel.nu_eff()().boundaryField()[patch().index()];
 
     const scalarField& deltainv = patch().deltaCoeffs(); // distance^(-1)
 
-    scalarField Uaneigh_n = (Uap.patchInternalField() & patch().nf());
-    
-    operator == ( (Up_n * Uap_n) +2*nu.value()*deltainv*(Uap_n-Uaneigh_n) -
-    	(0.5*mag(Up)*mag(Up)) - (Up & patch().Sf()/patch().magSf()) * (Up & patch().Sf()/patch().magSf())) ;
+    scalarField Ucneigh_n = (Ucp.patchInternalField() & patch().nf());
+
+    operator == ( (Up_n * Ucp_n) +2*nu_effp*deltainv*(Ucp_n-Ucneigh_n) -
+                  (0.5*mag(Up)*mag(Up)) - (Up & patch().Sf()/patch().magSf()) * (Up & patch().Sf()/patch().magSf())) ;
 
     fixedValueFvPatchScalarField::updateCoeffs();
 }
@@ -141,8 +144,8 @@ namespace Foam
 {
     makePatchTypeField
     (
-        fvPatchScalarField,
-        adjointOutletPressurePowerFvPatchScalarField
+            fvPatchScalarField,
+            adjointOutletPressurePowerFvPatchScalarField
     );
 }
 

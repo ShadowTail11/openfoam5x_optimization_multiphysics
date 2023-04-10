@@ -1,31 +1,59 @@
-for(i=0;i<40;i++)
+/*
+ * This function implements the primal equation for fluid flow by means of the Navier Stokes equation.
+ * The special considerations for this function is that it is only viable for laminar flow, and it
+ * uses a ramp function (alpha_U) to slow the velocity in the pseudo porous media, which allows the design
+ * to gradually transition between fluid and solid.
+ */
+
 {
+//    // Set initial loop to run longer to ensure stability
+//    if (opt == 1)
+//    {
+//        n_loops = 100;
+//    }
+//    else
+//    {
+//        n_loops = 60;
+//    }
+
+// Iterate primal solver to calculate velocity U and kinematic pressure p
+for (i = 0; i < 40; i++)
+{
+Info << "Time = " << runTime.timeName() << nl << endl;
+
+// Correct velocity boundary conditions
 MRF.correctBoundaryVelocity(U);
-tmp<fvVectorMatrix> tUEqn
-(
-    fvm::div(phi, U)
-  + MRF.DDt(U)
-  + turbulence->divDevReff(U)
-  //- fvm::laplacian(nu,U)
-  + fvm::Sp(alpha, U)
- ==
-    fvOptions(U)
+
+// Define velocity portion of primal flow equation
+tmp<fvVectorMatrix> tUEqn(
+
+        fvm::div(phi, U)                // Divergent flow term
+        + MRF.DDt(U)                    // Material derivative (not necessary for steady-state solver)
+        //            + turbulence->divDevReff(U)   // Used for turbulent flow
+        - fvm::laplacian(nu_eff, U)     // Used specifically for laminar flow
+        + fvm::Sp(alpha_U, U)           // Creates a pseudo-porosity-based body force with a ramp function
+        ==
+        fvOptions(U)                    // Enables OpenFOAM options for velocity such as relaxation factors
 );
-fvVectorMatrix& UEqn = tUEqn.ref();
 
-UEqn.relax();
+fvVectorMatrix& UEqn = tUEqn.ref(); // Creates a virtual pointer to the previous equation
 
-fvOptions.constrain(UEqn);
+UEqn.relax();                       // Relaxes the velocity equation to improve stability
 
-if (simple.momentumPredictor())
+fvOptions.constrain(UEqn);          // Applies constraints to the equation
+
+// Incorporates pressure into primal equation
+if(simple.momentumPredictor())
 {
-    solve(UEqn == -fvc::grad(p));
+solve(UEqn == -fvc::grad(p));
 
-    fvOptions.correct(U);
+fvOptions.correct(U);
 }
-//****************************************//
-volScalarField rAU(1.0/UEqn.A());
-volVectorField HbyA(constrainHbyA(rAU*UEqn.H(), U, p));
+
+//***************** Employs SIMPLE algorithm to solve primal flow equation***********************//
+
+volScalarField rAU(1.0 / UEqn.A());
+volVectorField HbyA(constrainHbyA(rAU * UEqn.H(), U, p));
 surfaceScalarField phiHbyA("phiHbyA", fvc::flux(HbyA));
 MRF.makeRelative(phiHbyA);
 adjustPhi(phiHbyA, U, p);
@@ -34,10 +62,10 @@ tmp<volScalarField> rAtU(rAU);
 
 if (simple.consistent())
 {
-    rAtU = 1.0/(1.0/rAU - UEqn.H1());
-    phiHbyA +=
-        fvc::interpolate(rAtU() - rAU)*fvc::snGrad(p)*mesh.magSf();
-    HbyA -= (rAU - rAtU())*fvc::grad(p);
+rAtU = 1.0 / (1.0 / rAU - UEqn.H1());
+phiHbyA +=
+fvc::interpolate(rAtU() - rAU) * fvc::snGrad(p) * mesh.magSf();
+HbyA -= (rAU - rAtU()) * fvc::grad(p);
 }
 
 tUEqn.clear();
@@ -48,36 +76,35 @@ constrainPressure(p, U, phiHbyA, rAtU(), MRF);
 // Non-orthogonal pressure corrector loop
 while (simple.correctNonOrthogonal())
 {
-    fvScalarMatrix pEqn
-    (
+fvScalarMatrix pEqn(
+
         fvm::laplacian(rAtU(), p) == fvc::div(phiHbyA)
-    );
+);
 
-    pEqn.setReference(pRefCell, pRefValue);
+pEqn.setReference(pRefCell, pRefValue);
 
-    pEqn.solve();
+pEqn.solve();
 
-    if (simple.finalNonOrthogonalIter())
-    {
-        phi = phiHbyA - pEqn.flux();
-    }
+if (simple.finalNonOrthogonalIter())
+{
+phi = phiHbyA - pEqn.flux();
+}
 }
 
+// Calculate and print continuity errors for convergence tracking
 #include "continuityErrs.H"
 
 // Explicitly relax pressure for momentum corrector
 p.relax();
 
 // Momentum corrector
-U = HbyA - rAtU()*fvc::grad(p);
+U = HbyA - rAtU() * fvc::grad(p);
 U.correctBoundaryConditions();
 fvOptions.correct(U);
 
+// Store the resulting values
 U.storePrevIter();
 p.storePrevIter();
 phi.storePrevIter();
-
 }
-
-
-
+}

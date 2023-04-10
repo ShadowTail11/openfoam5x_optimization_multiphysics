@@ -1,45 +1,59 @@
+//
+// This function updates any properties or variables that are related
+// to the optimization progressing.
+//
 
-//不可设计域
-if(solid_area)
-{
-   forAll(cells_solid, i)
-   {
-      xh[cells_solid[i]]=0;
-   }
-}
-if(fluid_area)
-{
-   forAll(cells_fluid, i)
-   {
-      xh[cells_fluid[i]]=1.0;
-   }
-}
-xh.correctBoundaryConditions();
+Info << "\nUpdating parameters related to optimization process " << endl;
 
-//流体问题一些参数的放松
-rex=63;
-if(opt<=rex)//45,95,145
+// Reset permanent solid and fluid regions, respectively
+if (solid_area == 1)
 {
-  alphaMax=alphamax*(opt/7.0+1.0);
-}
-if(opt>rex)
-{
-  alphaMax=alphaMax*1.05;
+    forAll(cells_solid, i)
+    {
+        gamma[cells_solid[i]] = 0;
+    }
 }
 
-alphaMax.value()=Foam::min(alphaMax.value(),alphaMAX.value());
-if(opt>=rex)
+if (fluid_area == 1)
 {
-  qu=0.01+(opt-rex)*1e-4;
+    forAll(cells_fluid, i)
+    {
+        gamma[cells_fluid[i]] = 1;
+    }
 }
-qu=Foam::min(qu,0.02);
 
-//材料参数更新
-alpha=alphaMax*qu*(1-xh)/(qu+xh);
-DT=(ks+(kf-ks)*xh*(1+qu)/(qu+xh))/rhoc;
-mu=qd*(1-xh)/(qd+xh)*(E-Emin)/(2.0*(1.0+Po))+Emin/(2.0*(1.0+Po));
-lambda=qd*(1-xh)/(qd+xh)*Po*(E-Emin)/((1.0+Po)*(1.0-2.0*Po))+Po*Emin/((1.0+Po)*(1.0-2.0*Po));
+gamma.correctBoundaryConditions();
+
+// Ensure rapid increase in flow resistance
+alpha_U_max *= opt * dalpha / 100 + 1.0;
+
+// Mark threshold for when within 2x of convergence threshold
+if (opt_threshold == -1 && opt > 50 && dgamma_switch_ave < n_rapid * gamma_tol && power_loss_conv < n_rapid * merit_tol && dT_drop_ave < n_rapid * merit_tol)
+{
+opt_threshold = opt;
+Info << "\nConvergence threshold reached. Optimization threshold updated to: " << opt_threshold << endl;
+Info << "RAMP function shape factor will begin increasing at prescribed rate." << endl;
+}
+
+// Increase flow resistance and RAMP function as temperature drop approaches convergence
+if (opt_threshold > 0 && opt > opt_threshold)
+{
+q_factor *= dq_factor / 100 + 1.0;
+}
+
+// Limit flow resistance to a maximum threshold
+alpha_U_max.value() = Foam::min(alpha_U_max.value(), alpha_U_limit.value());
+
+// Update boundary conditions and parameters based on changes in flow resistance and RAMP function
+gamma.correctBoundaryConditions();
+q_factor = Foam::min(q_factor, q_factor_limit);
+alpha_U = alpha_U_max * q_factor * (1 - gamma) / (q_factor + gamma);
+alpha_T_eff = (k_solid + (k_fluid - k_solid) * gamma * (1 + q_factor) / (q_factor + gamma)) / (rho_eff * cp_eff);
+
+
+mu=qd*(1-gamma)/(qd+gamma)*(E-Emin)/(2.0*(1.0+Po))+Emin/(2.0*(1.0+Po));
+lambda=qd*(1-gamma)/(qd+gamma)*Po*(E-Emin)/((1.0+Po)*(1.0-2.0*Po))+Po*Emin/((1.0+Po)*(1.0-2.0*Po));
 if (planeStress)
 {
-   lambda=qd*(1-xh)/(qd+xh)*Po*(E-Emin)/((1.0+Po)*(1.0-Po))+Po*Emin/((1.0+Po)*(1.0-Po));
+   lambda=qd*(1-gamma)/(qd+gamma)*Po*(E-Emin)/((1.0+Po)*(1.0-Po))+Po*Emin/((1.0+Po)*(1.0-Po));
 }

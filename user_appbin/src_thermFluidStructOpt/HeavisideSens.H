@@ -1,7 +1,7 @@
 //灵敏度归一化
-fsenshMeanT=fsenshMeanT/gMax(mag(fsenshMeanT.primitiveField()));
-gsenshPowerDiss=gsenshPowerDiss/gMax(mag(gsenshPowerDiss.primitiveField()));
-gsenshCompliance=gsenshCompliance/gMax(mag(gsenshCompliance.primitiveField()));
+fsenshMeanT = fsenshMeanT / gMax(mag(fsenshMeanT.primitiveField()));
+gsenshPowerDiss = gsenshPowerDiss / gMax(mag(gsenshPowerDiss.primitiveField()));
+gsenshCompliance = gsenshCompliance / gMax(mag(gsenshCompliance.primitiveField()));
 gsenshVol.primitiveFieldRef() = 1.0;
 
 //不可设计域的灵敏度置零
@@ -9,35 +9,35 @@ if(solid_area)
 {
    forAll(cells_solid, i)
    {
-      fsenshMeanT[cells_solid[i]]=0;
-      gsenshPowerDiss[cells_solid[i]]=0;
-      gsenshCompliance[cells_solid[i]]=0;
-      gsenshVol[cells_solid[i]]=0;
+      fsenshMeanT[cells_solid[i]] = 0;
+      gsenshPowerDiss[cells_solid[i]] = 0;
+      gsenshCompliance[cells_solid[i]] = 0;
+      gsenshVol[cells_solid[i]] = 0;
    }
 }
 if(fluid_area)
 {
    forAll(cells_fluid, i)
    {
-      fsenshMeanT[cells_fluid[i]]=0;
-      gsenshPowerDiss[cells_fluid[i]]=0;
-      gsenshCompliance[cells_fluid[i]]=0;
-      gsenshVol[cells_fluid[i]]=0;
+      fsenshMeanT[cells_fluid[i]] = 0;
+      gsenshPowerDiss[cells_fluid[i]] = 0;
+      gsenshCompliance[cells_fluid[i]] = 0;
+      gsenshVol[cells_fluid[i]] = 0;
    }
 }
 
 //Heaviside过滤的链式求导
-if(opt>1)
+if (opt > 1)
 {
-  for(i=0;i<n;i++)
+  for(i = 0; i < n_cells; i++)
   {
-     if(xp[i]<=eta5)
+     if(gamma_filter[i] <= eta5)
      {
-       drho[i]=del*Foam::exp(-del*(1-xp[i]/eta5))+Foam::exp(-del); 
+       drho[i]=del*Foam::exp(-del*(1-gamma_filter[i]/eta5))+Foam::exp(-del);
      }
      else
      {
-       drho[i]=del*Foam::exp(-del*(xp[i]-eta5)/(1-eta5))+Foam::exp(-del); 
+       drho[i]=del*Foam::exp(-del*(gamma_filter[i]-eta5)/(1-eta5))+Foam::exp(-del);
      } 
   }
   fsenshMeanT=fsenshMeanT*drho;

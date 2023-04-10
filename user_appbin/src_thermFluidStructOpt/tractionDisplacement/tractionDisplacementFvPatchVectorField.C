@@ -122,8 +122,8 @@ void tractionDisplacementFvPatchVectorField::updateCoeffs()
         db().lookupObject<IOdictionary>("mechanicalProperties");
        
         
-    const fvPatchField<scalar>& xh =
-        patch().lookupPatchField<volScalarField, scalar>("xh");
+    const fvPatchField<scalar>& gamma =
+        patch().lookupPatchField<volScalarField, scalar>("gamma");
     
     scalar rhoE(readScalar(mechanicalProperties.lookup("rhoE")));
     scalar Po(readScalar(mechanicalProperties.lookup("Po")));
@@ -132,11 +132,11 @@ void tractionDisplacementFvPatchVectorField::updateCoeffs()
     scalar Emin(E*1e-9);
     double qd=0.1;
     Switch planeStress(mechanicalProperties.lookup("planeStress"));
-    scalarField mu(qd*(1-xh)/(qd+xh)*(E-Emin)/(2.0*(1.0+Po))+Emin/(2.0*(1.0+Po)));
-    scalarField lambda(qd*(1-xh)/(qd+xh)*Po*(E-Emin)/((1.0+Po)*(1.0-2.0*Po))+Po*Emin/((1.0+Po)*(1.0-2.0*Po)));
+    scalarField mu(qd*(1-gamma)/(qd+gamma)*(E-Emin)/(2.0*(1.0+Po))+Emin/(2.0*(1.0+Po)));
+    scalarField lambda(qd*(1-gamma)/(qd+gamma)*Po*(E-Emin)/((1.0+Po)*(1.0-2.0*Po))+Po*Emin/((1.0+Po)*(1.0-2.0*Po)));
     if (planeStress)
     {
-        lambda=qd*(1-xh)/(qd+xh)*Po*(E-Emin)/((1.0+Po)*(1.0-Po))+Po*Emin/((1.0+Po)*(1.0-Po));
+        lambda=qd*(1-gamma)/(qd+gamma)*Po*(E-Emin)/((1.0+Po)*(1.0-Po))+Po*Emin/((1.0+Po)*(1.0-Po));
     }
     scalarField twoMuLambda(2*mu + lambda);
 

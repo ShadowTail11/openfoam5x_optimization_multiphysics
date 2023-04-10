@@ -28,19 +28,19 @@ volScalarField gamma(
 
 // Field used to facilitate density filtering for the pseudo density after optimization
 volScalarField gamma_densityfilter
+(
+        IOobject
         (
-                IOobject
-                        (
-                                "gamma_densityfilter",
-                                runTime.timeName(),
-                                mesh,
-                                IOobject::NO_READ,
-                                IOobject::AUTO_WRITE
-                        ),
+                "gamma_densityfilter",
+                runTime.timeName(),
                 mesh,
-                scalar(set_vol_frac),
-                zeroGradientFvPatchScalarField::typeName
-        );
+                IOobject::NO_READ,
+                IOobject::AUTO_WRITE
+        ),
+        mesh,
+        scalar(set_vol_frac),
+        zeroGradientFvPatchScalarField::typeName
+);
 
 volScalarField x(gamma_densityfilter);      // Field used to facilitate Heaviside sensitivity calculation
 volScalarField drho(x);                     // Density factor used in Heaviside function
@@ -131,17 +131,17 @@ volScalarField k_eff_test(k_fluid + (k_solid - k_fluid) * ramp_test);           
 
 // Effective thermal diffusivity
 volScalarField alpha_T_eff_test
+(
+        IOobject
         (
-                IOobject
-                        (
-                                "alpha_T_eff_test",
-                                runTime.timeName(),
-                                mesh,
-                                IOobject::READ_IF_PRESENT,
-                                IOobject::AUTO_WRITE
-                        ),
-                k_eff_test / (rho_eff_test * cp_eff_test)
-        );
+                "alpha_T_eff_test",
+                runTime.timeName(),
+                mesh,
+                IOobject::READ_IF_PRESENT,
+                IOobject::AUTO_WRITE
+        ),
+        k_eff_test / (rho_eff_test * cp_eff_test)
+);
 
 // Calculate flow resistance
 volScalarField alpha_U(alpha_U_max * ramp);

@@ -31,7 +31,7 @@ static char help[] = "Thermal-fluid-structure topology optimization solver\n";
 #include "turbulentTransportModel.H"            // Establishes turbulent model
 #include "simpleControl.H"                      // Creates SIMPLE control
 #include "fvOptions.H"                          // Establishes fvOptions
-//#include <math.h>                               // Enables standard math functions
+#include <math.h>                               // Enables standard math functions
 #include "MMA/MMA.h"                            // Enables use of Method of Moving Asymptotes
 #include <delta_gamma_filter.c>                 // Function that differentiates Heaviside filter by pseudo density
 
@@ -44,9 +44,6 @@ int main(int argc, char *argv[])
     #include "createControl.H"                  // Enables controls
     #include "createFvOptions.H"                // Creates fvOptions for relaxation factors
     #include "createFields.H"                   // Create parameters & fields
-    #include "readTransProperties.H"            // Read transport properties
-    #include "readThermProperties.H"            // Read thermal properties
-    #include "readMechanicalProperties.H"       // Read mechanical properties
     #include "initContinuityErrs.H"             // Enables continuity error tracking
     #include "initializeParameters.H"           // Initialize other parameters
 
@@ -58,7 +55,8 @@ int main(int argc, char *argv[])
 
         #include "primalFlowSolver.H"           // Run primal solver for U and p
         #include "primalThermalSolver.H"        // Run primal solver for T
-        #include "LinearElasticity.H"
+        #include "LinearElasticity.H"           // Run primal solver for D
+        #include "updatePrimalProperties.h"     // Update primal properties that are based on temperature
 
         #include "adjointThermalSolverT.H"      // Run adjoint solver for T_adj
         #include "adjointThermalSolverU.H"      // Run adjoint solver for U_adj_T

@@ -20,8 +20,8 @@ scalar Po(readScalar(mechanicalProperties.lookup("Po")));
 dimensionedScalar E(rhoE/rho);
 dimensionedScalar Emin(E*1e-9);
 double qd=0.1;
-volScalarField mu(qd*(1-xh)/(qd+xh)*(E-Emin)/(2.0*(1.0+Po))+Emin/(2.0*(1.0+Po)));
-volScalarField lambda(qd*(1-xh)/(qd+xh)*Po*(E-Emin)/((1.0+Po)*(1.0-2.0*Po))+Po*Emin/((1.0+Po)*(1.0-2.0*Po)));
+volScalarField mu(qd*(1-gamma)/(qd+gamma)*(E-Emin)/(2.0*(1.0+Po))+Emin/(2.0*(1.0+Po)));
+volScalarField lambda(qd*(1-gamma)/(qd+gamma)*Po*(E-Emin)/((1.0+Po)*(1.0-2.0*Po))+Po*Emin/((1.0+Po)*(1.0-2.0*Po)));
 
 Info<< "Reading field D\n" << endl;
 volVectorField D
@@ -100,7 +100,7 @@ volScalarField gsensCompliance
         IOobject::NO_READ,
         IOobject::AUTO_WRITE
     ),
-    -gradD&&(rho*(3*xh*xh*(E-Emin)/(2.0*(1.0 + Po))*twoSymm(gradD))),
+    -gradD&&(rho*(3*gamma*gamma*(E-Emin)/(2.0*(1.0 + Po))*twoSymm(gradD))),
     zeroGradientFvPatchScalarField::typeName
 );
 volScalarField gsenshCompliance(gsensCompliance);

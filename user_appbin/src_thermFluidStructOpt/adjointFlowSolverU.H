@@ -1,75 +1,81 @@
-for(i=0;i<30;i++)
-{ 
-  volVectorField adjointTransposeConvectiona((fvc::grad(U) & Ua));
+for(i = 0 ; i < 30; i++)
+{
+    Info << "\nSolving for adjoint flow velocity U_adj_U\n" << endl;
 
-  tmp<fvVectorMatrix> tUaEqn
-  (
-      fvm::div(-phi, Ua)
-    + adjointTransposeConvectiona
-    - fvm::laplacian(nu,Ua)
-    + fvm::Sp(alpha, Ua)
-   ==
-      fvOptions(Ua)
-  );
-  fvVectorMatrix& UaEqn = tUaEqn.ref();
+    volVectorField adjointTransposeConvectionc((fvc::grad(U_adj_U) & U));
 
-  UaEqn.relax();
+    tmp<fvVectorMatrix> tUcEqn(
 
-  fvOptions.constrain(UaEqn);
+            fvm::div(-phi, U_adj_U)
+            - adjointTransposeConvectionc
+            //        + turbulence->divDevReff(U_adj_U)
+            - fvm::laplacian(nu_eff, U_adj_U)
+            + fvm::Sp(alpha_U, U_adj_U)
+            ==
+            fvOptions(U_adj_U)
+    );
 
-  solve(UaEqn == -fvc::grad(pa));
+    fvVectorMatrix& UcEqn = tUcEqn.ref();
 
-  fvOptions.correct(Ua);
-//****************************************
-  volScalarField rAUa(1.0/UaEqn.A());
-  volVectorField HbyAa("HbyAa", Ua);
-  HbyAa = rAUa*UaEqn.H();
-  tUaEqn.clear();          
-  surfaceScalarField phiHbyAa("phiHbyAa", fvc::flux(HbyAa));
-  adjustPhi(phiHbyAa, Ua, pa);
-  
-  tmp<volScalarField> rAtUa(rAUa);
-  
-   if (simple.consistent())
-  {
-      rAtUa = 1.0/(1.0/rAUa - UaEqn.H1());
-      phiHbyAa +=
-          fvc::interpolate(rAtUa() - rAUa)*fvc::snGrad(pa)*mesh.magSf();
-      HbyAa -= (rAUa - rAtUa())*fvc::grad(pa);
-  }
+    UcEqn.relax();
 
-  tUaEqn.clear();
+    fvOptions.constrain(UcEqn);
 
-  // Update the pressure BCs to ensure flux consistency
-  constrainPressure(pa, Ua, phiHbyAa, rAtUa(), MRF);           
-  // Non-orthogonal pressure corrector loop
-  while (simple.correctNonOrthogonal())
-  {
-      fvScalarMatrix paEqn
-      (
-          fvm::laplacian(rAUa, pa) == fvc::div(phiHbyAa)
-      );
+    solve(UcEqn == -fvc::grad(p_adj_U));
 
-      paEqn.setReference(paRefCell, paRefValue);
-      paEqn.solve();
+    fvOptions.correct(U_adj_U);
 
-      if (simple.finalNonOrthogonalIter())
-      {
-          phia = phiHbyAa - paEqn.flux();
-      }
-  }
+    //****************************************
 
-  //#include "adjointContinuityErrs.H"
+    volScalarField rAUc(1.0 / UcEqn.A());
+    volVectorField HbyAc("HbyAc", U_adj_U);
+    HbyAc = rAUc * UcEqn.H();
+    tUcEqn.clear();
+    surfaceScalarField phiHbyAc("phiHbyAc", fvc::flux(HbyAc));
+    adjustPhi(phiHbyAc, U_adj_U, p_adj_U);
 
-  // Explicitly relax pressure for adjoint momentum corrector
-  pa.relax();
+    tmp<volScalarField> rAtUc(rAUc);
 
-  // Adjoint momentum corrector
-  Ua = HbyAa - rAUa*fvc::grad(pa);
-  Ua.correctBoundaryConditions();
-  fvOptions.correct(Ua);
-  
-  Ua.storePrevIter();
-  pa.storePrevIter();
-  phia.storePrevIter();
+    if(simple.consistent())
+    {
+        rAtUc = 1.0 / (1.0 / rAUc - UcEqn.H1());
+        phiHbyAc +=
+        fvc::interpolate(rAtUc() - rAUc) * fvc::snGrad(p_adj_U) * mesh.magSf();
+        HbyAc -= (rAUc - rAtUc()) * fvc::grad(p_adj_U);
+    }
+
+    tUcEqn.clear();
+
+    // Update the pressure BCs to ensure flux consistency
+    constrainPressure(p_adj_U, U_adj_U, phiHbyAc, rAtUc(), MRF);
+
+    // Non-orthogonal pressure corrector loop
+    while (simple.correctNonOrthogonal())
+    {
+        fvScalarMatrix pcEqn(
+                fvm::laplacian(rAUc, p_adj_U) == fvc::div(phiHbyAc)
+                );
+
+        pcEqn.setReference(p_adj_URefCell, p_adj_URefValue);
+        pcEqn.solve();
+
+        if (simple.finalNonOrthogonalIter())
+        {
+            phi_adj_U = phiHbyAc - pcEqn.flux();
+        }
+    }
+
+    //#include "adjointContinuityErrs.H"
+
+    // Explicitly relax pressure for adjoint momentum corrector
+    p_adj_U.relax();
+
+    // Adjoint momentum corrector
+    U_adj_U = HbyAc - rAUc * fvc::grad(p_adj_U);
+    U_adj_U.correctBoundaryConditions();
+    fvOptions.correct(U_adj_U);
+
+    U_adj_U.storePrevIter();
+    p_adj_U.storePrevIter();
+    phi_adj_U.storePrevIter();
 }
