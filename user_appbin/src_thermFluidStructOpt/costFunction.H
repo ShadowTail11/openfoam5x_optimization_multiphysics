@@ -63,13 +63,13 @@
         power_loss_ratio = power_loss_ratio / len;
     }
 
-    Info << "\n--> Power dissipation ratio is: " << power_loss_ratio << endl;
+    Info << "\n--> Power loss ratio is: " << power_loss_ratio << endl;
 
     cost_power_loss_ratio = power_loss_ratio / Foam::max(set_power_ratio * 3.0 - opt * 0.4, set_power_ratio) - 1.0;
 
     power_loss_conv = abs(power_loss_ratio / set_power_ratio - 1);
 
-    Info << "\n--> Percentage difference between power dissipation ratio and target is: " << power_loss_conv * 100 << "%\n" << endl;
+    Info << "\n--> Percentage difference between power loss ratio and target is: " << power_loss_conv * 100 << "%\n" << endl;
 
     //// Compliance (used for monitoring, cost, & convergence)
 
@@ -77,6 +77,14 @@
     sigmaD = mu * twoSymm(gradD) + (lambda * I) * tr(gradD);
     volScalarField Energy(0.25 * (gradD + gradD.T()) && sigmaD);
 
-    C = fvc::domainIntegrate(Energy).value() / C0;
+    compliance_ratio = fvc::domainIntegrate(Energy).value() / compliance_ref;
+
+    Info << "\n--> Compliance ratio is: " << compliance_ratio << endl;
+
+    cost_compliance = compliance_ratio / Foam::max(set_compliance * 3 - opt * 0.2, set_compliance) - 1.0;
+
+    compliance_conv = abs(compliance_ratio / set_compliance - 1);
+
+    Info << "\n--> Percentage difference between compliance ratio and target is: " << compliance_conv * 100 << "%\n" << endl;
 }
 

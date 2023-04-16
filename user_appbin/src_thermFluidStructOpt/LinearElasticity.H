@@ -1,7 +1,7 @@
 Info << "\nSolving for the linear elasticity equation\n" << endl;
 
 initialResidual = 0;
-iCorr=0;
+iCorr = 0;
 do
 {
   {
@@ -9,7 +9,7 @@ do
       (
               fvm::d2dt2(D)
               ==
-              fvm::laplacian(2*mu + lambda, D, "laplacian(DD,D)")
+              fvm::laplacian(2 * mu + lambda, D, "laplacian(DD,D)")
               + divSigmaExp
 //              - fvc::grad(threeKalpha*T)
       );
@@ -24,13 +24,13 @@ do
 
   {
       volTensorField gradD(fvc::grad(D));
-      sigmaD = mu*twoSymm(gradD) + (lambda*I)*tr(gradD);
+      sigmaD = mu * twoSymm(gradD) + (lambda * I) * tr(gradD);
 
       if (compactNormalStress)
       {
           divSigmaExp = fvc::div
           (
-              sigmaD - (2*mu + lambda)*gradD,
+              sigmaD - (2 * mu + lambda) * gradD,
               "div(sigmaD)"
           );
       }

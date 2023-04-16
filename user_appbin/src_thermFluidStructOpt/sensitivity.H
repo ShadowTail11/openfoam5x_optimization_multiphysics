@@ -17,15 +17,15 @@
             -alpha_U_max * (1 + q_ramp) * q_ramp / ((q_ramp + gamma) * (q_ramp + gamma)) * (U & U_adj_U)
     );
 
-    mu = -(1 + qd) * qd / ((qd + gamma) * (qd + gamma)) * (E - Emin) / (2.0 * (1.0 + Po));
-    lambda = -(1 + qd) * qd / ((qd + gamma) * (qd + gamma)) * Po * (E - Emin) / ((1.0 + Po) * (1.0 - 2.0 * Po));
-    cost_sens_comp0 = -gradD && (rho * (mu * twoSymm(gradD) + (lambda * I) * tr(gradD)));
+    mu = -(1 + qd) * qd / ((qd + gamma) * (qd + gamma)) * (Esp - Esp_min) / (2.0 * (1.0 + Po));
+    lambda = -(1 + qd) * qd / ((qd + gamma) * (qd + gamma)) * Po * (Esp - Esp_min) / ((1.0 + Po) * (1.0 - 2.0 * Po));
+    cost_sens_comp0 = -gradD && (rho_solid * (mu * twoSymm(gradD) + (lambda * I) * tr(gradD)));
 
     #include "HeavisideSens.H"
 
     // Store current iteration's constraint values
     gx[0] = cost_power_loss_ratio;
-    gx[1] = C / Foam::max(CRelax - opt * 0.2, CMax) - 1.0;
+    gx[1] = cost_compliance;
     gx[2] = cost_vol_frac;
 
     // Store optimization parameters for use in MMA

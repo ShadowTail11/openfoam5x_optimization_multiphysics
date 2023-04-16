@@ -29,7 +29,8 @@ dimensionedScalar nu_max(transportProperties.lookup("nu_max"));             // V
 
 //// Porosity Controls
 // Flow resistance (rapidly slows fluid velocity as pseudo density transitions to 0 -> solid)
-dimensionedScalar alpha_U_max(transportProperties.lookup("alpha_U_max"));           // Flow resistance max reference
+dimensionedScalar alpha_U_max_init(transportProperties.lookup("alpha_U_max_init")); // Initial flow resistance max reference
+dimensionedScalar alpha_U_max = alpha_U_max_init;                                   // Flow resistance max reference
 dimensionedScalar alpha_U_limit(transportProperties.lookup("alpha_U_limit"));       // Flow resistance limit
 scalar dalpha(readScalar(transportProperties.lookup("dalpha")));                    // Percent increase rate for flow resistance
 //  (this factor is multiplied by loop count for rapid increase)

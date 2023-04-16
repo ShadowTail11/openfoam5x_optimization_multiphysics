@@ -102,8 +102,6 @@ void Foam::adjointOutletPressureHeatFvPatchScalarField::updateCoeffs()
     const fvPatchField<vector>& Uap =
             patch().lookupPatchField<volVectorField, vector>("U_adj_T");
 
-
-
     const fvPatchField<scalar>& nu_effp =
             patch().lookupPatchField<volScalarField, scalar>("nu_eff");
 

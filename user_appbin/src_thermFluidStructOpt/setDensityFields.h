@@ -8,7 +8,7 @@ volScalarField gamma
                 "gamma",
                 runTime.timeName(),
                 mesh,
-                IOobject::NO_READ,
+                IOobject::READ_IF_PRESENT,
                 IOobject::AUTO_WRITE
         ),
         mesh,
@@ -27,8 +27,7 @@ volScalarField gamma_filter
                 IOobject::NO_READ,
                 IOobject::AUTO_WRITE
         ),
-        mesh,
-        scalar(set_vol_frac),
+        gamma,
         zeroGradientFvPatchScalarField::typeName
 );
 

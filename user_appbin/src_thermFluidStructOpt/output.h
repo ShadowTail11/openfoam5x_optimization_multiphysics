@@ -32,12 +32,20 @@
         outfile6.close();
 
         ofstream outfile7("Monitor_Compliance.txt",std::ios::app);
-        outfile7 << C << "\n";
+        outfile7 << compliance_ratio << "\n";
         outfile7.close();
 
-        ofstream outfile8("Monitor_PseudoDensityDelta.txt", std::ios::app);
-        outfile8 << gamma_switch << "\n";
+        ofstream outfile8("Monitor_MaxStress.txt",std::ios::app);
+        outfile8 << gMax(mag(sigmaD.primitiveField())) << "\n";
         outfile8.close();
+
+        ofstream outfile9("Monitor_PseudoDensityDelta.txt", std::ios::app);
+        outfile9 << gamma_switch << "\n";
+        outfile9.close();
+
+        ofstream outfile10("Monitor_Iterations.txt", std::ios::app);
+        outfile10 << opt << "\n";
+        outfile10.close();
     }
 
     // Write mesh data
@@ -56,6 +64,16 @@
         cost_sens_power_loss.write();
         cost_sens_comp.write();
         cost_sens_vol_frac.write();
+
+        // Remaining outputs used to initialize continued run
+        p_adj_T.write();
+        p_adj_U.write();
+        T_adj.write();
+        U_adj_T.write();
+        U_adj_U.write();
+        phi.write();
+        phi_adj_T.write();
+        phi_adj_U.write();
     }
 
     // Print elapsed time
@@ -84,6 +102,16 @@
         cost_sens_power_loss.write();
         cost_sens_comp.write();
         cost_sens_vol_frac.write();
+
+        // Remaining outputs used to initialize continued run
+        p_adj_T.write();
+        p_adj_U.write();
+        T_adj.write();
+        U_adj_T.write();
+        U_adj_U.write();
+        phi.write();
+        phi_adj_T.write();
+        phi_adj_U.write();
 
         Info << "Convergence criterion (<" << merit_tol * 100 << "%) has been met after "
         << opt - 1 << " iterations!" << endl << "Program ending!" << endl;

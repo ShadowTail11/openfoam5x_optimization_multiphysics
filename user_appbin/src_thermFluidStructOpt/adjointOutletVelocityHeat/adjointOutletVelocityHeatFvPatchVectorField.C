@@ -103,8 +103,6 @@ void Foam::adjointOutletVelocityHeatFvPatchVectorField::updateCoeffs()
     const fvsPatchField<scalar>& phip =
             patch().lookupPatchField<surfaceScalarField, scalar>("phi");
 
-
-
     const fvPatchField<scalar>& nu_effp =
             patch().lookupPatchField<volScalarField, scalar>("nu_eff");
 
