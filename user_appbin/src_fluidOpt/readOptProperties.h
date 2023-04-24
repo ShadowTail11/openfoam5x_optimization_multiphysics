@@ -39,5 +39,6 @@ scalar power_loss_ref(readScalar(optimizationProperties.lookup("power_loss_ref")
 scalar weight_sens(readScalar(optimizationProperties.lookup("weight_sens")));           // Weight factor for sensitivity function
 
 // Convergence controls
+int n_flow_solve(round(readScalar(optimizationProperties.lookup("n_flow_solve"))));     // Density filter radius
 scalar merit_tol(readScalar(optimizationProperties.lookup("merit_tol")));               // Convergence tolerance for merit parameters
 scalar gamma_tol(readScalar(optimizationProperties.lookup("gamma_tol")));               // Convergence tolerance for pseudo density gamma

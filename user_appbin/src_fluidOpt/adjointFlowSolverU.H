@@ -1,4 +1,4 @@
-for(i = 0 ; i < 40; i++)
+for(i = 0 ; i < n_flow_solve; i++)
 {
     Info << "\nSolve for adjoint flow-U\n" << endl;
 

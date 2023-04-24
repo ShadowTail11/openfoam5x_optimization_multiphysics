@@ -12,7 +12,7 @@ std::remove("PowerLoss_Reference.txt");
 
 // Initialize variables
 int opt(1);                                     // Optimization loop counter
-int i, n_loops;                                 // Initialize loop counters (generic and solver, respectively)
+int i;                                          // Initialize generic loop counter
 scalar n_cells(gamma.size());                   // The number of cells in the domain
 n_cells = static_cast<int>(n_cells);            // Force n_cells to be an integer
 int opt_threshold = -1;                         // Updated to iteration count when merit value is within 2x of tolerance
