@@ -1,5 +1,5 @@
 $(OBJECTS_DIR)/MMA/MMA.C.dep: \
 MMA/MMA.C \
-MMA/MMA.h \
+MMA.h \
 
 

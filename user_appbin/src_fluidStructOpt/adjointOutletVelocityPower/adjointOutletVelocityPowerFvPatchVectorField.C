@@ -28,29 +28,30 @@ License
 #include "addToRunTimeSelectionTable.H"
 #include "surfaceFields.H"
 #include "fvPatchFieldMapper.H"
+#include "RASModel.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 Foam::adjointOutletVelocityPowerFvPatchVectorField::
 adjointOutletVelocityPowerFvPatchVectorField
-(
-    const fvPatch& p,
-    const DimensionedField<vector, volMesh>& iF
-)
-:
-    fixedValueFvPatchVectorField(p, iF)
+        (
+                const fvPatch& p,
+                const DimensionedField<vector, volMesh>& iF
+        )
+        :
+        fixedValueFvPatchVectorField(p, iF)
 {}
 
 
 Foam::adjointOutletVelocityPowerFvPatchVectorField::
 adjointOutletVelocityPowerFvPatchVectorField
-(
-    const fvPatch& p,
-    const DimensionedField<vector, volMesh>& iF,
-    const dictionary& dict
-)
-:
-    fixedValueFvPatchVectorField(p, iF)
+        (
+                const fvPatch& p,
+                const DimensionedField<vector, volMesh>& iF,
+                const dictionary& dict
+        )
+        :
+        fixedValueFvPatchVectorField(p, iF)
 {
     fvPatchVectorField::operator=(vectorField("value", dict, p.size()));
 }
@@ -58,25 +59,25 @@ adjointOutletVelocityPowerFvPatchVectorField
 
 Foam::adjointOutletVelocityPowerFvPatchVectorField::
 adjointOutletVelocityPowerFvPatchVectorField
-(
-    const adjointOutletVelocityPowerFvPatchVectorField& ptf,
-    const fvPatch& p,
-    const DimensionedField<vector, volMesh>& iF,
-    const fvPatchFieldMapper& mapper
-)
-:
-    fixedValueFvPatchVectorField(ptf, p, iF, mapper)
+        (
+                const adjointOutletVelocityPowerFvPatchVectorField& ptf,
+                const fvPatch& p,
+                const DimensionedField<vector, volMesh>& iF,
+                const fvPatchFieldMapper& mapper
+        )
+        :
+        fixedValueFvPatchVectorField(ptf, p, iF, mapper)
 {}
 
 
 Foam::adjointOutletVelocityPowerFvPatchVectorField::
 adjointOutletVelocityPowerFvPatchVectorField
-(
-    const adjointOutletVelocityPowerFvPatchVectorField& pivpvf,
-    const DimensionedField<vector, volMesh>& iF
-)
-:
-    fixedValueFvPatchVectorField(pivpvf, iF)
+        (
+                const adjointOutletVelocityPowerFvPatchVectorField& pivpvf,
+                const DimensionedField<vector, volMesh>& iF
+        )
+        :
+        fixedValueFvPatchVectorField(pivpvf, iF)
 {}
 
 
@@ -91,34 +92,44 @@ void Foam::adjointOutletVelocityPowerFvPatchVectorField::updateCoeffs()
     }
 
     const fvsPatchField<scalar>& phicp =
-        patch().lookupPatchField<surfaceScalarField, scalar>("phi_adj_U");
+            patch().lookupPatchField<surfaceScalarField, scalar>("phi_adj_U");
 
     const fvPatchField<vector>& Up =
-        patch().lookupPatchField<volVectorField, vector>("U");
+            patch().lookupPatchField<volVectorField, vector>("U");
 
     const fvPatchField<vector>& Ucp =
-     patch().lookupPatchField<volVectorField, vector>("U_adj_U");
+            patch().lookupPatchField<volVectorField, vector>("U_adj_U");
 
     const fvsPatchField<scalar>& phip =
-     patch().lookupPatchField<surfaceScalarField, scalar>("phi");
+            patch().lookupPatchField<surfaceScalarField, scalar>("phi");
 
-    const dictionary& transportProperties = db().lookupObject<IOdictionary>("transportProperties");
-    dimensionedScalar nu(transportProperties.lookup("nu"));
 
-    const scalarField& deltainv = 
-     patch().deltaCoeffs(); // dist^(-1) 
 
-    // Primal velocity, mag of normal component and tangential component
+    const fvPatchField<scalar>& nu_effp =
+            patch().lookupPatchField<volScalarField, scalar>("nu_eff");
+
+
+//    const dictionary& transportProperties = db().lookupObject<IOdictionary>("transportProperties");
+//     dimensionedScalar nu(transportProperties.lookup("nu"));
+    //const incompressible::RASModel& rasModel =
+    //  db().lookupObject<incompressible::RASModel>("RASProperties");
+
+    // scalarField nueff = rasModel.nu_eff()().boundaryField()[patch().index()];
+
+    const scalarField& deltainv =
+            patch().deltaCoeffs(); // dist^(-1)
+
+//Primal velocity, mag of normal component and tangential component
     scalarField Up_ns = phip / patch().magSf();
 
     vectorField Up_t = Up - (phip * patch().Sf()) / (patch().magSf() * patch().magSf());
 
-    // Tangential component of adjoint velocity in neighbouring node
+//Tangential component of adjoint velocity in neighbouring node
     vectorField Ucneigh = Ucp.patchInternalField();
     vectorField Ucneigh_n = (Ucneigh & patch().nf()) * patch().nf();
     vectorField Ucneigh_t = Ucneigh - Ucneigh_n;
 
-    vectorField Ucp_t = ((Up_ns * Up_t) + nu.value() * deltainv * Ucneigh_t) / (Up_ns + nu.value() * deltainv) ;
+    vectorField Ucp_t = ((Up_ns * Up_t) + nu_effp * deltainv * Ucneigh_t) / (Up_ns + nu_effp * deltainv) ;
 
     vectorField Ucp_n = (phicp * patch().Sf())/(patch().magSf()*patch().magSf());
 
@@ -141,8 +152,8 @@ namespace Foam
 {
     makePatchTypeField
     (
-        fvPatchVectorField,
-        adjointOutletVelocityPowerFvPatchVectorField
+            fvPatchVectorField,
+            adjointOutletVelocityPowerFvPatchVectorField
     );
 }
 

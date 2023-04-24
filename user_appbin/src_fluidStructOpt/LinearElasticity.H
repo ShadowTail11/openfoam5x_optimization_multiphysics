@@ -1,4 +1,4 @@
-Info << "\nSolve linear elasticity equation\n" << endl;
+Info << "\nSolving for the linear elasticity equation\n" << endl;
 
 initialResidual = 0;
 iCorr = 0;
@@ -7,11 +7,11 @@ do
   {
       fvVectorMatrix DEqn
       (
-          fvm::d2dt2(D)
-       ==
-          fvm::laplacian(2.0 * mu + lambda, D, "laplacian(DD,D)")
-        + divSigmaExp
-        //- fvc::grad(threeKalpha*T)
+              fvm::d2dt2(D)
+              ==
+              fvm::laplacian(2 * mu + lambda, D, "laplacian(DD,D)")
+              + divSigmaExp
+//              - fvc::grad(threeKalpha*T)
       );
 
       initialResidual = DEqn.solve().max().initialResidual();
@@ -30,7 +30,7 @@ do
       {
           divSigmaExp = fvc::div
           (
-              sigmaD - (2.0 * mu + lambda) * gradD,
+              sigmaD - (2 * mu + lambda) * gradD,
               "div(sigmaD)"
           );
       }

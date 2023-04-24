@@ -71,7 +71,6 @@ int main(int argc, char *argv[])
             Info << "Beginning External Structural Solver" << endl;
 
             #include "updateOptProperties.H"            // Update optimization-related properties
-//            #include "updateOptPropertiesExternal.h"    // Update optimization-related properties for external solver
 
             #include "primalFlowSolver.H"               // Run primal solver for U and p
             #include "primalThermalSolver.H"            // Run primal solver for T

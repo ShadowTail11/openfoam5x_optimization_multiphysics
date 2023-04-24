@@ -49,7 +49,7 @@
     }
 
     // Exit if convergence has been achieved
-    if (opt > 50 && dgamma_switch_ave < gamma_tol && power_loss_conv < merit_tol && dT_drop_ave < merit_tol)
+    if (opt > 0.75 * runTime.endTime().value() || (opt > 50 && dgamma_switch_ave < gamma_tol && power_loss_conv < merit_tol && dT_drop_ave < merit_tol))
 //    if (opt == 10)
     {
         // Create pseudo density field masks to freeze the fluid region and create an initial fluid wall
@@ -57,13 +57,13 @@
         {
             gamma_conv[i] = (
                     std::round(Foam::min(1.0, gamma[i] / 0.2))
-                    * std::round(Foam::min(1.0, mag(U.primitiveField()[i]) / gMax(mag(U.primitiveField())) / 0.02))
+                    * std::round(Foam::min(1.0, mag(U.primitiveField()[i]) / gMax(mag(U.boundaryField()[conPatchList[0]])) / 0.2))
                     );
 
-//            gamma_wall[i] = (
-//                    std::round(Foam::min(1.0, gamma[i] / 0.2))
-//                    * std::round(Foam::min(1.0, mag(U.primitiveField()[i]) / gMax(mag(U.primitiveField())) / 0.01))
-//                    - gamma_conv[i]);
+            gamma_wall[i] = (
+                    std::round(Foam::min(1.0, gamma[i] / 0.2))
+                    * std::round(Foam::min(1.0, mag(U.primitiveField()[i]) / gMax(mag(U.boundaryField()[conPatchList[0]])) / 0.01))
+                    - gamma_conv[i]);
         }
 
         // Calculate the frozen region
@@ -81,8 +81,8 @@
 
         set_vol_frac = set_vol_frac_solid * (vol_frac_frozen + vol_frac_solid) + vol_frac_frozen_gamma;
 
-//        gamma = (gamma * gamma_conv + (1.0 - set_vol_frac_solid) * (1.0 - gamma_conv)) * (1.0 - gamma_wall);
-        gamma = gamma * gamma_conv + (1.0 - set_vol_frac_solid) * (1.0 - gamma_conv);
+        gamma = (gamma * gamma_conv + (1.0 - set_vol_frac_solid) * (1.0 - gamma_conv)) * (1.0 - gamma_wall);
+//        gamma = gamma * gamma_conv + (1.0 - set_vol_frac_solid) * (1.0 - gamma_conv);
         x = gamma;
         if (solid_area)
         {
@@ -94,7 +94,7 @@
 
         gamma.write();
         gamma_conv.write();
-//        gamma_wall.write();
+        gamma_wall.write();
         T.write();
         U.write();
         p.write();

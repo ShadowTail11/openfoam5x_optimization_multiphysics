@@ -6,16 +6,6 @@
  */
 
 {
-    // Set initial loop to run longer to ensure stability
-    if (opt == 1)
-    {
-        n_loops = 100;
-    }
-    else
-    {
-        n_loops = 60;
-    }
-
     // Iterate primal solver to calculate velocity U and kinematic pressure p
     for (i = 0; i < n_loops; i++)
     {
@@ -27,12 +17,12 @@
         // Define velocity portion of primal flow equation
         tmp<fvVectorMatrix> tUEqn(
 
-            fvm::div(phi, U)                // Divergent flow term
-            + MRF.DDt(U)                    // Material derivative (not necessary for steady-state solver)
-            + turbulence->divDevReff(U)     // Used for turbulent flow
-            + fvm::Sp(alpha_U, U)           // Creates a pseudo-porosity-based body force with a ramp function
-            ==
-            fvOptions(U)                    // Enables OpenFOAM options for velocity such as relaxation factors
+                fvm::div(phi, U)                // Divergent flow term
+                + MRF.DDt(U)                    // Material derivative (not necessary for steady-state solver)
+                + turbulence->divDevReff(U)   // Used for turbulent flow
+                + fvm::Sp(alpha_U, U)           // Creates a pseudo-porosity-based body force with a ramp function
+                ==
+                fvOptions(U)                    // Enables OpenFOAM options for velocity such as relaxation factors
         );
 
         fvVectorMatrix& UEqn = tUEqn.ref(); // Creates a virtual pointer to the previous equation
@@ -63,7 +53,7 @@
         {
             rAtU = 1.0 / (1.0 / rAU - UEqn.H1());
             phiHbyA +=
-                fvc::interpolate(rAtU() - rAU) * fvc::snGrad(p) * mesh.magSf();
+                    fvc::interpolate(rAtU() - rAU) * fvc::snGrad(p) * mesh.magSf();
             HbyA -= (rAU - rAtU()) * fvc::grad(p);
         }
 
@@ -75,10 +65,7 @@
         // Non-orthogonal pressure corrector loop
         while (simple.correctNonOrthogonal())
         {
-            fvScalarMatrix pEqn(
-
-                fvm::laplacian(rAtU(), p) == fvc::div(phiHbyA)
-            );
+            fvScalarMatrix pEqn(fvm::laplacian(rAtU(), p) == fvc::div(phiHbyA));
 
             pEqn.setReference(pRefCell, pRefValue);
 

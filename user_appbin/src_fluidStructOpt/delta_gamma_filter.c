@@ -4,32 +4,32 @@
 //
 
 scalar delta_gamma_filter(volScalarField &gamma,
-                          const scalarField &cell_volume,
+                          const scalarField &V,
                           double del,
                           double eta,
-                          int cell_count)
+                          int n)
 {
-    int i;
-    scalar z = 0;
-    double *x = new double[cell_count];
-
-    for (i = 0; i < cell_count; i++)
-    {
-        if (gamma[i] <= eta)
-        {
-            x[i] = (eta * (Foam::exp(-del * (1 - gamma[i] / eta))
-                    - (1 - gamma[i] / eta) * Foam::exp(-del)));
-        }
-        else
-        {
-            x[i] = (eta + (1 - eta) * (1 - Foam::exp(-del * (gamma[i] - eta) / (1 - eta))
-                    + (gamma[i] - eta) * Foam::exp(-del) / (1 - eta)));
-        }
-    }
-    for (i = 0; i < cell_count; i++)
-    {
-        z = z + (gamma[i] - x[i]) * cell_volume[i];
-    }
-    delete x;
-    return {z};
+     int i;
+     scalar z = 0;
+     double *x = new double[n];
+     
+     for(i = 0; i < n; i++)
+     {
+         if(gamma[i] <= eta)
+         {
+             x[i] = (eta * (Foam::exp(-del * (1 - gamma[i] / eta))
+                     - (1 - gamma[i] / eta) * Foam::exp(-del)));
+         }
+         else
+         {
+             x[i] = (eta + (1 - eta) * (1 - Foam::exp(-del * (gamma[i] - eta) / (1 - eta))
+                     + (gamma[i] - eta) * Foam::exp(-del) / (1 - eta)));
+         }
+     }
+     for(i = 0; i < n; i++)
+     {
+         z = z + (gamma[i] - x[i]) * V[i];
+     }
+     delete x;
+     return {z};
 }

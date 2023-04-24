@@ -1,17 +1,17 @@
-for(i = 0 ; i < 40; i++)
+for(i = 0 ; i < 30; i++)
 {
-    Info << "\nSolve for adjoint flow-U\n" << endl;
+    Info << "\nSolving for adjoint flow velocity U_adj_U\n" << endl;
 
     volVectorField adjointTransposeConvectionc((fvc::grad(U_adj_U) & U));
 
     tmp<fvVectorMatrix> tUcEqn(
 
-        fvm::div(-phi, U_adj_U)
-        - adjointTransposeConvectionc
-        + turbulence->divDevReff(U_adj_U)
-        + fvm::Sp(alpha_U, U_adj_U)
-        ==
-        fvOptions(U_adj_U)
+            fvm::div(-phi, U_adj_U)
+            - adjointTransposeConvectionc
+            + turbulence->divDevReff(U_adj_U)
+            + fvm::Sp(alpha_U, U_adj_U)
+            ==
+            fvOptions(U_adj_U)
     );
 
     fvVectorMatrix& UcEqn = tUcEqn.ref();
@@ -39,7 +39,7 @@ for(i = 0 ; i < 40; i++)
     {
         rAtUc = 1.0 / (1.0 / rAUc - UcEqn.H1());
         phiHbyAc +=
-            fvc::interpolate(rAtUc() - rAUc) * fvc::snGrad(p_adj_U) * mesh.magSf();
+        fvc::interpolate(rAtUc() - rAUc) * fvc::snGrad(p_adj_U) * mesh.magSf();
         HbyAc -= (rAUc - rAtUc()) * fvc::grad(p_adj_U);
     }
 
@@ -52,9 +52,8 @@ for(i = 0 ; i < 40; i++)
     while (simple.correctNonOrthogonal())
     {
         fvScalarMatrix pcEqn(
-
                 fvm::laplacian(rAUc, p_adj_U) == fvc::div(phiHbyAc)
-        );
+                );
 
         pcEqn.setReference(p_adj_URefCell, p_adj_URefValue);
         pcEqn.solve();

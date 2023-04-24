@@ -49,19 +49,29 @@ int main(int argc, char *argv[])
 
     while (simple.loop())
     {
-        Info << "Time = " << runTime.timeName() << nl << endl;
+        if (solve_ext==0) {
+            Info << "Time = " << runTime.timeName() << nl << endl;
 
-        #include "updateOptProperties.h"        // Update optimization-related properties
-        #include "solvePowerLossRef.h"          // Update power loss reference using test region (if needed)
+            #include "updateOptProperties.H"            // Update optimization-related properties
+            #include "primalFlowSolver.H"               // Run primal solver for U and p
+            #include "LinearElasticity.H"               // Run primal solver for D
+            #include "adjointFlowSolverU.H"             // Run adjoint solver for U_adj_U
 
-        #include "primalFlowSolver.H"           // Run primal solver for U and p
-        #include "primalElasticitySolver.h"     // Run primal solver for D
+            #include "costFunction.H"                   // Calculate the cost function & convergence properties
+            #include "sensitivity.H"                    // Calculate sensitivity and update pseudo density accordingly
+            #include "output.h"                         // Check convergence and output monitoring/state variables
+        }
+        else {
+            Info << "Beginning External Structural Solver" << endl;
 
-        #include "adjointFlowSolverU.H"         // Run adjoint solver for U_adj_U
+            #include "updateOptProperties.H"            // Update optimization-related properties
+            #include "primalFlowSolver.H"               // Run primal solver for U and p
+            #include "LinearElasticity.H"               // Run primal solver for D
 
-        #include "costFunction.H"               // Calculate the cost function & convergence properties
-        #include "sensitivity.H"                // Calculate sensitivity and update pseudo density accordingly
-        #include "output.h"                     // Check convergence and output monitoring/state variables
+            #include "costFunctionExternal.h"           // Calculate the external solver cost function & convergence properties
+            #include "sensitivityExternal.h"            // Calculate external sensitivity and update pseudo density
+            #include "outputExternal.h"                 // Check convergence and output monitoring/state variables
+        }
     }
     Info << "End\n" << endl;
     return 0;

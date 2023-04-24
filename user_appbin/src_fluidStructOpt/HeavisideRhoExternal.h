@@ -31,9 +31,9 @@
         }
     } while ((eta1 - eta0) > 0.0001);
 
-    for(i = 0; i < n_cells; i++)
+    for (i = 0; i < n_cells; i++)
     {
-        if(gamma_filter[i] <= eta5)
+        if (gamma_filter[i] <= eta5)
         {
             gamma[i] = (eta5 * (Foam::exp(-del * (1 - gamma_filter[i] / eta5))
                     - (1 - gamma_filter[i] / eta5) * Foam::exp(-del)));

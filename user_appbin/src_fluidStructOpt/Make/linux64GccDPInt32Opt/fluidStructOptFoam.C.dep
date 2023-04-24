@@ -775,22 +775,29 @@ $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/createSimpleControl.H \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/createFvOptions.H \
 createFields.H \
 readOptProperties.h \
-readTransProperties.h \
+readTransProperties.H \
+readMechanicalProperties.H \
+setDensityFields.h \
+setTransFields.h \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/createMRF.H \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/createPhi.H \
-readMechProperties.h \
+setStructuralFields.h \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/initContinuityErrs.H \
 initializeParameters.H \
-updateOptProperties.h \
-solvePowerLossRef.h \
+updateOptProperties.H \
 primalFlowSolver.H \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/continuityErrs.H \
-primalElasticitySolver.h \
+LinearElasticity.H \
 adjointFlowSolverU.H \
 costFunction.H \
 sensitivity.H \
 HeavisideSens.H \
 HeavisideRho.H \
 output.h \
+costFunctionExternal.h \
+sensitivityExternal.h \
+HeavisideSensExternal.h \
+HeavisideRhoExternal.h \
+outputExternal.h \
 
 
