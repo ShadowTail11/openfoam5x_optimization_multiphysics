@@ -138,6 +138,7 @@ void tractionDisplacementFvPatchVectorField::updateCoeffs()
     Switch planeStress(mechanicalProperties.lookup("planeStress"));
 
     scalarField ramp_d(qd * (1 - gamma) / (qd + gamma));
+//    scalarField ramp_d((1 - gamma) * (1 - gamma) * (1 - gamma));
 
     scalarField mu((ramp_d * (Esp - Esp_min) + Esp_min) / (2.0 * (1.0 + Po)));
     scalarField lambda((ramp_d * Po * (Esp - Esp_min) + Po * Esp_min) / ((1.0 + Po) * (1.0 - 2.0 * Po)));

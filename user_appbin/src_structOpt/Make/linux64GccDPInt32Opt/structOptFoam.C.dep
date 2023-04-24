@@ -1,5 +1,5 @@
-$(OBJECTS_DIR)/MTO_solid.C.dep: \
-MTO_solid.C \
+$(OBJECTS_DIR)/structOptFoam.C.dep: \
+structOptFoam.C \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/fvCFD.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/parRun.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/Pstream.H \
@@ -735,8 +735,7 @@ $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/simpleControl.H \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/solutionControl.H \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/solutionControlTemplates.C \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/solutionControlI.H \
-/panfs/roc/msisoft/petsc/3.10.3/include/petsc.h \
-/panfs/roc/msisoft/petsc/3.10.3/include/petscvec.h \
+MMA/MMA.h \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/postProcess.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/addRegionOption.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/addFunctionObjectOptions.H \
@@ -753,10 +752,12 @@ $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/createSimpleControl.H \
 createFields.H \
 readMechanicalProperties.H \
 initializeSIMP.H \
+updateOptProps.h \
 primalSolver.H \
 costFunction.H \
 sensitivity.H \
 heavisideSens.H \
 heavisideRho.H \
+output.h \
 
 

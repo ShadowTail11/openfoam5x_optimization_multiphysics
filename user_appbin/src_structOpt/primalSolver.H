@@ -1,9 +1,7 @@
-Info << "\n Solve primal equation\n" << endl;
+Info << "\n Solve linear elasticity equation\n" << endl;
 
-nCorr = 1;
-convergenceTolerance = 1e-6;
-int iCorr = 0;
-scalar initialResidual = 0;
+iCorr = 0;
+initialResidual = 0;
 
 do
 {

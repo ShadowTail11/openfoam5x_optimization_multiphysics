@@ -33,32 +33,36 @@ scalar len = std::pow(mesh.V()[0], 1.0 / 3);    // Characteristic length of doma
 scalar n_ave = 30;                              // Number of samples to average over in moving average method
 
 scalar T_ave;                                   // Average temperature of domain
-scalar T_drop(0);                               // Temperature drop between inlet and outlet
+scalar T_drop = 0;                              // Temperature drop between inlet and outlet
 scalar T_drop_prev;                             // Previous temperature drop
-scalar dT_drop(0);                              // Percentage change in temperature drop
-scalar dT_drop_ave(dT_drop);                    // Moving average percentage change in temperature drop
+scalar dT_drop = 0;                             // Percentage change in temperature drop
+scalar dT_drop_ave = dT_drop;                   // Moving average percentage change in temperature drop
 
 scalar vol_frac;                                // Volume fraction of domain
 scalar cost_vol_frac;                           // Cost variable for volume fraction
-scalar vol_frac_conv(0);                        // Percentage difference between volume fraction and target
+scalar vol_frac_conv = 0;                       // Percentage difference between volume fraction and target
 
-scalar P_drop(0);                               // Pressure drop between inlet and outlet
+scalar P_drop = 0;                              // Pressure drop between inlet and outlet
 scalar P_drop_prev;                             // Previous pressure drop
-scalar dP_drop(0);                              // Percentage change in pressure drop
+scalar dP_drop = 0;                             // Percentage change in pressure drop
 
 scalar power_loss;                              // Power loss of the fluid
 scalar power_loss_ratio;                        // Power loss ratio of the fluid
 scalar cost_power_loss_ratio;                   // Cost variable for power loss ratio of the fluid
-scalar power_loss_conv(0);                      // Percentage difference between power loss ratio and target
+scalar power_loss_conv = 0;                     // Percentage difference between power loss ratio and target
 
-scalar gamma_switch(0);                         // Number of cells that switch between fluid and solid
+scalar gamma_switch = 0;                        // Number of cells that switch between fluid and solid
 scalar gamma_switch_prev;                       // Previous number of cells that switch between fluid and solid
 scalar dgamma_switch(0);                        // Percentage change in number of cells that switch material
-scalar dgamma_switch_ave(0);                    // Moving average of percent change in number of material switched cells
+scalar dgamma_switch_ave = 0;                   // Moving average of percent change in number of material switched cells
 
-scalar compliance_ratio;                        // Compliance ratio of the solid
+scalar compliance_ratio = 1;                    // Compliance ratio of the solid
+scalar compliance_prev;                         // Previous compliance ratio
+scalar compliance_conv;                         // Percentage change in compliance ratio
 scalar cost_compliance;                         // Cost variable for compliance ratio
-scalar compliance_conv;                         // Percentage difference between compliance ratio and target
+
+scalar n_frozen;                                // Number of cells that are not being changed during optimization
+scalar vol_frac_frozen = 1.0;                   // Volume fraction of cells that are not being changed during optimization
 
 // Heaviside filter variables
 double eta0, eta1, eta5 = 0, del = 0.0, y0, y5;
@@ -76,7 +80,7 @@ std::vector<double> xmma(n_cells);                          // Vector that store
 std::vector<double> dfdx(n_cells);                          // Vector that stores sensitivity function
 std::vector<double> gx(m_constraints);                      // Vector that stores constraint values
 std::vector<std::vector<double>> dgdx(m_constraints);       // Vector that stores constrain functions
-for (int i = 0; i < m_constraints; i++)                     // Resize constraint vector to size of domain
+for (i = 0; i < m_constraints; i++)                         // Resize constraint vector to size of domain
 {
     dgdx[i].resize(n_cells);
 }

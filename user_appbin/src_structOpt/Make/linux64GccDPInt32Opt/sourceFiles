@@ -1,3 +1,4 @@
 SOURCE = \
 tractionDisplacement/tractionDisplacementFvPatchVectorField.C \
-MTO_solid.C 
+MMA/MMA.C \
+structOptFoam.C 

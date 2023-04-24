@@ -12,6 +12,9 @@ IOdictionary mechanicalProperties
     )
 );
 
+int iCorr, nCorr = 150;
+scalar convergenceTolerance(1e-5),initialResidual(0);
+
 const dictionary& rhoDict(mechanicalProperties.subDict("rho"));
 word rhoType(rhoDict.lookup("type"));
 
@@ -249,8 +252,6 @@ volVectorField divSigmaExp
 );
 
 Switch compactNormalStress("yes");
-int nCorr = 1;
-scalar convergenceTolerance(1e-6);
 
 if (compactNormalStress)
 {
@@ -262,3 +263,36 @@ else
 }
 
 mesh.setFluxRequired(D.name());
+
+volScalarField cost_sens_comp
+(
+        IOobject
+        (
+                "cost_sens_comp",
+                runTime.timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::AUTO_WRITE
+        ),
+        -gradD && (rho * (3 * gamma * gamma * E * (1 - 1e-9) / (2.0 * (1.0 + Po))
+        * twoSymm(gradD) + (3 * gamma * gamma * Po * E * (1 - 1e-9)
+        / ((1.0 + Po) * (1.0 - 2.0 * Po)) * I) * tr(gradD))),
+        zeroGradientFvPatchScalarField::typeName
+);
+volScalarField cost_sens_comp0(cost_sens_comp);
+
+volScalarField cost_sens_vol_frac
+(
+        IOobject
+        (
+                "cost_sens_vol_frac",
+                runTime.timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::AUTO_WRITE
+        ),
+        gamma,
+        zeroGradientFvPatchScalarField::typeName
+);
+volScalarField cost_sens_vol_frac0(gamma);
+

@@ -1,0 +1,6 @@
+
+tractionDisplacement/tractionDisplacementFvPatchVectorField.C
+MMA/MMA.C
+
+structOptFoam.C
+EXE = $(FOAM_USER_APPBIN)/structOptFoam

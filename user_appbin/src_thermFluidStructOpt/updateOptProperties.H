@@ -55,10 +55,9 @@ k_eff = k_fluid + (k_solid - k_fluid) * ramp;
 alpha_T_eff = k_eff / (rho_eff * cp_eff);
 
 // Update linear elastic properties that use the RAMP function
-ramp_d = qd * (1 - gamma) / (qd + gamma);
-mu = (ramp_d * (Esp - Esp_min) + Esp_min) / (2.0 * (1.0 + Po));
-lambda = (ramp_d * Po * (Esp - Esp_min) + Po * Esp_min) / ((1.0 + Po) * (1.0 - 2.0 * Po));
+mu = (qd * (1 - gamma) / (qd + gamma) * (Esp - Esp_min) + Esp_min) / (2.0 * (1.0 + Po));
+lambda = (qd * (1 - gamma) / (qd + gamma) * Po * (Esp - Esp_min) + Po * Esp_min) / ((1.0 + Po) * (1.0 - 2.0 * Po));
 if (planeStress)
 {
-    lambda = (ramp_d * Po * (Esp - Esp_min) + Po * Esp_min) / ((1.0 + Po) * (1.0 - Po));
+    lambda = (qd * (1 - gamma) / (qd + gamma) * Po * (Esp - Esp_min) + Po * Esp_min) / ((1.0 + Po) * (1.0 - Po));
 }
