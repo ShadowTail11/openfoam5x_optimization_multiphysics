@@ -7,7 +7,7 @@
 
     // Update sensitivity functions
     cost_sens_power_loss0 = (
-            -alpha_U_max * (1 + q_ramp) * q_ramp / ((q_ramp + gamma) * (q_ramp + gamma)) * (U & U_adj_U)
+            -alpha_scale * alpha_U_max * (1 + q_ramp) * q_ramp / ((q_ramp + gamma) * (q_ramp + gamma)) * (U & U_adj_U)
     );
 
     mu = -(1 + qd) * qd / ((qd + gamma) * (qd + gamma)) * (Esp - Esp_min) / (2.0 * (1.0 + Po));
@@ -24,9 +24,9 @@
     for(i = 0; i < n_cells; i++)
     {
         xmma[i] = x[i];
-        dfdx[i] = weight_cost_U * cost_sens_power_loss[i] / n_cells;    // Sensitivity of objective function (power loss)
-        dgdx[0][i] = cost_sens_comp[i] / n_cells;                       // Sensitivity of constraint function (compliance)
-        dgdx[1][i] = cost_sens_vol_frac[i] / n_cells;                   // Sensitivity of constraint function (volume fraction)
+        dfdx[i] = weight_sens_tot * weight_sens_U * cost_sens_power_loss[i] / n_cells;    // Sensitivity of objective function (power loss)
+        dgdx[0][i] = weight_sens_tot * weight_sens_comp * cost_sens_comp[i] / n_cells;    // Sensitivity of constraint function (compliance)
+        dgdx[1][i] = weight_sens_tot * weight_sens_vf * cost_sens_vol_frac[i] / n_cells;  // Sensitivity of constraint function (volume fraction)
     }
 
     Info << "\nRunning Method of Moving Asymptotes Solver\n" << endl;

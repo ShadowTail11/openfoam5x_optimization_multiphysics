@@ -6,18 +6,9 @@
  */
 
 {
-//    // Set initial loop to run longer to ensure stability
-//    if (opt == 1)
-//    {
-//        n_loops = 100;
-//    }
-//    else
-//    {
-//        n_loops = 60;
-//    }
-
+    i_flow_solve = 0;
     // Iterate primal solver to calculate velocity U and kinematic pressure p
-    for (i = 0; i < 40; i++)
+    do
     {
         Info << "Time = " << runTime.timeName() << nl << endl;
 
@@ -45,7 +36,7 @@
         // Incorporates pressure into primal equation
         if(simple.momentumPredictor())
         {
-            solve(UEqn == -fvc::grad(p));
+            initial_residual = solve(UEqn == -fvc::grad(p)).max().initialResidual();
 
             fvOptions.correct(U);
         }
@@ -106,5 +97,9 @@
         U.storePrevIter();
         p.storePrevIter();
         phi.storePrevIter();
-    }
+    } while (initial_residual > conv_tol_flow && ++i_flow_solve < n_flow_solve);
+
+    ofstream outfile8("U_residuals.txt", std::ios::app);
+    outfile8 << i_flow_solve << "," << initial_residual << "\n";
+    outfile8.close();
 }

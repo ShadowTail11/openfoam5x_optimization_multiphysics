@@ -29,12 +29,11 @@ dimensionedScalar nu_max(transportProperties.lookup("nu_max"));             // V
 
 //// Porosity Controls
 // Flow resistance (rapidly slows fluid velocity as pseudo density transitions to 0 -> solid)
-dimensionedScalar alpha_U_max_init(transportProperties.lookup("alpha_U_max_init")); // Initial flow resistance max reference
-dimensionedScalar alpha_U_max = alpha_U_max_init;                                   // Flow resistance max reference
-dimensionedScalar alpha_U_limit(transportProperties.lookup("alpha_U_limit"));       // Flow resistance limit
-scalar dalpha(readScalar(transportProperties.lookup("dalpha")));                    // Percent increase rate for flow resistance
-//  (this factor is multiplied by loop count for rapid increase)
+dimensionedScalar l_char(transportProperties.lookup("l_char"));             // Characteristic length
+scalar darcy(readScalar(transportProperties.lookup("darcy")));              // Darcy number
+scalar alpha_scale(readScalar(transportProperties.lookup("alpha_scale")));  // Scale factor for early implementation
+scalar dalpha(readScalar(transportProperties.lookup("dalpha")));            // Percent increase rate for flow resistance
 
 // Pressure controls
-scalar P_operating(readScalar(transportProperties.lookup("P_operating")));          // Operating pressure of the fluid
-scalar P_ref(readScalar(transportProperties.lookup("P_ref")));                      // Reference pressure
+scalar P_operating(readScalar(transportProperties.lookup("P_operating")));  // Operating pressure of the fluid
+scalar P_ref(readScalar(transportProperties.lookup("P_ref")));              // Reference pressure

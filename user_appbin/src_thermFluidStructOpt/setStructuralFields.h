@@ -73,18 +73,3 @@ else
     divSigmaExp -= fvc::div((2.0 * mu + lambda) * fvc::grad(D), "div(sigmaD)");
 }
 mesh.setFluxRequired(D.name());
-
-volScalarField cost_sens_comp
-(
-    IOobject
-    (
-        "cost_sens_comp",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::AUTO_WRITE
-    ),
-    -gradD && (rho_solid * (3.0 * gamma * gamma * (Esp - Esp_min) / (2.0 * (1.0 + Po)) * twoSymm(gradD))),
-    zeroGradientFvPatchScalarField::typeName
-);
-volScalarField cost_sens_comp0(cost_sens_comp);

@@ -7,7 +7,7 @@
 
     // Update sensitivity functions
     f_sens_TU = (
-            - weight_sens_TU * alpha_U_max * (1 + q_factor) * q_factor / ((q_factor + gamma) * (q_factor + gamma)) * (U & U_adj_T) * unit_correct_T / unit_correct
+            - weight_sens_TU * alpha_scale * alpha_U_max * (1 + q_factor) * q_factor / ((q_factor + gamma) * (q_factor + gamma)) * (U & U_adj_T) * unit_correct_T / unit_correct
     );
 
     f_sens_TK = (
@@ -19,14 +19,14 @@
     );
 
     f_sens_T_init = (
-            - weight_sens_TU * alpha_U_max * (1 + q_factor) * q_factor / ((q_factor + gamma) * (q_factor + gamma)) * (U & U_adj_T) * unit_correct_T / unit_correct
+            - weight_sens_TU * alpha_scale * alpha_U_max * (1 + q_factor) * q_factor / ((q_factor + gamma) * (q_factor + gamma)) * (U & U_adj_T) * unit_correct_T / unit_correct
             + weight_sens_TK * fvc::laplacian((k_fluid-k_solid)*(1+q_factor)*q_factor/((q_factor+gamma)*(q_factor+gamma)), T_adj)/(rho_eff*cp_eff)
             + weight_sens_TQ * q_gen
             - weight_sens_TT * fvc::div(T_adj * U)
     );
 
     g_sens_power_loss_init = (
-            -alpha_U_max * (1 + q_factor) * q_factor / ((q_factor + gamma) * (q_factor + gamma)) * (U & U_adj_U)
+            -alpha_scale * alpha_U_max * (1 + q_factor) * q_factor / ((q_factor + gamma) * (q_factor + gamma)) * (U & U_adj_U)
     );
 
     #include "HeavisideSens.H"
@@ -39,9 +39,9 @@
     for(i = 0; i < n_cells; i++)
     {
         xmma[i] = x[i];
-        dfdx[i] = weight_sens_T * f_sens_T[i] / n_cells;
-        dgdx[0][i] = weight_cost_U * g_sens_power_loss[i] / n_cells;
-        dgdx[1][i] = g_sens_vol_frac[i] / n_cells;
+        dfdx[i] = weight_sens_tot * weight_sens_T * f_sens_T[i] / n_cells;                // Sensitivities of objective function (temperature)
+        dgdx[0][i] = weight_sens_tot * weight_sens_U * g_sens_power_loss[i] / n_cells;    // Sensitivities of constraint function (power loss)
+        dgdx[1][i] = weight_sens_tot * weight_sens_vf * g_sens_vol_frac[i] / n_cells;     // Sensitivities of constraint function (volume fraction)
     }
 
     Info << "\nRunning Method of Moving Asymptotes Solver\n" << endl;
@@ -62,5 +62,4 @@
     dgamma_switch_ave = (1 - 1 / n_ave) * dgamma_switch_ave + dgamma_switch / n_ave;
 
     #include "HeavisideRho.H"
-
 }

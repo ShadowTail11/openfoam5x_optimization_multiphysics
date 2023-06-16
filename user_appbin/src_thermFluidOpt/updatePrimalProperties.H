@@ -17,4 +17,10 @@
                         )
                     )
     ) * nu_temp_dep);
+
+    // Maximum flow resistance
+    alpha_U_max = nu_eff / (l_char * l_char * darcy);
+
+    // Calculate flow resistance
+    alpha_U = alpha_scale * alpha_U_max * ramp;
 }

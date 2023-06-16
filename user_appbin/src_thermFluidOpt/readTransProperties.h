@@ -29,10 +29,10 @@ dimensionedScalar nu_max(transportProperties.lookup("nu_max"));             // V
 
 //// Porosity controls
 // Flow resistance (rapidly slows fluid velocity as pseudo density transitions to 0 -> solid)
-dimensionedScalar alpha_U_max(transportProperties.lookup("alpha_U_max"));           // Flow resistance max reference
-dimensionedScalar alpha_U_limit(transportProperties.lookup("alpha_U_limit"));       // Flow resistance limit
+dimensionedScalar l_char(transportProperties.lookup("l_char"));                     // Characteristic length
+scalar darcy(readScalar(transportProperties.lookup("darcy")));                      // Darcy number
+scalar alpha_scale(readScalar(transportProperties.lookup("alpha_scale")));          // Scale factor for early implementation
 scalar dalpha(readScalar(transportProperties.lookup("dalpha")));                    // Percent increase rate for flow resistance
-                                                                                    //  (this factor is multiplied by loop count for rapid increase)
 
 // RAMP function constant (increases transition rate between fluid and solid)
 scalar q_factor(readScalar(transportProperties.lookup("q_factor")));                // Shape factor used to scale ramp function

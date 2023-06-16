@@ -23,18 +23,36 @@
 
     Info << "\n--> Percentage change in temperature drop is: " << dT_drop * 100 << "%" << endl;
 
-    //// Pressure Drop (used for monitoring)
-    P_drop_prev = P_drop;
-    P_drop = (sum(phi.boundaryField()[conPatchList[1]] * p.boundaryField()[conPatchList[1]])
-              / sum(phi.boundaryField()[conPatchList[1]])
-              -sum(phi.boundaryField()[conPatchList[0]] * p.boundaryField()[conPatchList[0]])
-               / sum(phi.boundaryField()[conPatchList[0]])) * rho_fluid.value();
+    //// Power loss ratio (used for monitoring, cost, & convergence)
+    power_loss = 0;
+    for(i = 0; i < nObjPatch; i++)
+    {
+    power_loss = power_loss - sum(
+            phi.boundaryField()[conPatchList[i]] * (p.boundaryField()[conPatchList[i]]
+            + 0.5 * magSqr(U.boundaryField()[conPatchList[i]])));
+    }
 
-    Info << "\n--> Pressure drop between inlet and outlet is: " << P_drop << endl;
+    power_loss_ratio_prev = power_loss_ratio;
+    power_loss_ratio = power_loss / power_loss_ref;
 
-    dP_drop = abs((P_drop - P_drop_prev) / (P_drop + SMALL));
+    // Divide the power loss ratio by the characteristic length V^1/3 if 2D
+    if(geo_dim == 2)
+    {
+        power_loss_ratio = power_loss_ratio / len;
+    }
 
-    Info << "\n--> Percentage change in pressure drop is: " << dP_drop * 100 << "%" << endl;
+    Info << "\n--> Power dissipation ratio is: " << power_loss_ratio << endl;
+
+    cost_power_loss_ratio = power_loss_ratio / Foam::max(set_power_ratio * 3.0 - opt * 0.4, set_power_ratio) - 1.0;
+
+    dpower_loss_ratio = abs((power_loss_ratio - power_loss_ratio_prev) / (power_loss_ratio + SMALL));
+    dpower_loss_ratio_ave = (1 - 1 / n_ave) * dpower_loss_ratio_ave + dpower_loss_ratio / n_ave;
+
+    Info << "\n--> Percentage change in power loss ratio is: " << dpower_loss_ratio_ave * 100 << "%\n" << endl;
+
+    power_loss_conv = abs(power_loss_ratio / set_power_ratio - 1);
+
+    Info << "\n--> Percentage difference between power dissipation ratio and target is: " << power_loss_conv * 100 << "%\n" << endl;
 
     //// Volume Fraction (used for monitoring, cost, & convergence)
     vol_frac = fvc::domainIntegrate(gamma).value() / area;

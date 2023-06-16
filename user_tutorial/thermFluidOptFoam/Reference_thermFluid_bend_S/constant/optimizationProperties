@@ -1,0 +1,52 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  5                                     |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      optimizationProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Domain definition
+solid_area              0;			// Is solid region used? (1=yes)
+fluid_area              1;			// Is fluid region used? (1=yes)
+test_area               0;			// Is test region used? (1=yes)
+geo_dim                 2;			// Dimensions of solver (2D vs. 3D)
+
+// Method of Moving Asymptotes (MMA) controls
+mma_init                0.3;		// Initial optimization increment
+mma_dec                 0.9999;		// Optimization decrement
+mma_inc                 1.0001;		// Optimization increment
+mma_limit               0.4;		// Optimization limit
+raa0                    2.5e-07;	// MMA smoothing parameter
+r_filter                1;			// Density filter radius
+
+// Cost function constraints
+vol_frac_ref            0.352;		// Reference volume fraction
+vol_frac_ratio			1.0;		// Ratio used to calculate the set volume fraction (set_vol_frac=vol_frac_ref*vol_frac_ratio)
+set_power_ratio         30.0;		// Target power loss ratio
+power_loss_ref          7.81E-04;	// Power loss reference
+
+// Optimization weights
+weight_sens_TU			1.0;		// Sensitivity weight for thermal velocity term
+weight_sens_TK			-1.0;		// Sensitivity weight for thermal conductivity term
+weight_sens_TQ			-1.0;		// Sensitivity weight for heat generation term
+weight_sens_TT			1.0;		// Sensitivity weight for thermal diffusivity term
+weight_sens_T			1.0;		// Sensitivity weight for thermal term
+weight_sens_U			1.0;		// Sensitivity weight for velocity term
+weight_sens_vf			1.0;		// Sensitivity weight for volume fraction term
+weight_sens_tot			1.0;		// Sensitivity weight for all terms
+
+// Convergence controls
+n_flow_solve			50;			// Number of iterations used for solver per optimization loop
+conv_tol_flow			1.0e-06;	// Convergence threshold for fluid solver
+merit_tol				0.001;		// Convergence tolerance for merit parameters
+gamma_tol				0.001;		// Convergence tolerance for pseudo density gamma

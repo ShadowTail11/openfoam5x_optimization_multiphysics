@@ -19,11 +19,16 @@ if (runTime.startTime().value() == 0)
     std::remove("Reference_Test_Zone.txt");
     std::remove("Monitor_Iterations.txt");
     std::remove("Monitor_alpha_max.txt");
+    std::remove("U_residuals.txt");
+    std::remove("U_T_adj_residuals.txt");
+    std::remove("U_U_adj_residuals.txt");
 }
 
 // Initialize variables
 int opt(runTime.startTime().value() + 1);       // Optimization loop counter
-int i, n_loops;                                 // Initialize loop counters (generic and solver, respectively)
+int i, i_cost;                                  // Initialize general loop counter and cost function index
+int i_flow_solve;                               // Flow solver iterator
+scalar initial_residual = 0;                    // Initial residual for flow solver
 scalar n_cells(gamma.size());                   // The number of cells in the domain
 n_cells = static_cast<int>(n_cells);            // Force n_cells to be an integer
 int opt_threshold = -1;                         // Updated to iteration count when merit value is within 2x of tolerance
@@ -47,9 +52,12 @@ scalar P_drop_prev;                             // Previous pressure drop
 scalar dP_drop = 0;                             // Percentage change in pressure drop
 
 scalar power_loss;                              // Power loss of the fluid
-scalar power_loss_ratio;                        // Power loss ratio of the fluid
+scalar power_loss_ratio(0);                     // Power loss ratio of the fluid
+scalar power_loss_ratio_prev;                   // Previous power loss ratio
+scalar dpower_loss_ratio(0);                    // Percentage change in power loss ratio
+scalar dpower_loss_ratio_ave(0);                // Moving average of percent change in power loss ratio
 scalar cost_power_loss_ratio;                   // Cost variable for power loss ratio of the fluid
-scalar power_loss_conv = 0;                     // Percentage difference between power loss ratio and target
+scalar power_loss_conv(0);                      // Percentage difference between power loss ratio and target
 
 scalar gamma_switch = 0;                        // Number of cells that switch between fluid and solid
 scalar gamma_switch_prev;                       // Previous number of cells that switch between fluid and solid
@@ -69,7 +77,14 @@ double eta0, eta1, eta5 = 0, del = 0.0, y0, y5;
 b.value()= 1.0 / (r_filter * len / 3.464) / (r_filter * len / 3.464);
 
 // Initialize Method of Moving Asymptotes (MMA)
-int m_constraints = 3;                                      // Number of constraints
+int m_constraints = 1;                                      // Number of constraints
+if (set_power_ratio != -1){
+    m_constraints++;
+}
+if (set_compliance != -1){
+    m_constraints++;
+}
+
 MMA mma(n_cells, m_constraints);                            // Set MMA optimization size
 mma.asyminit = mma_init;                                    // Set initial movement
 mma.asymdec = mma_dec;                                      // Set decrement size

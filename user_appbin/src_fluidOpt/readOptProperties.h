@@ -34,11 +34,13 @@ int r_filter(round(readScalar(optimizationProperties.lookup("r_filter"))));     
 dimensionedScalar b("b", dimensionSet(0,-2,0,0,0,0,0),1.0);                             // Filter radius of the PDE filter
 
 // Adjoint solver controls
-scalar set_vol_frac(readScalar(optimizationProperties.lookup("set_vol_frac")));         // Target volume fraction
+scalar vol_frac_ref(readScalar(optimizationProperties.lookup("vol_frac_ref")));         // Reference volume fraction
+scalar vol_frac_ratio(readScalar(optimizationProperties.lookup("vol_frac_ratio")));     // Ratio used to calculate the set volume fraction
 scalar power_loss_ref(readScalar(optimizationProperties.lookup("power_loss_ref")));     // Power loss reference
 scalar weight_sens(readScalar(optimizationProperties.lookup("weight_sens")));           // Weight factor for sensitivity function
+scalar set_vol_frac = vol_frac_ref * vol_frac_ratio;                                    // Target volume fraction
 
 // Convergence controls
-int n_flow_solve(round(readScalar(optimizationProperties.lookup("n_flow_solve"))));     // Density filter radius
+int n_flow_solve(round(readScalar(optimizationProperties.lookup("n_flow_solve"))));     // Number of iterations used for solver per optimization loop
 scalar merit_tol(readScalar(optimizationProperties.lookup("merit_tol")));               // Convergence tolerance for merit parameters
 scalar gamma_tol(readScalar(optimizationProperties.lookup("gamma_tol")));               // Convergence tolerance for pseudo density gamma

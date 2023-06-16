@@ -41,7 +41,7 @@
     }
 
     // Exit if convergence has been achieved
-    if (opt > 50 && dgamma_switch < gamma_tol / 100 && compliance_conv < merit_tol / 100 && vol_frac_conv < merit_tol / 100)
+    if (opt > 50 && dgamma_switch < gamma_tol / 100 && compliance_conv < merit_tol / 100)
 //    if (opt == 300)
     {
         // Round pseudo density so each node is either solid (gamma=0) or fluid (gamma=1) rather than porous (0<gamma<1)

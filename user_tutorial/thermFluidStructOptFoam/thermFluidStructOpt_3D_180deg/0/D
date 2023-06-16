@@ -1,0 +1,75 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  5                                     |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    object      D;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 1 0 0 0 0 0];
+
+internalField   uniform (0 0 0);
+
+boundaryField
+{
+    force_in
+    {
+        type            tractionDisplacement;
+        traction        uniform (1.28e05 1.6e04 0);	// Force per unit length (10 kgf)
+        pressure        uniform 0;
+        value           uniform (0 0 0);
+    }
+
+    force_out
+    {
+        type            fixedValue;		// Fixed
+        value           uniform (0 0 0);
+    }
+
+    inlet
+    {
+        type            tractionDisplacement;
+        traction        uniform (0 0 0);
+        pressure        uniform 0;
+        value           uniform (0 0 0);
+    }
+
+    outlet
+    {
+        type            tractionDisplacement;
+        traction        uniform (0 0 0);
+        pressure        uniform 0;
+        value           uniform (0 0 0);   
+    }
+
+    walls
+    {
+        type            tractionDisplacement;
+        traction        uniform (0 0 0);
+        pressure        uniform 0;
+        value           uniform (0 0 0);
+    }
+    
+    ad_walls
+    {
+        type            tractionDisplacement;
+        traction        uniform (0 0 0);
+        pressure        uniform 0;
+        value           uniform (0 0 0);
+    }
+    
+    sym
+    {
+        type            symmetry;
+    }
+}
+
+// ************************************************************************* //

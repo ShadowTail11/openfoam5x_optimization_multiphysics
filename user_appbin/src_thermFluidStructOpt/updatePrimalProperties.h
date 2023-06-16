@@ -5,7 +5,8 @@
 
 {
     // Temperature dependent viscosity (with an override option to make it constant)
-    nu_eff = ((1 - nu_temp_dep) * nu_const
+    nu_eff = (
+            (1 - nu_temp_dep) * nu_const
             + max(nu_min,
                   min(nu_max,
                       (nu_k - nu_slope * (T - nu_T_ref)) * pow(
@@ -16,5 +17,12 @@
                                       nu_n - scalar(1)
                                       )
                                       )
-                                      ) * nu_temp_dep);
+                                      ) * nu_temp_dep
+                                      );
+
+    // Maximum flow resistance
+    alpha_U_max = nu_eff / (l_char * l_char * darcy);
+
+    // Calculate flow resistance
+    alpha_U = alpha_scale * alpha_U_max * ramp;
 }

@@ -10,3 +10,4 @@
 #include "setTransFields.h"             // Sets fields related to transport properties
 #include "setThermFields.h"             // Sets fields related to thermal properties
 #include "setStructuralFields.h"        // Sets fields related to mechanical properties
+#include "setSensFields.h"              // Sets fields related to adjoint sensitivity

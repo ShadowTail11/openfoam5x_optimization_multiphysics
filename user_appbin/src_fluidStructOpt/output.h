@@ -41,7 +41,7 @@
     }
 
     // Exit if convergence has been achieved
-    if (opt > 0.75 * runTime.endTime().value() || (opt > 50 && dgamma_switch_ave < gamma_tol && power_loss_conv < merit_tol) )
+    if (opt > 0.75 * runTime.endTime().value() || (opt > 50 && dgamma_switch_ave < gamma_tol && dpower_loss_ratio_ave < merit_tol) )
 //    if (opt == 10)
     {
         // Create pseudo density field masks to freeze the fluid region and create an initial fluid wall
@@ -51,6 +51,7 @@
                     std::round(Foam::min(1.0, gamma[i] / 0.2))
                     * std::round(Foam::min(1.0, mag(U.primitiveField()[i]) / gMax(mag(U.boundaryField()[conPatchList[0]])) / 0.2))
                     );
+
             gamma_wall[i] = (
                     std::round(Foam::min(1.0, gamma[i] / 0.2))
                     * std::round(Foam::min(1.0, mag(U.primitiveField()[i]) / gMax(mag(U.boundaryField()[conPatchList[0]])) / 0.01))
@@ -108,6 +109,8 @@
 
         solve_ext = 1;
         p_operating_field = p_operating_field + (P_operating - P_ref) / rho_fluid.value();
+        n_flow_solve = 30;
+        opt = 0;
         opt++;
     }
 

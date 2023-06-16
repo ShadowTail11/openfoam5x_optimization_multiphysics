@@ -47,10 +47,6 @@
 
     Info << "\n--> Power loss ratio is: " << power_loss_ratio << endl;
 
-    power_loss_conv = abs(power_loss_ratio / set_power_ratio - 1.0);
-
-    Info << "\n--> Percentage difference between power loss ratio and target is: " << power_loss_conv * 100 << "%\n" << endl;
-
     //// Compliance (used for monitoring, cost, & convergence)
     gradD = fvc::grad(D);
     sigmaD = mu * twoSymm(gradD) + (lambda * I) * tr(gradD);

@@ -16,12 +16,15 @@ if (runTime.startTime().value() == 0)
     std::remove("Monitor_MaxStress.txt");
     std::remove("Reference_Test_Zone.txt");
     std::remove("Monitor_Iterations.txt");
-    std::remove("Monitor_alpha_max.txt");
+    std::remove("U_residuals.txt");
+    std::remove("U_U_adj_residuals.txt");
 }
 
 // Initialize variables
 int opt(runTime.startTime().value() + 1);       // Optimization loop counter
-int i, n_loops = 40;                            // Initialize loop counters (generic and solver, respectively)
+int i;                                          // Initialize general loop counter
+int i_flow_solve;                               // Flow solver iterator
+scalar initial_residual = 0;                    // Initial residual for flow solver
 scalar n_cells(gamma.size());                   // The number of cells in the domain
 n_cells = static_cast<int>(n_cells);            // Force n_cells to be an integer
 int opt_threshold = -1;                         // Updated to iteration count when merit value is within 2x of tolerance
@@ -39,8 +42,11 @@ scalar P_drop_prev;                             // Previous pressure drop
 scalar dP_drop = 0;                             // Percentage change in pressure drop
 
 scalar power_loss;                              // Power loss of the fluid
-scalar power_loss_ratio;                        // Power loss ratio of the fluid
-scalar power_loss_conv = 0;                     // Percentage difference between power loss ratio and target
+scalar power_loss_ratio(0);                     // Power loss ratio of the fluid
+scalar power_loss_ratio_prev;                   // Previous power loss ratio
+scalar dpower_loss_ratio(0);                    // Percentage change in power loss ratio
+scalar dpower_loss_ratio_ave(0);                // Moving average of percent change in power loss ratio
+scalar power_loss_conv(0);                      // Percentage difference between power loss ratio and target
 
 scalar gamma_switch = 0;                        // Number of cells that switch between fluid and solid
 scalar gamma_switch_prev;                       // Previous number of cells that switch between fluid and solid

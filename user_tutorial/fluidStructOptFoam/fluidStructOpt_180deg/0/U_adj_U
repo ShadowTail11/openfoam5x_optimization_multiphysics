@@ -1,0 +1,80 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  5                                     |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    object      U_adj_U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (0 0 0);
+
+boundaryField
+{
+	inlet
+    {
+		type            groovyBC;
+        variables
+        (
+            "U0=0.18;"							// average velocity
+            "theta=-45*pi/180;"					// angle of flow
+            "xpts=pts().x;ypts=pts().y;"		// all x, y at inlet
+            "xpos=pos().x;ypos=pos().y;"		// x, y coordinates
+            "xmin=min(xpts);xmax=max(xpts);"	// x min/max
+            "ymin=min(ypts);ymax=max(ypts);"	// y min/max
+            "xmid=(xmax+xmin)/2;"               // x position of inlet center
+            //"xmid=xmax;"                        // x position of inlet center (for left-sided symmetry along y)
+            "ymid=(ymax+ymin)/2;"               // y position of inlet center
+            //"ymid=ymin;"                        // y position of inlet center (for lower-sided symmetry along x)
+            "xref=xpos-xmid;"			        // x distance from center of inlet
+            "yref=ypos-ymid;"			        // y distance from center of inlet
+            "dx=xmax-xmin;dy=ymax-ymin;"		// x and y size
+            //"dx=(xmax-xmin)*2;dy=ymax-ymin;"		// x and y size (for left-sided symmetry along y)
+            //"dx=xmax-xmin;dy=2*(ymax-ymin);"		// x and y size (for lower-sided symmetry along x)
+            "rSqrd=pow(xref,2)+pow(yref,2);"	// radius squared
+            "dSqrd=pow(dx,2)+pow(dy,2);"		// diameter squared
+
+            "Umag=2*U0*(1-4*rSqrd/dSqrd);"		// velocity magnitude
+        );
+//        valueExpression "vector(Umag*cos(theta),Umag*sin(theta),0)"; // For angled flow
+        valueExpression "-Umag*normal()"; // For flow normal to inlet
+        value           uniform (0.18 0 0);
+    }
+
+    outlet
+    {
+        type            adjointOutletVelocityPower;
+        value           uniform (0 0 0);
+    }
+
+    walls
+    {
+        type            noSlip;
+    }
+
+    frontAndBack
+    {
+        type            empty;
+    }
+
+    force_out
+    {
+        type            noSlip;
+    }
+
+    force_in
+    {
+        type            noSlip;
+    }
+}
+
+// ************************************************************************* //

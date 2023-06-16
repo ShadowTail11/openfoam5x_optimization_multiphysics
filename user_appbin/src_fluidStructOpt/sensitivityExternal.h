@@ -21,8 +21,8 @@
     for(i = 0; i < n_cells; i++)
     {
         xmma[i] = x[i];
-        dfdx[i] = cost_sens_comp[i] / n_cells / vol_frac_frozen;              // Sensitivity of objective function
-        dgdx[0][i] = cost_sens_vol_frac[i] / n_cells / vol_frac_frozen;       // Sensitivity of constraint function (volume fraction)
+        dfdx[i] = weight_sens_tot * weight_sens_comp * cost_sens_comp[i] / n_cells / vol_frac_frozen;           // Sensitivity of objective function
+        dgdx[0][i] = weight_sens_tot * weight_sens_vf * cost_sens_vol_frac[i] / n_cells / vol_frac_frozen;      // Sensitivity of constraint function (volume fraction)
         dgdx[1][i] = 0;                                     // Null
     }
 

@@ -32,11 +32,12 @@
     power_loss = 0;
     for(i = 0; i < nObjPatch; i++)
     {
-        power_loss = power_loss - sum(
-                phi.boundaryField()[conPatchList[i]] * (p.boundaryField()[conPatchList[i]]
-                + 0.5 * magSqr(U.boundaryField()[conPatchList[i]])));
+    power_loss = power_loss - sum(
+            phi.boundaryField()[conPatchList[i]] * (p.boundaryField()[conPatchList[i]]
+            + 0.5 * magSqr(U.boundaryField()[conPatchList[i]])));
     }
 
+    power_loss_ratio_prev = power_loss_ratio;
     power_loss_ratio = power_loss / power_loss_ref;
 
     // Divide the power loss ratio by the characteristic length V^1/3 if 2D
@@ -45,11 +46,12 @@
         power_loss_ratio = power_loss_ratio / len;
     }
 
-    Info << "\n--> Power loss ratio is: " << power_loss_ratio << endl;
+    Info << "\n--> Power dissipation ratio is: " << power_loss_ratio << endl;
 
-    power_loss_conv = abs(power_loss_ratio / set_power_ratio - 1);
+    dpower_loss_ratio = abs((power_loss_ratio - power_loss_ratio_prev) / (power_loss_ratio + SMALL));
+    dpower_loss_ratio_ave = (1 - 1 / n_ave) * dpower_loss_ratio_ave + dpower_loss_ratio / n_ave;
 
-    Info << "\n--> Percentage difference between power loss ratio and target is: " << power_loss_conv * 100 << "%\n" << endl;
+    Info << "\n--> Percentage change in power loss ratio is: " << dpower_loss_ratio_ave * 100 << "%\n" << endl;
 
     //// Compliance (used for monitoring, cost, & convergence)
 

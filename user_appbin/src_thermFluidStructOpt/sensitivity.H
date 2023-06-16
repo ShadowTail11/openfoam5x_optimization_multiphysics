@@ -23,19 +23,37 @@
 
     #include "HeavisideSens.H"
 
-    // Store current iteration's constraint values
-    gx[0] = cost_power_loss_ratio;
-    gx[1] = cost_compliance;
-    gx[2] = cost_vol_frac;
+    // Store current iteration's constraint value (volume fraction)
+    gx[0] = cost_vol_frac;
 
     // Store optimization parameters for use in MMA
     for(i = 0; i < n_cells; i++)
     {
         xmma[i] = x[i];
-        dfdx[i] = weight_sens_T * obj_sens_T[i] / n_cells;//sensitivities of objective function
-        dgdx[0][i] = weight_cost_U * cost_sens_power_loss[i] / n_cells;//sensitivities of constraint function
-        dgdx[1][i] = cost_sens_comp[i] / n_cells;//sensitivities of constraint function
-        dgdx[2][i] = cost_sens_vol_frac[i] / n_cells;//sensitivities of constraint function
+        dfdx[i] = ((weight_sens_T * obj_sens_T[i]
+                + weight_sens_U * cost_sens_power_loss[i]
+                + weight_sens_comp * cost_sens_comp[i]) * weight_sens_tot / n_cells);              // Sensitivities of objective function (temperature)
+        dgdx[0][i] = weight_sens_tot * weight_sens_vf * cost_sens_vol_frac[i] / n_cells;  // Sensitivities of constraint function (volume fraction)
+    }
+
+    i_cost = 0;
+    if (set_power_ratio != -1){
+        i_cost++;
+        gx[i_cost] = cost_power_loss_ratio;
+        for(i = 0; i < n_cells; i++)
+        {
+            dgdx[i_cost][i] = weight_sens_tot * weight_sens_U * cost_sens_power_loss[i] / n_cells; // Sensitivities of constraint function (power loss)
+            dfdx[i] = dfdx[i] - dgdx[i_cost][i];
+        }
+    }
+    if (set_compliance != -1){
+        i_cost++;
+        gx[i_cost] = cost_compliance;
+        for(i = 0; i < n_cells; i++)
+        {
+            dgdx[i_cost][i] = weight_sens_tot * weight_sens_comp * cost_sens_comp[i] / n_cells;    // Sensitivities of constraint function (compliance)
+            dfdx[i] = dfdx[i] - dgdx[i_cost][i];
+        }
     }
 
     Info << "\nRunning Method of Moving Asymptotes Solver\n" << endl;

@@ -8,24 +8,37 @@ Info << "\nUpdating parameters related to optimization process " << endl;
 Info << "\nCurrent optimization loop count is: " << opt << endl;
 
 // Reset permanent solid and fluid regions, respectively
-if (solid_area == 1)
+if (solid_area)
 {
     forAll(cells_solid, i)
     {
-        gamma[cells_solid[i]] = 0;
+        gamma[cells_solid[i]] = 0.0;
     }
 }
 
-if (fluid_area == 1)
+if (fluid_area)
 {
     forAll(cells_fluid, i)
     {
-        gamma[cells_fluid[i]] = 1;
+        gamma[cells_fluid[i]] = 1.0;
+    }
+}
+
+if (test_area)
+{
+    forAll(cells_test_fluid, i)
+    {
+        gamma[cells_test_fluid[i]] = 1.0;
+    }
+
+    forAll(cells_test_solid, i)
+    {
+        gamma[cells_test_solid[i]] = 0.0;
     }
 }
 
 // Ensure rapid increase in flow resistance
-alpha_U_max = alpha_U_max_init * pow(dalpha / 100 + 1.0, opt);
+alpha_scale = Foam::min(1.0, alpha_scale * pow(dalpha / 100 + 1.0, opt));
 
 // Mark threshold for when within 2x of convergence threshold
 if (opt_threshold == -1 && opt > 50 && dgamma_switch_ave < n_rapid * gamma_tol && power_loss_conv < n_rapid * merit_tol)
@@ -41,15 +54,16 @@ if (opt_threshold > 0 && opt > opt_threshold)
     q_ramp = q_ramp_init * pow(dq_ramp / 100 + 1.0, (opt - opt_threshold));
 }
 
-// Limit flow resistance metrics by respective maximum thresholds
-alpha_U_max.value() = Foam::min(alpha_U_max.value(), alpha_U_limit.value());
+// Update boundary conditions and parameters based on changes in flow resistance and RAMP function
+gamma.correctBoundaryConditions();
 q_ramp = Foam::min(q_ramp, q_ramp_limit);
 
 // Update boundary conditions and parameters based on changes in flow resistance and RAMP function
-gamma.correctBoundaryConditions();
 ramp = q_ramp * (1 - gamma) / (q_ramp + gamma);
-alpha_U = alpha_U_max * ramp;
 rho_eff = rho_fluid + (rho_solid - rho_fluid) * ramp;
+
+// Calculate flow resistance
+alpha_U = alpha_scale * alpha_U_max * ramp;
 
 // Update linear elastic properties that use the RAMP function
 mu = (qd * (1 - gamma) / (qd + gamma) * (Esp - Esp_min) + Esp_min) / (2.0 * (1.0 + Po));

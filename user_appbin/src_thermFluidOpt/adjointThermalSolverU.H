@@ -1,14 +1,11 @@
+/*
+ * This function implements the thermal fluid adjoint equation, which corresponds roughly to the energy equation
+ * the adjoint temperature T_adj replacing T.
+ */
 
-if (opt == 1)
-{
-    n_loops = 100;
-}
-else
-{
-    n_loops = 40;
-}
+i_flow_solve = 0;
 
-for (i = 0; i < n_loops; i++)
+do
 {
     Info << "\nSolve for adjoint flow-T\n" << endl;
 
@@ -32,7 +29,7 @@ for (i = 0; i < n_loops; i++)
 
     fvOptions.constrain(UbEqn);
 
-    solve(UbEqn == -fvc::grad(p_adj_T));
+    initial_residual = solve(UbEqn == -fvc::grad(p_adj_T)).max().initialResidual();
 
     fvOptions.correct(U_adj_T);
 
@@ -90,4 +87,8 @@ for (i = 0; i < n_loops; i++)
     U_adj_T.storePrevIter();
     p_adj_T.storePrevIter();
     phi_adj_T.storePrevIter();
-}
+} while (initial_residual > conv_tol_flow && ++i_flow_solve < n_flow_solve);
+
+ofstream outfile9("U_T_adj_residuals.txt", std::ios::app);
+outfile9 << i_flow_solve << "," << initial_residual << "\n";
+outfile9.close();

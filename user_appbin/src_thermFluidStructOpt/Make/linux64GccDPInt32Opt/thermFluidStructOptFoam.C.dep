@@ -784,6 +784,7 @@ $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/createMRF.H \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/createPhi.H \
 setThermFields.h \
 setStructuralFields.h \
+setSensFields.h \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/initContinuityErrs.H \
 initializeParameters.H \
 updateOptProperties.H \
@@ -800,6 +801,7 @@ sensitivity.H \
 HeavisideSens.H \
 HeavisideRho.H \
 output.h \
+updateOptPropertiesExternal.h \
 costFunctionExternal.h \
 sensitivityExternal.h \
 HeavisideSensExternal.h \

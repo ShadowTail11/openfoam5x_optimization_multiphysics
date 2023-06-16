@@ -22,8 +22,16 @@ if (fluid_area == 1)
     }
 }
 
+if (test_area == 1)
+{
+    forAll(cells_fluid, i)
+    {
+        gamma[cells_fluid[i]] = 1;
+    }
+}
+
 // Ensure rapid increase in flow resistance
-alpha_U_max *= opt * dalpha / 100 + 1.0;
+alpha_scale = Foam::min(1.0, alpha_scale * pow(dalpha / 100 + 1.0, opt));
 
 // Mark threshold for when within 2x of convergence threshold
 if (opt_threshold == -1 && opt > 50 && dgamma_switch_ave < n_rapid * gamma_tol && power_loss_conv < n_rapid * merit_tol && dT_drop_ave < n_rapid * merit_tol)
@@ -39,11 +47,16 @@ if (opt_threshold > 0 && opt > opt_threshold)
     q_factor *= dq_factor / 100 + 1.0;
 }
 
-// Limit flow resistance to a maximum threshold
-alpha_U_max.value() = Foam::min(alpha_U_max.value(), alpha_U_limit.value());
-
 // Update boundary conditions and parameters based on changes in flow resistance and RAMP function
 gamma.correctBoundaryConditions();
 q_factor = Foam::min(q_factor, q_factor_limit);
-alpha_U = alpha_U_max * q_factor * (1 - gamma) / (q_factor + gamma);
-alpha_T_eff = (k_solid + (k_fluid - k_solid) * gamma * (1 + q_factor) / (q_factor + gamma)) / (rho_eff * cp_eff);
+
+// RAMP factor
+ramp =  q_factor * (1 - gamma) / (q_factor + gamma);
+rho_eff = rho_fluid + (rho_solid - rho_fluid) * ramp;
+cp_eff = cp_fluid + (cp_solid - cp_fluid) * ramp;
+k_eff = k_fluid + (k_solid - k_fluid) * ramp;
+alpha_T_eff = k_eff / (rho_eff * cp_eff);
+
+// Calculate flow resistance
+alpha_U = alpha_scale * alpha_U_max * ramp;

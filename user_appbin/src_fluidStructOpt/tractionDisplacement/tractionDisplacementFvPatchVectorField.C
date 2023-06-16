@@ -121,15 +121,15 @@ void tractionDisplacementFvPatchVectorField::updateCoeffs()
     const dictionary& mechanicalProperties =
         db().lookupObject<IOdictionary>("mechanicalProperties");
 
-    const dictionary& thermalProperties =
-            db().lookupObject<IOdictionary>("thermalProperties");
+    const dictionary& transportProperties =
+            db().lookupObject<IOdictionary>("transportProperties");
         
     const fvPatchField<scalar>& gamma =
         patch().lookupPatchField<volScalarField, scalar>("gamma");
     
     scalar E(readScalar(mechanicalProperties.lookup("E")));
     scalar Po(readScalar(mechanicalProperties.lookup("Po")));
-    dimensionedScalar rho_solid(thermalProperties.lookup("rho_solid"));
+    dimensionedScalar rho_solid(transportProperties.lookup("rho_solid"));
 
 
     scalar Esp(E / rho_solid.value());

@@ -4,9 +4,6 @@
 
 Info << "Setting transport fields\n" << endl;
 
-// Calculate flow resistance
-volScalarField alpha_U(alpha_U_max * ramp);
-
 #include "createMRF.H"
 
 Info << "Reading kinematic pressure field p\n" << endl;
@@ -189,18 +186,3 @@ for (int i_loop = 0; i_loop < nObjPatch; i_loop++)
 {
 conPatchList[i_loop] = mesh.boundaryMesh().findPatchID(conPatchNames[i_loop]);
 }
-
-volScalarField cost_sens_power_loss
-        (
-                IOobject
-                        (
-                                "cost_sens_power_loss",
-                                runTime.timeName(),
-                                mesh,
-                                IOobject::NO_READ,
-                                IOobject::AUTO_WRITE
-                        ),
-                -alpha_U_max * (1 + q_ramp) * q_ramp / ((q_ramp + gamma) * (q_ramp + gamma)) * (U & U_adj_U),
-                zeroGradientFvPatchScalarField::typeName
-        );
-volScalarField cost_sens_power_loss0(cost_sens_power_loss);

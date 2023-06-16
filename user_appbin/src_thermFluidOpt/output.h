@@ -44,6 +44,7 @@
         U.write();
         p.write();
         nu_eff.write();
+        alpha_U_max.write();
 
         f_sens_T.write();
         f_sens_TU.write();
@@ -58,15 +59,16 @@
     << nl << endl;
 
     // Exit if convergence has been achieved
-    if (opt > 50 && dgamma_switch_ave < gamma_tol && power_loss_conv < merit_tol && dT_drop_ave < merit_tol)
+    if (opt > 50 && dgamma_switch_ave < gamma_tol && dpower_loss_ratio_ave < merit_tol && dT_drop_ave < merit_tol)
     {
         // Round pseudo density so each node is either solid (gamma=0) or fluid (gamma=1) rather than porous (0<gamma<1)
         forAll(gamma, i)
         {
-            gamma[i] = std::round(gamma[i]);
+            gamma_conv[i] = std::round(Foam::min(1.0, gamma[i] / 0.2));
         }
 
         gamma.write();
+        gamma_conv.write();
         T.write();
         U.write();
         p.write();

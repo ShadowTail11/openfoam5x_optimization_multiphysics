@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
 
     while (simple.loop())
     {
-        if (solve_ext==0) {
+        if (solve_ext == 0) {
             Info << "Time = " << runTime.timeName() << nl << endl;
 
             #include "updateOptProperties.H"            // Update optimization-related properties
@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
         else {
             Info << "Beginning External Structural Solver" << endl;
 
-            #include "updateOptProperties.H"            // Update optimization-related properties
+            #include "updateOptPropertiesExternal.h"    // Update optimization-related properties
 
             #include "primalFlowSolver.H"               // Run primal solver for U and p
             #include "primalThermalSolver.H"            // Run primal solver for T

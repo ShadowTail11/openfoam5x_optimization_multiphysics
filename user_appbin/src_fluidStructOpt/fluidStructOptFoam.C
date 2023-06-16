@@ -49,7 +49,8 @@ int main(int argc, char *argv[])
 
     while (simple.loop())
     {
-        if (solve_ext==0) {
+        Info << "solve_ext = " << solve_ext << nl << endl;
+        if (solve_ext == 0) {
             Info << "Time = " << runTime.timeName() << nl << endl;
 
             #include "updateOptProperties.H"            // Update optimization-related properties

@@ -15,17 +15,31 @@
 
     // Store current iteration's constraint values
     gx[0] = cost_vol_frac;
-    gx[1] = 0;
-    gx[2] = 0;
 
     // Store optimization parameters for use in MMA
     for(i = 0; i < n_cells; i++)
     {
         xmma[i] = x[i];
-        dfdx[i] = cost_sens_comp[i] / n_cells / vol_frac_frozen;              // Sensitivity of objective function
-        dgdx[0][i] = cost_sens_vol_frac[i] / n_cells / vol_frac_frozen;       // Sensitivity of constraint function (volume fraction)
-        dgdx[1][i] = 0;                                     // Null
-        dgdx[2][i] = 0;                                     // Null
+        dfdx[i] = weight_sens_tot * cost_sens_comp[i] / n_cells / vol_frac_frozen;              // Sensitivity of objective function
+        dgdx[0][i] = weight_sens_tot * cost_sens_vol_frac[i] / n_cells / vol_frac_frozen;       // Sensitivity of constraint function (volume fraction)
+    }
+
+    i_cost = 0;
+    if (set_power_ratio != -1){
+        i_cost++;
+        gx[i_cost] = 0;
+        for(i = 0; i < n_cells; i++)
+        {
+            dgdx[i_cost][i] = 0;
+        }
+    }
+    if (set_compliance != -1){
+        i_cost++;
+        gx[i_cost] = 0;
+        for(i = 0; i < n_cells; i++)
+        {
+            dgdx[i_cost][i] = 0;
+        }
     }
 
     Info << "\nRunning Method of Moving Asymptotes Solver\n" << endl;

@@ -20,13 +20,13 @@ IOdictionary transportProperties(
 
 // Material densities
 dimensionedScalar rho_fluid(transportProperties.lookup("rho_fluid"));               // Fluid density
-dimensionedScalar rho_solid(transportProperties.lookup("rho_solid"));
+dimensionedScalar rho_solid(transportProperties.lookup("rho_solid"));               // Solid density
 
 //// Porosity Controls
 // Flow resistance (rapidly slows fluid velocity as pseudo density transitions to 0 -> solid)
-dimensionedScalar alpha_U_max_init(transportProperties.lookup("alpha_U_max_init")); // Initial flow resistance max reference
-dimensionedScalar alpha_U_max = alpha_U_max_init;                                   // Flow resistance max reference
-dimensionedScalar alpha_U_limit(transportProperties.lookup("alpha_U_limit"));       // Flow resistance limit
+dimensionedScalar l_char(transportProperties.lookup("l_char"));                     // Characteristic length
+scalar darcy(readScalar(transportProperties.lookup("darcy")));                      // Darcy number
+scalar alpha_scale(readScalar(transportProperties.lookup("alpha_scale")));          // Scale factor for early implementation
 scalar dalpha(readScalar(transportProperties.lookup("dalpha")));                    // Percent increase rate for flow resistance
 
 // Pressure controls

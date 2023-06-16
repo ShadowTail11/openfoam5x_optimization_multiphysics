@@ -126,41 +126,57 @@ volScalarField p_operating_field
 );
 
 // Set pseudo density values in fixed material regions
-labelList cells_solid,cells_fluid,cells_test;
+labelList cells_solid, cells_fluid, cells_test_fluid, cells_test_solid;
 if (solid_area)
 {
-    word zoneName="solid_area";
-    label zoneID=mesh.cellZones().findZoneID(zoneName);
-    cells_solid=mesh.cellZones()[zoneID];
+    word zoneName = "zone_solid";
+    label zoneID = mesh.cellZones().findZoneID(zoneName);
+    cells_solid = mesh.cellZones()[zoneID];
+
     forAll(cells_solid, i)
     {
         x[cells_solid[i]] = 0.0;
         vol_set_solid[cells_solid[i]] = 1.0;
     }
 }
+
 if (fluid_area)
 {
-    word zoneName="fluid_area";
-    label zoneID=mesh.cellZones().findZoneID(zoneName);
-    cells_fluid=mesh.cellZones()[zoneID];
+    word zoneName = "zone_fluid";
+    label zoneID = mesh.cellZones().findZoneID(zoneName);
+    cells_fluid = mesh.cellZones()[zoneID];
+
     forAll(cells_fluid, i)
     {
         x[cells_fluid[i]] = 1.0;
         vol_set_fluid[cells_solid[i]] = 1.0;
     }
 }
+
 if (test_area)
 {
-    word zoneName="test_area";
-    label zoneID=mesh.cellZones().findZoneID(zoneName);
-    cells_test=mesh.cellZones()[zoneID];
-    forAll(cells_test, i)
+    word zoneName = "zone_test_fluid";
+    label zoneID = mesh.cellZones().findZoneID(zoneName);
+    cells_test_fluid = mesh.cellZones()[zoneID];
+
+    forAll(cells_test_fluid, i)
     {
-        x[cells_test[i]] = 1.0;
-        gamma[cells_test[i]] = 1.0;
-        vol_set_test[cells_solid[i]] = 1.0;
+        x[cells_test_fluid[i]] = 1.0;
+        gamma[cells_test_fluid[i]] = 1.0;
+        vol_set_test[cells_test_fluid[i]] = 1.0;
+    }
+
+    zoneName = "zone_test_solid";
+    zoneID = mesh.cellZones().findZoneID(zoneName);
+    cells_test_solid = mesh.cellZones()[zoneID];
+
+    forAll(cells_test_solid, i)
+    {
+        x[cells_test_solid[i]] = 0.0;
+        gamma[cells_test_solid[i]] = 0.0;
     }
 }
+
 volScalarField cost_sens_vol_frac
 (
         IOobject

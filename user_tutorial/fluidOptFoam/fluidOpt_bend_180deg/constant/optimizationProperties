@@ -1,0 +1,41 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  5                                     |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      optimizationProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Domain definition
+solid_area              0;			// Is solid region used? (1=yes)
+fluid_area              1;			// Is fluid region used? (1=yes)
+test_area               0;			// Is test region used? (1=yes)
+geo_dim                 2;			// Dimensions of solver (2D vs. 3D)
+
+// Method of Moving Asymptotes (MMA) controls
+mma_init                0.3;		// Initial optimization increment
+mma_dec                 0.3;		// Optimization decrement
+mma_inc                 1.7;		// Optimization increment
+mma_limit               0.4;		// Optimization limit
+raa0                    1.0e-06;	// MMA smoothing parameter
+r_filter                1;			// Density filter radius
+
+// Adjoint solver controls
+vol_frac_ref            0.360;		// Reference volume fraction
+vol_frac_ratio			1.0;		// Ratio used to calculate the set volume fraction (set_vol_frac=vol_frac_ref*vol_frac_ratio)
+power_loss_ref          1.77e-04;	// Power loss reference
+weight_sens             10.0;		// Weight factor for sensitivity function
+
+// Convergence controls
+n_flow_solve			50;			// Number of iterations used for solver per optimization loop
+merit_tol				0.01;		// Convergence tolerance for merit parameters
+gamma_tol				0.001;		// Convergence tolerance for pseudo density gamma

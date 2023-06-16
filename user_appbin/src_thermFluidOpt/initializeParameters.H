@@ -10,11 +10,15 @@ std::remove("Monitor_TemperatureDrop.txt");
 std::remove("Monitor_PowerLoss.txt");
 std::remove("Monitor_PressureDrop.txt");
 std::remove("Monitor_VolumeFraction.txt");
-std::remove("Reference_Test_Zone.txt");
+std::remove("U_residuals.txt");
+std::remove("U_T_adj_residuals.txt");
+std::remove("U_U_adj_residuals.txt");
 
 // Initialize variables
 int opt(1);                                     // Optimization loop counter
-int i, n_loops;                                 // Initialize loop counters (generic and solver, respectively)
+int i;                                          // Initialize general loop counter
+int i_flow_solve;                               // Flow solver iterator
+scalar initial_residual = 0;                    // Initial residual for flow solver
 scalar n_cells(gamma.size());                   // The number of cells in the domain
 n_cells = static_cast<int>(n_cells);            // Force n_cells to be an integer
 int opt_threshold = -1;                         // Updated to iteration count when merit value is within 2x of tolerance
@@ -38,7 +42,10 @@ scalar P_drop_prev;                             // Previous pressure drop
 scalar dP_drop(0);                              // Percentage change in pressure drop
 
 scalar power_loss;                              // Power loss of the fluid
-scalar power_loss_ratio;                        // Power loss ratio of the fluid
+scalar power_loss_ratio(0);                     // Power loss ratio of the fluid
+scalar power_loss_ratio_prev;                   // Previous power loss ratio
+scalar dpower_loss_ratio(0);                    // Percentage change in power loss ratio
+scalar dpower_loss_ratio_ave(0);                // Moving average of percent change in power loss ratio
 scalar cost_power_loss_ratio;                   // Cost variable for power loss ratio of the fluid
 scalar power_loss_conv(0);                      // Percentage difference between power loss ratio and target
 

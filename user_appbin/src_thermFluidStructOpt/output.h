@@ -49,20 +49,19 @@
     }
 
     // Exit if convergence has been achieved
-    if (opt > 0.75 * runTime.endTime().value() || (opt > 50 && dgamma_switch_ave < gamma_tol && power_loss_conv < merit_tol && dT_drop_ave < merit_tol))
-//    if (opt == 10)
+    if (opt > opt_max_fluid || (opt > 50 && dgamma_switch_ave < gamma_tol && dpower_loss_ratio_ave < merit_tol && dT_drop_ave < merit_tol))
     {
         // Create pseudo density field masks to freeze the fluid region and create an initial fluid wall
         forAll(gamma, i)
         {
             gamma_conv[i] = (
-                    std::round(Foam::min(1.0, gamma[i] / 0.2))
+                    std::round(Foam::min(1.0, gamma[i] / 0.3))
                     * std::round(Foam::min(1.0, mag(U.primitiveField()[i]) / gMax(mag(U.boundaryField()[conPatchList[0]])) / 0.2))
                     );
 
             gamma_wall[i] = (
-                    std::round(Foam::min(1.0, gamma[i] / 0.2))
-                    * std::round(Foam::min(1.0, mag(U.primitiveField()[i]) / gMax(mag(U.boundaryField()[conPatchList[0]])) / 0.01))
+                    std::round(Foam::min(1.0, gamma[i] / 0.1))
+                    * std::round(Foam::min(1.0, mag(U.primitiveField()[i]) / gMax(mag(U.boundaryField()[conPatchList[0]])) / 0.005))
                     - gamma_conv[i]);
         }
 
@@ -79,7 +78,7 @@
         Info << "The number of cells that are frozen are: " << n_frozen << endl
         << "Which represents: " << vol_frac_frozen * 100 << "% of the total design space." << endl;
 
-        set_vol_frac = set_vol_frac_solid * (vol_frac_frozen + vol_frac_solid) + vol_frac_frozen_gamma;
+        set_vol_frac = (1 - set_vol_frac_solid) * (1.0 - vol_frac_frozen - vol_frac_solid) + vol_frac_frozen_gamma;
 
         gamma = (gamma * gamma_conv + (1.0 - set_vol_frac_solid) * (1.0 - gamma_conv)) * (1.0 - gamma_wall);
 //        gamma = gamma * gamma_conv + (1.0 - set_vol_frac_solid) * (1.0 - gamma_conv);
@@ -123,6 +122,14 @@
 
         solve_ext = 1;
         p_operating_field = p_operating_field + (P_operating - P_ref) / rho_fluid.value();
+        n_flow_solve = 30;
+        opt = 0;
+
+        // Calculate flow resistance
+        alpha_U = alpha_U_max * ramp;
+        alpha_scale = 1.0;
+        q_ramp = qd;
+
         opt++;
     }
 

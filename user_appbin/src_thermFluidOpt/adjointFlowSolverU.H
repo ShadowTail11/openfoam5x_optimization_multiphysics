@@ -1,4 +1,11 @@
-for(i = 0 ; i < 40; i++)
+/*
+ * This function implements the fluid adjoint equation, which corresponds roughly to the Navier-Stokes equation
+ * (using the SIMPLE method) with the adjoint velocity and pressure replacing velocity and pressure.
+ */
+
+i_flow_solve = 0;
+
+do
 {
     Info << "\nSolve for adjoint flow-U\n" << endl;
 
@@ -21,7 +28,7 @@ for(i = 0 ; i < 40; i++)
 
     fvOptions.constrain(UcEqn);
 
-    solve(UcEqn == -fvc::grad(p_adj_U));
+    initial_residual = solve(UcEqn == -fvc::grad(p_adj_U)).max().initialResidual();
 
     fvOptions.correct(U_adj_U);
 
@@ -79,4 +86,8 @@ for(i = 0 ; i < 40; i++)
     U_adj_U.storePrevIter();
     p_adj_U.storePrevIter();
     phi_adj_U.storePrevIter();
-}
+} while (initial_residual > conv_tol_flow && ++i_flow_solve < n_flow_solve);
+
+ofstream outfile10("U_U_adj_residuals.txt", std::ios::app);
+outfile10 << i_flow_solve << "," << initial_residual << "\n";
+outfile10.close();

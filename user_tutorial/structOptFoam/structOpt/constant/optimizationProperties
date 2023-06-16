@@ -1,0 +1,37 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  5                                     |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      optProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Domain definition
+solid_area              0;               		// Is solid region used? (1=yes)
+fluid_area              1;               		// Is fluid region used? (1=yes)
+test_area               1;               		// Is test region used? (1=yes)
+geo_dim                 2;               		// Dimensions of solver (2D vs. 3D)
+
+// Method of Moving Asymptotes (MMA) controls
+mma_init                0.3;                    // Initial optimization increment
+mma_dec                 0.6;                    // Optimization decrement
+mma_inc                 1.4;                    // Optimization increment
+mma_limit               0.4;                    // Optimization limit
+raa0                    5.0e-08;            	// MMA smoothing parameter
+r_filter                1;             		    // Density filter radius
+
+// Cost function constraints
+set_vol_frac            0.36;                  	// Target volume fraction
+compliance_ref         	1.3e-11;				// Compliance reference
+
+// Convergence controls
+merit_tol				0.1;					// Convergence tolerance for merit parameters

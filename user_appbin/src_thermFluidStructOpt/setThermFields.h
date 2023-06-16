@@ -80,20 +80,20 @@ volScalarField nu_eff(
         ) * nu_temp_dep)
 );
 
-volScalarField obj_sens_T
+
+// Maximum flow resistance
+volScalarField alpha_U_max
 (
         IOobject
         (
-                "obj_sens_T",
+                "alpha_U_max",
                 runTime.timeName(),
                 mesh,
-                IOobject::NO_READ,
+                IOobject::READ_IF_PRESENT,
                 IOobject::AUTO_WRITE
         ),
-        - weight_sens_TU * alpha_U_max * (1 + q_ramp) * q_ramp / ((q_ramp + gamma) * (q_ramp + gamma)) * (U & U_adj_T) * unit_correct_T / unit_correct
-        + weight_sens_TK * fvc::laplacian((k_fluid - k_solid) * (1 + q_ramp) * q_ramp / ((q_ramp + gamma) * (q_ramp + gamma)), T_adj)/(rho_eff * cp_eff)
-        + weight_sens_TQ * q_gen
-        - weight_sens_TT * fvc::div(T_adj * U),
-        zeroGradientFvPatchScalarField::typeName
+        nu_eff / (l_char * l_char * darcy)
 );
-volScalarField obj_sens_T0(obj_sens_T);
+
+// Calculate flow resistance
+volScalarField alpha_U(alpha_scale * alpha_U_max * ramp);

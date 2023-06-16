@@ -55,6 +55,7 @@
             + 0.5 * magSqr(U.boundaryField()[conPatchList[i]])));
     }
 
+    power_loss_ratio_prev = power_loss_ratio;
     power_loss_ratio = power_loss / power_loss_ref;
 
     // Divide the power loss ratio by the characteristic length V^1/3 if 2D
@@ -66,6 +67,11 @@
     Info << "\n--> Power dissipation ratio is: " << power_loss_ratio << endl;
 
     cost_power_loss_ratio = power_loss_ratio / Foam::max(set_power_ratio * 3.0 - opt * 0.4, set_power_ratio) - 1.0;
+
+    dpower_loss_ratio = abs((power_loss_ratio - power_loss_ratio_prev) / (power_loss_ratio + SMALL));
+    dpower_loss_ratio_ave = (1 - 1 / n_ave) * dpower_loss_ratio_ave + dpower_loss_ratio / n_ave;
+
+    Info << "\n--> Percentage change in power loss ratio is: " << dpower_loss_ratio_ave * 100 << "%\n" << endl;
 
     power_loss_conv = abs(power_loss_ratio / set_power_ratio - 1);
 
